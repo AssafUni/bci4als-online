@@ -34,6 +34,7 @@ Features2Select = 5;
 Feature2SelectFile = '';
 learnModel = 1; % 0 - lda 1 - svm rbf
 cv = 1;
+saveModel = 1;
 % Maybe extract more parameters out of the functions
 
 MI2_Preprocess_Scaffolding(recordingFolder1, electrodesToRemove, useLowPassHighPass, useNotchHighPass, plotLowPassHighPassFreqResp, plotScroll, plotSpectraMaps, resampleFsHz, automaticNoiseRejection, automaticAverageReReference);
@@ -74,19 +75,19 @@ disp('Segmententation 3 done...');
 % disp('Segmententation 5 done...');
 
 MI4_ExtractFeatures_Scaffolding(recordingFolder1, '', 0.2, FeatureSelectMode, Features2Select, Feature2SelectFile, 0, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected);
-MI5_LearnModel_Scaffolding(recordingFolder1, learnModel, cv);
+MI5_LearnModel_Scaffolding(recordingFolder1, learnModel, cv, 0);
 disp('Training 1 done...');
 if pauseAfterEachTrain == 1
     pause;
 end
 MI4_ExtractFeatures_Scaffolding(recordingFolder2, recordingFolder1, 0.2, FeatureSelectMode, Features2Select, Feature2SelectFile, 2, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected);
-MI5_LearnModel_Scaffolding(recordingFolder2, learnModel, cv);
+MI5_LearnModel_Scaffolding(recordingFolder2, learnModel, cv, 0);
 disp('Training 2 done...');
 if pauseAfterEachTrain == 1
     pause;
 end
 MI4_ExtractFeatures_Scaffolding(recordingFolder3, recordingFolder2, 0.2, FeatureSelectMode, Features2Select, Feature2SelectFile, 2, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected);
-MI5_LearnModel_Scaffolding(recordingFolder3, learnModel, cv);
+MI5_LearnModel_Scaffolding(recordingFolder3, learnModel, cv, saveModel);
 disp('Training 3 done...');
 if pauseAfterEachTrain == 1
     pause;

@@ -1,4 +1,4 @@
-function [test_results] = MI5_LearnModel_Scaffolding(recordingFolder, model, cv)
+function [test_results] = MI5_LearnModel_Scaffolding(recordingFolder, model, cv, saveModel)
 % MI5_LearnModel_Scaffolding outputs a weight vector for all the features
 % using a simple multi-class LDA approach.
 % Add your own classifier (SVM, CSP, DL, CONV, Riemann...), and make sure
@@ -28,6 +28,11 @@ if model == 0
         test_results = (sum(test_results == 0)/length(LabelTest))*100;
         disp(['test accuracy - ' num2str(test_results) '%'])        
     end
+    
+    if saveModel == 1
+        discrCVModel = fitcdiscr(MIAllDataFeatures, AllDataLabels);
+        save(strcat(recordingFolder,'Mdl.mat'), 'discrCVModel');       
+    end    
 else
     if model == 1
         if cv == 1
@@ -45,8 +50,13 @@ else
             disp(['test accuracy - ' num2str(test_results) '%'])              
         end
     end
+    
+    if saveModel == 1
+        t = templateSVM('KernelFunction','gaussian');
+        Mdl = fitcecoc(MIAllDataFeatures, AllDataLabels, 'Learners', t);
+        save(strcat(recordingFolder,'Mdl.mat'), 'Mdl');        
+    end
 end
-
 
 end
 

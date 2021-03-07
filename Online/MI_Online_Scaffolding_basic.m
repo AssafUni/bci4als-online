@@ -21,17 +21,20 @@ close all
 clc
 
 %% Addpath for relevant folders - original recording folder and LSL folders
-addpath('YOUR RECORDING FOLDER PATH HERE');
-addpath('YOUR LSL FOLDER PATH HERE');
+recordingFolder = 'D:\EEG\MI\';
+%addpath('YOUR RECORDING FOLDER PATH HERE');
+%addpath('YOUR LSL FOLDER PATH HERE');
+addpath('D:\EEG\eeglab2020_0')
+eeglab;
     
 %% Set params
-feedbackFlag = 1;                                   % 1-with feedback, 0-no feedback
+feedbackFlag = 0;                                   % 1-with feedback, 0-no feedback
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
 bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification
 % numVotes = 3;                                     % how many consecutive votes before classification?
-load(strcat(recordingFolder,'releventFreqs.mat'));  % load best features from extraction & selection stage
-load(strcat(recordingFolder,'trainedModel.mat'));   % load model weights from offline section
+%load(strcat(recordingFolder,'releventFreqs.mat'));  % load best features from extraction & selection stage
+load(strcat(recordingFolder,'Mdl.mat'));   % load model weights from offline section
 numConditions = 3;                                  % possible conditions - left/right/idle 
 
 
@@ -75,10 +78,10 @@ while true                                          % run continuously
     pause(0.1)
     if ~isempty(myChunk)
         % Apply LaPlacian Filter (based on default electrode placement)
-        motorData(1,:) = myChunk(2,:) - ((myChunk(8,:) + myChunk(3,:) + myChunk(1,:) + myChunk(13,:))./4);    % LaPlacian (Cz, F3, P3, T3)
-        motorData(2,:) = myChunk(6,:) - ((myChunk(8,:) + myChunk(5,:) + myChunk(7,:) + myChunk(19,:))./4);    % LaPlacian (Cz, F4, P4, T4)
+%        motorData(1,:) = myChunk(2,:) - ((myChunk(8,:) + myChunk(3,:) + myChunk(1,:) + myChunk(13,:))./4);    % LaPlacian (Cz, F3, P3, T3)
+%        motorData(2,:) = myChunk(6,:) - ((myChunk(8,:) + myChunk(5,:) + myChunk(7,:) + myChunk(19,:))./4);    % LaPlacian (Cz, F4, P4, T4)
         
-        myBuffer = [myBuffer motorData];              % append new data to the current buffer
+        myBuffer = [myBuffer myChunk];              % append new data to the current buffer
         motorData = [];
     else
         disp(strcat('Houston, we have a problem. Iteration:',num2str(iteration),' did not have any data.'));
@@ -90,20 +93,19 @@ while true                                          % run continuously
         block = [myBuffer];
         
         % Pre-process the data
-        block = lowpass(block',40,Fs)';
-        block = highpass(block',0.3,Fs)';
+        PreprocessBlock(block, Fs, recordingFolder);
         
         % Extract features from the buffered block:
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%% Add your feature extraction function from offline stage %%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        EEG_Features = ExtractPowerBands(block,releventFeatures,Fs);
+        EEG_Features = ExtractFeaturesFromBlock(recordingFolder);
 
         % Predict using previously learned model:
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%%% Use whatever classfication method used in offline MI %%%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        myPrediction(decInd) = trainedModel.predictFcn(EEG_Features);
+        myPrediction(decInd) = predict(Mdl, EEG_Features);
         
         if feedbackFlag
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -117,10 +119,10 @@ while true                                          % run continuously
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % write a function that sends the estimate to the voting machine %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        [final_vote] = sendVote(myEstimate);
+%        [final_vote] = sendVote(myEstimate);
         
         % Send command through LSL:
-        command_Outlet.push_sample(final_vote);
+%        command_Outlet.push_sample(final_vote);
         
         % clear buffer
         myBuffer = [];
