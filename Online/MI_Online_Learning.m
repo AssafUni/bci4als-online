@@ -21,17 +21,20 @@ close all
 clc
 
 %% Addpath for relevant folders - original recording folder and LSL folders
-addpath('YOUR RECORDING FOLDER PATH HERE');
-addpath('YOUR LSL FOLDER PATH HERE');
+recordingFolder = 'D:\EEG\MI\';
+% addpath('YOUR RECORDING FOLDER PATH HERE');
+% addpath('YOUR LSL FOLDER PATH HERE');
+addpath('D:\EEG\eeglab2020_0')
+eeglab;
     
 %% Set params
-feedbackFlag = 1;                                   % 1-with feedback, 0-no feedback
+feedbackFlag = 0;                                   % 1-with feedback, 0-no feedback
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
 bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification
 % numVotes = 3;                                     % how many consecutive votes before classification?
-load('releventFreqs.mat');                          % load best features from extraction & selection stage
-load('trainedModel.mat');                           % load model weights from offline section
+% load('releventFreqs.mat');                          % load best features from extraction & selection stage
+load(strcat(recordingFolder,'Mdl.mat'));            % load model weights from offline section
 numConditions = 3;                                  % possible conditions - left/right/idle 
 % Load cue images
 images(1,:,:,:) = imread('arrow_left.jpeg', 'jpeg');
@@ -103,10 +106,11 @@ for trial = 1:numTrials
         %     myChunk = myChunk([1:15,18,19,22:23],:);        % removes X1,X2,X3,TRG,A2
         pause(0.1)
         if ~isempty(myChunk)
-            % Apply LaPlacian Filter (based on default electrode placement for Wearable Sensing - change it to your electrode locations)
-            motorData(1,:) = myChunk(2,:) - ((myChunk(8,:) + myChunk(3,:) + myChunk(1,:) + myChunk(13,:))./4);    % LaPlacian (Cz, F3, P3, T3)
-            motorData(2,:) = myChunk(6,:) - ((myChunk(8,:) + myChunk(5,:) + myChunk(7,:) + myChunk(16,:))./4);    % LaPlacian (Cz, F4, P4, T4)
-            myBuffer = [myBuffer motorData];        % append new data to the current buffer
+            % Apply LaPlacian Filter (based on default electrode placement)
+            % motorData(1,:) = myChunk(2,:) - ((myChunk(8,:) + myChunk(3,:) + myChunk(1,:) + myChunk(13,:))./4);    % LaPlacian (Cz, F3, P3, T3)
+            % motorData(2,:) = myChunk(6,:) - ((myChunk(8,:) + myChunk(5,:) + myChunk(7,:) + myChunk(19,:))./4);    % LaPlacian (Cz, F4, P4, T4)
+
+            myBuffer = [myBuffer myChunk];              % append new data to the current buffer
             motorData = [];
         else
             disp(strcat('Houston, we have a problem. Iteration:',num2str(iteration),' did not have any data.'));
@@ -118,20 +122,19 @@ for trial = 1:numTrials
             block = [myBuffer];                 % move data to a "block" variable
             
             % Pre-process the data
-            block = lowpass(block',40,Fs)';     % the lowpass frequency needs to match the training phase
-            block = highpass(block',0.3,Fs)';   % the highpass frequency also needs to match the training phase
-            
+            PreprocessBlock(block, Fs, recordingFolder);
+
             % Extract features from the buffered block:
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%% Add your feature extraction function from offline stage %%%%%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            EEG_Features = ExtractPowerBands(block,releventFeatures,Fs);
-            
+            EEG_Features = ExtractFeaturesFromBlock(recordingFolder);
+
             % Predict using previously learned model:
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%%% Use whatever classfication method used in offline MI %%%%%%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            myPrediction(decCount) = trainedModel.predictFcn(EEG_Features);
+            myPrediction(decCount) = predict(Mdl, EEG_Features);
             
             if feedbackFlag
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -147,7 +150,7 @@ for trial = 1:numTrials
             %     the output should be between [-1 0 1] to match classes     %%
             %       this could look like a threshold crossing feedback       %%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            [final_vote] = sendVote(myPrediction);
+            [final_vote] = myPrediction(decCount); % sendVote(myPrediction);
             
             % Update classifier - this should be done very gently! (and
             % mostly relevent to neural nets.
@@ -171,3 +174,5 @@ end
 %% This is not trivial & depends on your classification  %%
 %%           algorithm, "co-learning"                    %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+wrongClassLabel
+correctLabel
