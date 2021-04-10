@@ -162,7 +162,7 @@ for trial = 1:numTrials
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 %%plotEstimate(myPrediction); hold on
                 t = iteration;
-                if (cueVec(trial) == 1)              %setting the right picture according Vec
+                if (cueVec(trial) == 1)
                     image = imread('right.gif');
                 elseif (cueVec(trial) == -1)
                     image = imread('left.gif');
@@ -170,7 +170,7 @@ for trial = 1:numTrials
                     image = imread('squre.jpeg');
                 end
                 y2(t) = t;
-                x2(t) = 50 + (myPrediction(decCount) * k); %update plot according myPrediction(decCount)
+                x2(t) = 50 + (myPrediction(decCount) * k);
                 imshow(image)
                 refreshdata
                 drawnow
