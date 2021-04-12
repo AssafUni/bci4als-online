@@ -116,6 +116,18 @@ for trial = 1:numTrials
     Screen('PutImage', window, squeeze(images(cueVec(trial),:,:,:))); % put image on screen
     Screen('Flip',window);                      % now visible on screen
     
+    %% feedback picture according to cueVec(trial)
+    if (cueVec(trial) == 1)              %setting the right picture according Vec
+        image = imread('right.gif');
+    elseif (cueVec(trial) == -1)
+        image = imread('left.gif');
+    else
+        image = imread('squre.jpeg');
+    end
+    %%
+    
+    
+    
     trialStart = tic;
     while toc(trialStart) < trialTime
         iteration = iteration + 1;                  % count iterations
@@ -162,13 +174,6 @@ for trial = 1:numTrials
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 %%plotEstimate(myPrediction); hold on
                 t = iteration;
-                if (cueVec(trial) == 1)              %setting the right picture according Vec
-                    image = imread('right.gif');
-                elseif (cueVec(trial) == -1)
-                    image = imread('left.gif');
-                else
-                    image = imread('squre.jpeg');
-                end
                 y2(t) = t;
                 x2(t) = 50 + (myPrediction(decCount) * k); %update plot according myPrediction(decCount)
                 imshow(image)
