@@ -33,29 +33,49 @@ if model == 0
         discrCVModel = fitcdiscr(MIAllDataFeatures, AllDataLabels);
         save(strcat(recordingFolder,'Mdl.mat'), 'discrCVModel');       
     end    
-else
-    if model == 1
-        if cv == 1
-            t = templateSVM('KernelFunction','gaussian');
-            Mdl = fitcecoc(MIAllDataFeatures, AllDataLabels, 'Learners', t);
-            CVMdl = crossval(Mdl, 'kfold', 5);
-            loss = kfoldLoss(CVMdl);
-            disp(['test accuracy - ' num2str((1 - loss)*100) '%']) 
-        else
-            t = templateSVM('KernelFunction','gaussian');
-            Mdl = fitcecoc(MIFeatures, LabelTrain, 'Learners', t);
-            testPrediction = predict(Mdl, MIFeaturesTest);   
-            test_results = (testPrediction'-LabelTest);
-            test_results = (sum(test_results == 0)/length(LabelTest))*100;
-            disp(['test accuracy - ' num2str(test_results) '%'])              
-        end
+elseif model == 1
+    if cv == 1
+        t = templateSVM('KernelFunction','gaussian');
+        Mdl = fitcecoc(MIAllDataFeatures, AllDataLabels, 'Learners', t);
+        CVMdl = crossval(Mdl, 'kfold', 5);
+        loss = kfoldLoss(CVMdl);
+        disp(['test accuracy - ' num2str((1 - loss)*100) '%']) 
+    else
+        t = templateSVM('KernelFunction','gaussian');
+        Mdl = fitcecoc(MIFeatures, LabelTrain, 'Learners', t);
+        testPrediction = predict(Mdl, MIFeaturesTest);   
+        test_results = (testPrediction'-LabelTest);
+        test_results = (sum(test_results == 0)/length(LabelTest))*100;
+        disp(['test accuracy - ' num2str(test_results) '%'])              
     end
     
     if saveModel == 1
         t = templateSVM('KernelFunction','gaussian');
         Mdl = fitcecoc(MIAllDataFeatures, AllDataLabels, 'Learners', t);
-        save(strcat(recordingFolder,'Mdl.mat'), 'Mdl');        
+        save(strcat(recordingFolder,'Mdl.mat'), 'Mdl'); 
     end
+elseif model == 2
+    if cv == 1
+        t = templateTree('MaxNumSplits', 1);
+        Mdl = fitcensemble(MIAllDataFeatures, AllDataLabels, 'Method', 'AdaBoostM2', 'Learners', t, 'NumLearningCycles', 100);
+        CVMdl = crossval(Mdl, 'kfold', 5);
+        loss = kfoldLoss(CVMdl);
+        disp(['test accuracy - ' num2str((1 - loss)*100) '%']) 
+    else
+        t = templateTree('MaxNumSplits',1);
+        Mdl = fitcensemble(MIFeatures, LabelTrain, 'Method', 'AdaBoostM2', 'Learners',  t, 'NumLearningCycles', 100);
+        testPrediction = predict(Mdl, MIFeaturesTest);   
+        test_results = (testPrediction'-LabelTest);
+        test_results = (sum(test_results == 0)/length(LabelTest))*100;
+        disp(['test accuracy - ' num2str(test_results) '%'])              
+    end
+    
+    if saveModel == 1
+        t = templateTree('MaxNumSplits',1);
+        Mdl = fitcensemble(MIAllDataFeatures, AllDataLabels, 'Method', 'AdaBoostM2', 'Learners',  t, 'NumLearningCycles', 100);
+        save(strcat(recordingFolder,'Mdl.mat'), 'Mdl'); 
+    end
+
 end
 
 end

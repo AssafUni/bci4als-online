@@ -25,27 +25,31 @@ recordingFile = strcat(recordingFolder,'\','EEG.XDF');
 EEG = pop_loadxdf(recordingFile, 'streamtype', 'EEG', 'exclude_markerstreams', {});
 EEG.setname = 'MI_sub';
 
+% Apply LaPlacian Filter
+EEG.data(3,:) = EEG.data(3,:) - ((EEG.data(11,:) + EEG.data(13,:) + EEG.data(5,:) + EEG.data(9,:))./4);
+EEG.data(4,:) = EEG.data(4,:) - ((EEG.data(12,:) + EEG.data(14,:) + EEG.data(6,:) + EEG.data(10,:))./4);
+
 % update channel names - each group should update this according to
 % their own openBCI setup.
 % EEG = pop_select(EEG, 'nochannel',1);% remove time stamp
 EEG = pop_select(EEG, 'nochannel', electrodesToRemove);% remove because too noisy
 
-EEG_chans(1,:) = 'A03'; % ??
-EEG_chans(2,:) = 'A04'; % ??
-EEG_chans(3,:) = 'A07'; % ??
-EEG_chans(4,:) = 'C03';
-EEG_chans(5,:) = 'C04';
-EEG_chans(6,:) = 'P07';
-EEG_chans(7,:) = 'P08';
-EEG_chans(8,:) = 'O01';
-EEG_chans(9,:) = 'O02';
-EEG_chans(10,:) = 'F07';
-EEG_chans(11,:) = 'F08';
-EEG_chans(12,:) = 'F03';
-EEG_chans(13,:) = 'F04';
-EEG_chans(14,:) = 'T07';
-EEG_chans(15,:) = 'T08';
-EEG_chans(16,:) = 'P03';
+EEG_chans(1,:) = 'P03'; % ??
+EEG_chans(2,:) = 'P04'; % ??
+EEG_chans(3,:) = 'C03'; % ??
+EEG_chans(4,:) = 'C04';
+EEG_chans(5,:) = 'CP5';
+EEG_chans(6,:) = 'CP6';
+EEG_chans(7,:) = '001';
+EEG_chans(8,:) = '002';
+EEG_chans(9,:) = 'CP1';
+EEG_chans(10,:) = 'CP2';
+EEG_chans(11,:) = 'FC1';
+EEG_chans(12,:) = 'FC2';
+EEG_chans(13,:) = 'FC5';
+EEG_chans(14,:) = 'FC6';
+EEG_chans(15,:) = 'C0Z';
+EEG_chans(16,:) = 'FPz';
 
 EEG_chans(electrodesToRemove, :) = [];
 

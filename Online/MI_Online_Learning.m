@@ -28,7 +28,7 @@ addpath('D:\EEG\eeglab2020_0')
 eeglab;
     
 %% Set params
-feedbackFlag = 0;                                   % 1-with feedback, 0-no feedback
+feedbackFlag = 1;                                   % 1-with feedback, 0-no feedback
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
 bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification
@@ -37,9 +37,12 @@ bufferLength = 5;                                   % how much data (in seconds)
 load(strcat(recordingFolder,'Mdl.mat'));            % load model weights from offline section
 numConditions = 3;                                  % possible conditions - left/right/idle 
 % Load cue images
-images(1,:,:,:) = imread('arrow_left.jpeg', 'jpeg');
-images(2,:,:,:) = imread('square.jpeg', 'jpeg');
+images(1,:,:,:) = imread('square.jpeg', 'jpeg'); 
+images(2,:,:,:) = imread('arrow_left.jpeg', 'jpeg');
 images(3,:,:,:) = imread('arrow_right.jpeg', 'jpeg');
+images_f_1 = imread('square.jpeg', 'jpeg'); 
+images_f_2 = imread('leftt.png', 'png');
+images_f_3 = imread('rightt.png', 'png');
 numTrials = 5;                                      % number of trials overall
 trialTime = 240;                                    % duration of each trial in seconds
 cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
@@ -64,6 +67,13 @@ EEG_Inlet = lsl_inlet(result{1});
 myPrediction = [];                                  % predictions vector
 myBuffer = [];                                      % buffer matrix
 iteration = 0;                                      % iteration counter
+feedback_iteration = 1;
+x_lim = 1000;
+y_lim = 1000;
+x_step = 50;
+y_step = 50;
+x_start = [500 500];
+y_start = [0 0];
 motorData = [];                                     % post-laPlacian matrix
 decCount = 0;                                         % decision counter
 pause(0.2);                                         % give the system some time to buffer data
@@ -83,28 +93,28 @@ waitFrames = 1;                                     % how many frames to wait fo
 % Define the keyboard keys that are listened for:
 KbName('UnifyKeyNames');
 escapeKey = KbName('Escape');                   % let psychtoolbox know what the escape key is
-HideCursor; 
+% HideCursor; 
 % hides cursor on screen
 
 %% plot feedback graph
-    x2 = [50 50];
-    y2 = [0 0];
-    figure
-    p = plot(x2,y2);
-    numIter = numTrials;
-    xlim([0 numIter])
-    ylim([0 numIter])
-    axes('pos',[.01 .9 0.5 0.1])
-    image = imread('square.jpeg');
-    imshow(image)
-    k = 10;
-   
-    xlabel('X')
-    ylabel('Y')
-    title('	\leftarrow LEFT or RIGHT \rightarrow ');
+x2 = x_start;
+y2 = y_start;
+figure
+p = plot(x2, y2);
+numIter = numTrials;
+xlim([0 x_lim])
+ylim([0 y_lim])
+axes('pos',[.01 .9 0.5 0.1])
+image = imread('square.jpeg');
+imshow(image)
+k = 10;
 
-    p.XDataSource = 'x2';
-    p.YDataSource = 'y2';
+xlabel('X')
+ylabel('Y')
+title('	\leftarrow LEFT or RIGHT \rightarrow ');
+
+p.XDataSource = 'x2';
+p.YDataSource = 'y2';
 %% This is the main online script
 
 for trial = 1:numTrials
@@ -118,11 +128,11 @@ for trial = 1:numTrials
     
     %% feedback picture according to cueVec(trial)
     if (cueVec(trial) == 1)              %setting the right picture according Vec
-        image = imread('right.gif');
-    elseif (cueVec(trial) == -1)
-        image = imread('left.gif');
+        image = images_f_1;
+    elseif (cueVec(trial) == 2)
+        image = images_f_2;
     else
-        image = imread('squre.jpeg');
+        image = images_f_3;
     end
     %%
     
@@ -138,9 +148,9 @@ for trial = 1:numTrials
         %     myChunk = myChunk([1:15,18,19,22:23],:);        % removes X1,X2,X3,TRG,A2
         pause(0.1)
         if ~isempty(myChunk)
-            % Apply LaPlacian Filter (based on default electrode placement)
-            % motorData(1,:) = myChunk(2,:) - ((myChunk(8,:) + myChunk(3,:) + myChunk(1,:) + myChunk(13,:))./4);    % LaPlacian (Cz, F3, P3, T3)
-            % motorData(2,:) = myChunk(6,:) - ((myChunk(8,:) + myChunk(5,:) + myChunk(7,:) + myChunk(19,:))./4);    % LaPlacian (Cz, F4, P4, T4)
+            % Apply LaPlacian Filter
+            myChunk(3,:) = myChunk(3,:) - ((myChunk(11,:) + myChunk(13,:) + myChunk(5,:) + myChunk(9,:))./4);
+            myChunk(4,:) = myChunk(4,:) - ((myChunk(12,:) + myChunk(14,:) + myChunk(6,:) + myChunk(10,:))./4);
 
             myBuffer = [myBuffer myChunk];              % append new data to the current buffer
             motorData = [];
@@ -173,9 +183,32 @@ for trial = 1:numTrials
                 % write a function that plots estimate on some type of graph: %
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 %%plotEstimate(myPrediction); hold on
-                t = iteration;
-                y2(t) = t;
-                x2(t) = 50 + (myPrediction(decCount) * k); %update plot according myPrediction(decCount)
+                feedback_iteration = feedback_iteration + 1;
+                new_y = y2(feedback_iteration - 1) + y_step;
+                if new_y > y_lim + y_step
+                    feedback_iteration = 1;
+                    x2 = x_start;
+                    y2 = y_start;
+                else
+                    y2(feedback_iteration) = new_y;
+                 
+                    if myPrediction(decCount) == 2
+                        new_x = x2(feedback_iteration - 1) - x_step;
+                    elseif myPrediction(decCount) == 3
+                        new_x = x2(feedback_iteration - 1) + x_step;    
+                    else
+                         new_x = x2(feedback_iteration - 1);
+                    end
+                    
+                    if ((new_x > x_lim + x_step) || (new_x < 0 - x_step))
+                        feedback_iteration = 1;
+                        x2 = x_start;
+                        y2 = y_start;
+                    else
+                        x2(feedback_iteration) = new_x;
+                    end                    
+                end
+
                 imshow(image)
                 refreshdata
                 drawnow

@@ -10,7 +10,7 @@
     xlim([0 numIter])
     ylim([0 numIter])
     axes('pos',[.01 .9 0.5 0.1])
-    image = imread('left.gif');
+    image = imread('leftt.png');
     imshow(image)
     
    
@@ -31,12 +31,12 @@
         y2(t) = t;
         if (t == 1)
             x2(t) = 50 +k;
-            image = imread('right.gif');
+            image = imread('rightt.png');
         else
             x2(t) = 50+k; %supposed to be x2(t-1) +k
-            image = imread('left.gif');
+            image = imread('leftt.png');
             if (k> 0)
-                image = imread('right.gif');
+                image = imread('rightt.png');
             end
         end
         

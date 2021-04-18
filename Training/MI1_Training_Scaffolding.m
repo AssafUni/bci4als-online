@@ -24,7 +24,7 @@ cueLength = 0.5;
 readyLength = 0.5;
 nextLength = 0.5;
 % set length and classes
-numTrials = 20;                         % set number of training trials per condition
+numTrials = 5;                         % set number of training trials per condition
 numTargets = 3;                         % set number of possible targets (classes)
 % set markers
 startRecordings = 111;

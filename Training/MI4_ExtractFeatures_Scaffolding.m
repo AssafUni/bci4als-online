@@ -261,7 +261,11 @@ idleIdx = find(targetLabels == 1);  % find idle trails
 leftIdx = find(targetLabels == 2);  % find left trails
 rightIdx = find(targetLabels == 3); % find right trails
 
-testIdx = randperm(length(idleIdx),testSample*length(idleIdx)); % picking test idx randomly
+ts = testSample*length(idleIdx);
+if ts < 1
+   ts = 1;
+end
+testIdx = randperm(length(idleIdx), ts); % picking test idx randomly
 testIdx = [idleIdx(testIdx) leftIdx(testIdx) rightIdx(testIdx)]; % taking the test idx from each class
 testIdx = sort(testIdx);
 % take the test data
