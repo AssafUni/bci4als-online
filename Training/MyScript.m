@@ -34,11 +34,11 @@ plotSpectrom = 0;
 plotSpectogram = 0;
 plotBins = 0;
 plotBinsFeaturesSelected = 0;
-useLowPassHighPass = 0;
+useLowPassHighPass = 1;
 useNotchHighPass = 1;
 resampleFsHz = 120;
 automaticNoiseRejection = 0; % Problamatic to keep in consistency with trainingVec- could alter training and keep data in events
-automaticAverageReReference = 1;
+automaticAverageReReference = 0;
 pauseAfterEachPreprocess = 0;
 pauseAfterEachTrain = 0;
 FeatureSelectMode = 0;
@@ -49,8 +49,13 @@ cv = 1;
 saveModel = 1;
 % Maybe extract more parameters out of the functions
 
+
+
 MI2_Preprocess_Scaffolding(recordingFolder1, electrodesToRemove, useLowPassHighPass, useNotchHighPass, plotLowPassHighPassFreqResp, plotScroll, plotSpectraMaps, resampleFsHz, automaticNoiseRejection, automaticAverageReReference);
 disp('Preprocess 1 done...');
+
+
+
 if pauseAfterEachPreprocess == 1
     pause;
 end

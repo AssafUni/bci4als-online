@@ -21,10 +21,10 @@ close all
 clc
 
 %% Addpath for relevant folders - original recording folder and LSL folders
-recordingFolder = 'D:\EEG\MI\';
+recordingFolder = 'C:\master\bci\recording-21-4\Sub3\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
-addpath('D:\EEG\eeglab2020_0')
+addpath('C:\ToolBoxes\eeglab2020_0')
 eeglab;
     
 %% Set params
@@ -80,19 +80,19 @@ pause(0.2);                                         % give the system some time 
 myChunk = EEG_Inlet.pull_chunk();                   % get a chunk from the EEG LSL stream to get the buffer going
 
 %% Psychtoolbox, Stim, Screen Params Init:
-disp('Setting up Psychtoolbox parameters...');
-disp('This will open a black screen - good luck!');
-% This function will make the Psychtoolbox window semi-transparent:
-PsychDebugWindowConfiguration(0,0.5);               % Use this to debug the psychtoolbox screen
-
-[window,white,~,~,screenYpixels,~,~,ifi] = PsychInit();
-topPriorityLevel = MaxPriority(window);
-Priority(topPriorityLevel);                         % set highest priority for screen processes
-vbl = Screen('Flip', window);                       % get the vertical beam line
-waitFrames = 1;                                     % how many frames to wait for between screen refresh
-% Define the keyboard keys that are listened for:
-KbName('UnifyKeyNames');
-escapeKey = KbName('Escape');                   % let psychtoolbox know what the escape key is
+% disp('Setting up Psychtoolbox parameters...');
+% disp('This will open a black screen - good luck!');
+% % This function will make the Psychtoolbox window semi-transparent:
+% PsychDebugWindowConfiguration(0,0.5);               % Use this to debug the psychtoolbox screen
+% 
+% [window,white,~,~,screenYpixels,~,~,ifi] = PsychInit();
+% topPriorityLevel = MaxPriority(window);
+% Priority(topPriorityLevel);                         % set highest priority for screen processes
+% vbl = Screen('Flip', window);                       % get the vertical beam line
+% waitFrames = 1;                                     % how many frames to wait for between screen refresh
+% % Define the keyboard keys that are listened for:
+% KbName('UnifyKeyNames');
+% escapeKey = KbName('Escape');                   % let psychtoolbox know what the escape key is
 % HideCursor; 
 % hides cursor on screen
 
@@ -119,13 +119,13 @@ p.YDataSource = 'y2';
 
 for trial = 1:numTrials
     
-    Screen('TextSize', window, 70);             % Draw text in the bottom portion of the screen in white
-    DrawFormattedText(window, 'Ready', 'center',screenYpixels * 0.75, white);
-    Screen('Flip', window);
-    pause(1.5);                                 % "Ready" stays on screen
-    Screen('PutImage', window, squeeze(images(cueVec(trial),:,:,:))); % put image on screen
-    Screen('Flip',window);                      % now visible on screen
-    
+%     Screen('TextSize', window, 70);             % Draw text in the bottom portion of the screen in white
+%     DrawFormattedText(window, 'Ready', 'center',screenYpixels * 0.75, white);
+%     Screen('Flip', window);
+%     pause(1.5);                                 % "Ready" stays on screen
+%     Screen('PutImage', window, squeeze(images(cueVec(trial),:,:,:))); % put image on screen
+%     Screen('Flip',window);                      % now visible on screen
+%     
     %% feedback picture according to cueVec(trial)
     if (cueVec(trial) == 1)              %setting the right picture according Vec
         image = images_f_1;

@@ -14,7 +14,7 @@ function [recordingFolder,subID] = MI1_Training_Scaffolding()
 
 
 subID = input('Please enter subject ID/Name: ');    % prompt to enter subject ID or name
-rootFolder = 'D:\EEG\subjects'; 
+rootFolder = 'C:\master\bci\recording-21-4'; 
 % Define recording folder location and create the folder
 recordingFolder = strcat(rootFolder,'\Sub',num2str(subID),'\');
 mkdir(recordingFolder);
@@ -28,6 +28,8 @@ numTrials = 5;                         % set number of training trials per condi
 numTargets = 3;                         % set number of possible targets (classes)
 % set markers
 startRecordings = 111;
+
+
 startTrail = 1111; 
 Idle = 1;
 Left = 2;

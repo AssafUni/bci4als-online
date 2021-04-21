@@ -3,11 +3,11 @@ electrodesToRemove = [];
 plotLowPassHighPassFreqResp = 0;
 plotScroll = 0;
 plotSpectraMaps = 0;
-useLowPassHighPass = 0;
+useLowPassHighPass = 1;
 useNotchHighPass = 1;
 resampleFsHz = 120;
 automaticNoiseRejection = 0;
-automaticAverageReReference = 1;
+automaticAverageReReference = 0;
 
 blockPath = strcat(recordingFolder, '\', 'block.mat');
 save(blockPath, 'block');

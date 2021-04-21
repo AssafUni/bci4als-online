@@ -149,4 +149,3 @@ MIFeaturesLabel = zscore(MIFeaturesLabel);
 AllDataInFeatures = reshape(MIFeaturesLabel, trials, []);
 EEG_Features = AllDataInFeatures(:, SelectedIdx);
 end
-
