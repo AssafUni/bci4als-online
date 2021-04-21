@@ -26,14 +26,14 @@ pauseAfterEachTrain = 0;
 FeatureSelectMode = 0;
 Features2Select = 5;
 Feature2SelectFile = '';
-learnModel = 1; % 0 - lda 1 - svm rbf 2 - AdaBoostM2
+learnModel = 0; % 0 - lda 1 - svm rbf 2 - AdaBoostM2
 cv = 1;
 saveModel = 1;
 % Maybe extract more parameters out of the functions
 
-recordingFolder1 = 'C:\master\bci\recording-21-4\Sub1\';
-recordingFolder2 = 'C:\master\bci\recording-21-4\Sub2\';
-recordingFolder3 = 'C:\master\bci\recording-21-4\Sub3\';
+recordingFolder1 = 'C:\master\bci\recording-21-4\Sub21\';
+recordingFolder2 = 'C:\master\bci\recording-21-4\Sub22\';
+recordingFolder3 = 'C:\master\bci\recording-21-4\Sub23\';
 
 MI2_Preprocess_Scaffolding(recordingFolder1, electrodesToRemove, useLowPassHighPass, useNotchHighPass, plotLowPassHighPassFreqResp, plotScroll, plotSpectraMaps, resampleFsHz, automaticNoiseRejection, automaticAverageReReference);
 disp('Preprocess 1 done...');
