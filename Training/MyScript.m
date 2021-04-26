@@ -9,17 +9,17 @@ eeglab;                                     % open EEGLAB
 raw = 0;
 features = 1;
 recordings = [
-    ['D:\EEG\Online\bci4als-online\Sub1\' raw]
-    ['D:\EEG\Online\bci4als-online\Sub2\' raw]
-    ['D:\EEG\Online\bci4als-online\Sub3\' raw]
-    ['D:\EEG\Online\bci4als-online\Sub21\' raw]
-    ['D:\EEG\Online\bci4als-online\Sub22\' raw]
-    ['D:\EEG\Online\bci4als-online\Sub23\' raw]
-    ['D:\EEG\Online\bci4als-online\Sub31\' raw]
-    ['D:\EEG\Online\bci4als-online\Sub32\' raw]
+    {'D:\EEG\Online\bci4als-online\Sub1\', raw}
+    {'D:\EEG\Online\bci4als-online\Sub2\', raw}
+    {'D:\EEG\Online\bci4als-online\Sub3\', raw}
+    {'D:\EEG\Online\bci4als-online\Sub21\', raw}
+    {'D:\EEG\Online\bci4als-online\Sub22\', raw}
+    {'D:\EEG\Online\bci4als-online\Sub23\', raw}
+    {'D:\EEG\Online\bci4als-online\Sub31\', raw}
+    {'D:\EEG\Online\bci4als-online\Sub32\', raw}
 ];
 
-electrodesToRemove = [1, 2, 7, 8];
+electrodesToRemove = [8];
 plotLowPassHighPassFreqResp = 0;
 plotScroll = 0;
 plotSpectraMaps = 0;
@@ -38,33 +38,50 @@ FeatureSelectMode = 0;
 Features2Select = 6;
 Feature2SelectFile = '';
 correctWrongOrBoth = 2; % 0 correct 1 wrong 2 both - On features only train, on what to train
-learnModel = 1; % 0 - lda 1 - svm rbf 2 - AdaBoostM2
+learnModel = 2; % 0 - lda 1 - svm rbf 2 - AdaBoostM2
 cv = 1;
 saveModel = 1;
-% Maybe extract more parameters out of the functions
 
-previousFolder = '';
 for i=1 : size(recordings, 1)
-    folder = recordings(i, 1);
-    rawOrFeatures = recordings(i, 2);
+    folder = cell2mat(recordings(i, 1));
+    rawOrFeatures = cell2mat(recordings(i, 2));
     if rawOrFeatures == raw
         MI2_Preprocess_Scaffolding(folder, electrodesToRemove, useLowPassHighPass, useNotchHighPass, plotLowPassHighPassFreqResp, plotScroll, plotSpectraMaps, resampleFsHz, automaticNoiseRejection, automaticAverageReReference);
-        disp(['Preprocess ' num2str(2) ' done...']);
+        disp(['Preprocess ' num2str(i) ' done...']);
         if pauseAfterEachPreprocess == 1
             pause;
         end
+    end
+end
+
+disp(' ');
+
+for i=1 : size(recordings, 1)
+    folder = cell2mat(recordings(i, 1));
+    rawOrFeatures = cell2mat(recordings(i, 2));
+    if rawOrFeatures == raw
         MI3_SegmentData_Scaffolding(folder);
-        disp(['Segmententation ' num2str(2) ' done...']);    
+        disp(['Segmententation ' num2str(i) ' done...']);         
+    end
+end
+
+disp(' ');
+
+previousFolder = '';
+for i=1 : size(recordings, 1)
+    folder = cell2mat(recordings(i, 1));
+    rawOrFeatures = cell2mat(recordings(i, 2));
+    if rawOrFeatures == raw  
         MI4_ExtractFeatures_Scaffolding(folder, previousFolder, 0.2, FeatureSelectMode, Features2Select, Feature2SelectFile, 0, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected);
-        MI5_LearnModel_Scaffolding(recordingFolder1, learnModel, cv, saveModel);
-        disp(['Training ' num2str(2) ' done...']);
+        MI5_LearnModel_Scaffolding(folder, learnModel, cv, saveModel);
+        disp(['Training ' num2str(i) ' done...']);
         if pauseAfterEachTrain == 1
             pause;
         end        
     else
         ExtractFeatures_FromOnline(folder, correctWrongOrBoth ,previousFolder, Features2Select);
         MI5_LearnModel_Scaffolding(recordingFolder1, learnModel, cv, saveModel);
-        disp(['Training ' num2str(2) ' done...']);
+        disp(['Training ' num2str(i) ' done...']);
         if pauseAfterEachTrain == 1
             pause;
         end            
