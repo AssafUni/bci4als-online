@@ -1,4 +1,4 @@
-function [EEG_Features] = ExtractFeaturesFromBlock(recordingFolder)
+function [EEG_Features, AllDataInFeatures] = ExtractFeaturesFromBlock(recordingFolder)
 load(strcat(recordingFolder,'EEG_chans.mat'));
 load(strcat(recordingFolder,'MIData.mat'));
 load(strcat(recordingFolder,'SelectedIdx.mat'));

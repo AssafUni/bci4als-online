@@ -20,11 +20,17 @@ clearvars
 close all
 clc
 
+subID = input('Please enter subject ID/Name: ');    % prompt to enter subject ID or name
 %% Addpath for relevant folders - original recording folder and LSL folders
-recordingFolder = 'C:\master\bci\recording-21-4\Sub3\';
+trainFolderPath = 'D:\EEG\Online\bci4als-online\'; 
+% Define recording folder location and create the folder
+trainFolder = strcat(rootFolder,'\OnlineSub',num2str(subID),'\');
+mkdir(trainFolder);
+
+recordingFolder = 'D:\EEG\Online\bci4als-online\Sub32\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
-addpath('C:\ToolBoxes\eeglab2020_0')
+addpath('D:\EEG\eeglab2020_0')
 eeglab;
     
 %% Set params
@@ -44,7 +50,7 @@ images_f_1 = imread('square.jpeg', 'jpeg');
 images_f_2 = imread('leftt.png', 'png');
 images_f_3 = imread('rightt.png', 'png');
 numTrials = 5;                                      % number of trials overall
-trialTime = 240;                                    % duration of each trial in seconds
+trialTime = 30;                                    % duration of each trial in seconds
 cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
 
 %% Lab Streaming Layer Init
@@ -52,8 +58,8 @@ disp('Loading the Lab Streaming Layer library...');
 lib = lsl_loadlib();
 % Initialize the command outlet marker stream
 disp('Opening Output Stream...');
-info = lsl_streaminfo(lib,'MarkerStream','Markers',1,0,'cf_string','asafMIuniqueID123123');
-command_Outlet = lsl_outlet(info);
+%info = lsl_streaminfo(lib,'MarkerStream','Markers',1,0,'cf_string','asafMIuniqueID123123');
+%command_Outlet = lsl_outlet(info);
 % Initialize the EEG inlet stream (from DSI2LSL/openBCI on different system)
 disp('Resolving an EEG Stream...');
 result = {};
@@ -76,6 +82,8 @@ x_start = [500 500];
 y_start = [0 0];
 motorData = [];                                     % post-laPlacian matrix
 decCount = 0;                                         % decision counter
+wrongCounter = 0;
+correctCounter = 0;
 pause(0.2);                                         % give the system some time to buffer data
 myChunk = EEG_Inlet.pull_chunk();                   % get a chunk from the EEG LSL stream to get the buffer going
 
@@ -170,7 +178,7 @@ for trial = 1:numTrials
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%% Add your feature extraction function from offline stage %%%%%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            EEG_Features = ExtractFeaturesFromBlock(recordingFolder);
+            EEG_Features, AllDataInFeatures = ExtractFeaturesFromBlock(recordingFolder);
 
             % Predict using previously learned model:
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -227,24 +235,28 @@ for trial = 1:numTrials
             % Update classifier - this should be done very gently! (and
             % mostly relevent to neural nets.
             if final_vote ~= (cueVec(trial)-numConditions-1)
-                wrongClass(decCount,:,:) = EEG_Features;
-                wrongClassLabel(decCount) = cueVec(trial);
+                wrongClass(wrongCounter,:,:) = AllDataInFeatures;
+                wrongClassLabel(wrongCounter) = cueVec(trial);
+                wrongCounter = wrongCounter + 1;
             else
-                correctClass(decCount,:,:) = EEG_Features;
-                correctLabel(decCount) = cueVec(trial);
+                correctClass(correctCounter,:,:) = AllDataInFeatures;
+                correctLabel(correctCounter) = cueVec(trial);
+                correctCounter = correctCounter + 1;
                 % Send command through LSL:
-                command_Outlet.push_sample(final_vote);
+                % command_Outlet.push_sample(final_vote);
             end
+            
+            allClass(decCount,:,:) = AllDataInFeatures;
+            allClassLabel(decCount) = cueVec(trial);
             
             % clear buffer
             myBuffer = [];
         end
     end
 end
-%% Update Classifier using wrongClass & correctClass labels
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% This is not trivial & depends on your classification  %%
-%%           algorithm, "co-learning"                    %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-wrongClassLabel
-correctLabel
+save(strcat(trainFolder,'\AllDataInFeaturesWrong.mat'),'wrongClass');
+save(strcat(trainFolder,'\AllDataInFeaturesCorrect.mat'),'correctClass');
+save(strcat(trainFolder,'\AllDataInLabelsWrong.mat'),'wrongClassLabel');
+save(strcat(trainFolder,'\AllDataInLabelsCorrect.mat'),'correctLabel');
+save(strcat(trainFolder,'\AllDataInFeatures.mat'),'allClass');
+save(strcat(trainFolder,'\AllDataInLabels.mat'),'allClassLabel');
