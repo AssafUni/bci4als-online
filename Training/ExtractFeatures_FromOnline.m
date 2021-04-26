@@ -1,15 +1,17 @@
 function [] = ExtractFeatures_FromOnline(recordingFolder, correctWrongOrBoth, lastRecordingFolder, Features2Select)
 
 if correctWrongOrBoth == 0
-    MIAllDataFeatures = cell2mat(struct2cell(load(strcat(recordingFolder,'\MIAllDataInFeaturesCorrect.mat'))));
+    MIAllDataFeatures = cell2mat(struct2cell(load(strcat(recordingFolder,'\AllDataInFeaturesCorrect.mat'))));
     AllDataLabels = cell2mat(struct2cell(load(strcat(recordingFolder,'\AllDataInLabelsCorrect.mat'))));
 elseif correctWrongOrBoth == 1
-    MIAllDataFeatures = cell2mat(struct2cell(load(strcat(recordingFolder,'\MIAllDataInFeaturesWrong.mat'))));
+    MIAllDataFeatures = cell2mat(struct2cell(load(strcat(recordingFolder,'\AllDataInFeaturesWrong.mat'))));
     AllDataLabels = cell2mat(struct2cell(load(strcat(recordingFolder,'\AllDataInLabelsWrong.mat'))));
 else 
-    MIAllDataFeatures = cell2mat(struct2cell(load(strcat(recordingFolder,'\MIAllDataInFeatures.mat'))));
+    MIAllDataFeatures = cell2mat(struct2cell(load(strcat(recordingFolder,'\AllDataInFeatures.mat'))));
     AllDataLabels = cell2mat(struct2cell(load(strcat(recordingFolder,'\AllDataInLabels.mat'))));
 end
+
+trials = size(AllDataLabels, 2);
 
 MIFeaturesLabel = zscore(MIAllDataFeatures);
 MIFeatures = reshape(MIFeaturesLabel,trials,[]);

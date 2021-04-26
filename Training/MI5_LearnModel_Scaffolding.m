@@ -9,11 +9,11 @@ function [test_results] = MI5_LearnModel_Scaffolding(recordingFolder, model, cv,
 % so on - but please cite properly if published.
 %% Read the features & labels 
 MIAllDataFeatures = cell2mat(struct2cell(load(strcat(recordingFolder,'\MIAllDataInFeaturesSelected.mat'))));
-MIFeatures = cell2mat(struct2cell(load(strcat(recordingFolder,'\MIFeaturesSelected.mat'))));
-MIFeaturesTest = cell2mat(struct2cell(load(strcat(recordingFolder,'\MIFeaturesTestSelected.mat'))));
+% MIFeatures = cell2mat(struct2cell(load(strcat(recordingFolder,'\MIFeaturesSelected.mat'))));
+% MIFeaturesTest = cell2mat(struct2cell(load(strcat(recordingFolder,'\MIFeaturesTestSelected.mat'))));
 AllDataLabels = cell2mat(struct2cell(load(strcat(recordingFolder,'\AllDataInLabels.mat'))));
-LabelTrain = cell2mat(struct2cell(load(strcat(recordingFolder,'\LableTrain')))); % label vector
-LabelTest = cell2mat(struct2cell(load(strcat(recordingFolder,'\LableTest')))); % label vector
+% LabelTrain = cell2mat(struct2cell(load(strcat(recordingFolder,'\LableTrain')))); % label vector
+% LabelTest = cell2mat(struct2cell(load(strcat(recordingFolder,'\LableTest')))); % label vector
 
 %% test data
 if model == 0

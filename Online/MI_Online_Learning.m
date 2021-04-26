@@ -24,10 +24,10 @@ subID = input('Please enter subject ID/Name: ');    % prompt to enter subject ID
 %% Addpath for relevant folders - original recording folder and LSL folders
 trainFolderPath = 'D:\EEG\Online\bci4als-online\'; 
 % Define recording folder location and create the folder
-trainFolder = strcat(rootFolder,'\OnlineSub',num2str(subID),'\');
+trainFolder = strcat(trainFolderPath,'\OnlineSub',num2str(subID),'\');
 mkdir(trainFolder);
 
-recordingFolder = 'D:\EEG\Online\bci4als-online\Sub32\';
+recordingFolder = 'D:\EEG\Online\bci4als-online\Old\Sub32\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
 addpath('D:\EEG\eeglab2020_0')
@@ -144,7 +144,9 @@ for trial = 1:numTrials
     end
     %%
     
-    
+    feedback_iteration = 1;
+    x2 = x_start;
+    y2 = y_start; 
     
     trialStart = tic;
     while toc(trialStart) < trialTime
@@ -178,7 +180,7 @@ for trial = 1:numTrials
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%% Add your feature extraction function from offline stage %%%%%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            EEG_Features, AllDataInFeatures = ExtractFeaturesFromBlock(recordingFolder);
+            [EEG_Features, AllDataInFeatures] = ExtractFeaturesFromBlock(recordingFolder);
 
             % Predict using previously learned model:
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -234,14 +236,14 @@ for trial = 1:numTrials
             
             % Update classifier - this should be done very gently! (and
             % mostly relevent to neural nets.
-            if final_vote ~= (cueVec(trial)-numConditions-1)
+            if final_vote ~= cueVec(trial)
+                wrongCounter = wrongCounter + 1;
                 wrongClass(wrongCounter,:,:) = AllDataInFeatures;
                 wrongClassLabel(wrongCounter) = cueVec(trial);
-                wrongCounter = wrongCounter + 1;
             else
-                correctClass(correctCounter,:,:) = AllDataInFeatures;
-                correctLabel(correctCounter) = cueVec(trial);
                 correctCounter = correctCounter + 1;
+                correctClass(correctCounter,:,:) = AllDataInFeatures;
+                correctLabel(correctCounter) = cueVec(trial);  
                 % Send command through LSL:
                 % command_Outlet.push_sample(final_vote);
             end
@@ -254,9 +256,17 @@ for trial = 1:numTrials
         end
     end
 end
-save(strcat(trainFolder,'\AllDataInFeaturesWrong.mat'),'wrongClass');
-save(strcat(trainFolder,'\AllDataInFeaturesCorrect.mat'),'correctClass');
-save(strcat(trainFolder,'\AllDataInLabelsWrong.mat'),'wrongClassLabel');
-save(strcat(trainFolder,'\AllDataInLabelsCorrect.mat'),'correctLabel');
-save(strcat(trainFolder,'\AllDataInFeatures.mat'),'allClass');
+if exist('wrongClass') == 1
+    save(strcat(trainFolder,'\AllDataInFeaturesWrong.mat'),'wrongClass');
+    save(strcat(trainFolder,'\AllDataInLabelsWrong.mat'),'wrongClassLabel');
+end
+if exist('correctClass') == 1
+    save(strcat(trainFolder,'\AllDataInFeaturesCorrect.mat'),'correctClass');
+    save(strcat(trainFolder,'\AllDataInLabelsCorrect.mat'),'correctLabel');
+end
+if exist('allClass') == 1
+    save(strcat(trainFolder,'\AllDataInFeatures.mat'),'allClass');
 save(strcat(trainFolder,'\AllDataInLabels.mat'),'allClassLabel');
+end
+
+close all;

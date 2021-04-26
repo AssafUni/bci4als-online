@@ -9,17 +9,19 @@ eeglab;                                     % open EEGLAB
 raw = 0;
 features = 1;
 recordings = [
-    {'D:\EEG\Online\bci4als-online\Sub1\', raw}
-    {'D:\EEG\Online\bci4als-online\Sub2\', raw}
-    {'D:\EEG\Online\bci4als-online\Sub3\', raw}
-    {'D:\EEG\Online\bci4als-online\Sub21\', raw}
-    {'D:\EEG\Online\bci4als-online\Sub22\', raw}
-    {'D:\EEG\Online\bci4als-online\Sub23\', raw}
-    {'D:\EEG\Online\bci4als-online\Sub31\', raw}
-    {'D:\EEG\Online\bci4als-online\Sub32\', raw}
+    {'D:\EEG\Online\bci4als-online\Old\Sub1\', raw}
+    {'D:\EEG\Online\bci4als-online\Old\Sub2\', raw}
+    {'D:\EEG\Online\bci4als-online\Old\Sub3\', raw}
+    {'D:\EEG\Online\bci4als-online\Old\Sub21\', raw}
+    {'D:\EEG\Online\bci4als-online\Old\Sub22\', raw}
+    {'D:\EEG\Online\bci4als-online\Old\Sub23\', raw}
+    {'D:\EEG\Online\bci4als-online\Old\Sub31\', raw}
+    {'D:\EEG\Online\bci4als-online\Old\Sub32\', raw}
+    {'D:\EEG\Online\bci4als-online\Old\OnlineSub1\', features}
+    {'D:\EEG\Online\bci4als-online\Old\OnlineSub2\', features}
 ];
 
-electrodesToRemove = [8];
+electrodesToRemove = [8]; % change in online too
 plotLowPassHighPassFreqResp = 0;
 plotScroll = 0;
 plotSpectraMaps = 0;
@@ -37,7 +39,7 @@ pauseAfterEachTrain = 0;
 FeatureSelectMode = 0;
 Features2Select = 6;
 Feature2SelectFile = '';
-correctWrongOrBoth = 2; % 0 correct 1 wrong 2 both - On features only train, on what to train
+correctWrongOrBoth = 0; % 0 correct 1 wrong 2 both - On features only train, on what to train
 learnModel = 2; % 0 - lda 1 - svm rbf 2 - AdaBoostM2
 cv = 1;
 saveModel = 1;
@@ -80,8 +82,8 @@ for i=1 : size(recordings, 1)
         end        
     else
         ExtractFeatures_FromOnline(folder, correctWrongOrBoth ,previousFolder, Features2Select);
-        MI5_LearnModel_Scaffolding(recordingFolder1, learnModel, cv, saveModel);
-        disp(['Training ' num2str(i) ' done...']);
+        MI5_LearnModel_Scaffolding(folder, learnModel, cv, saveModel);
+        disp(['Training + Features ' num2str(i) ' done...']);
         if pauseAfterEachTrain == 1
             pause;
         end            
