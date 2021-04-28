@@ -3,19 +3,26 @@ clc; clear; close all;
 rng(546351789) % For reproducibility
 
 %% Some parameters (this needs to change according to your system):
-addpath 'C:\ToolBoxes\eeglab2020_0'
-addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
+addpath 'D:\EEG\eeglab2020_0'
+% addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
 eeglab;                                     % open EEGLAB 
+
+% TODO:
+% noise
+% train classifier during the feedback
+% check how much precentage checking last recording as test
 
 raw = 0;
 features = 1;
 recordings = [
-    {'C:\master\bci\recording-28-4\Sub211\', raw}
-    {'C:\master\bci\recording-28-4\Sub222\', raw}
-    {'C:\master\bci\recording-28-4\Sub233\', raw}
-    {'C:\master\bci\recording-28-4\OnlineSub1\', features}
-    {'C:\master\bci\recording-28-4\OnlineSub2\', features}
-    {'C:\master\bci\recording-28-4\OnlineSub3\', features}
+%     {'D:\EEG\Online\bci4als-online\28April\Sub211\', raw}
+%     {'D:\EEG\Online\bci4als-online\28April\Sub222\', raw}
+%     {'D:\EEG\Online\bci4als-online\28April\Sub233\', raw}
+%     {'D:\EEG\Online\bci4als-online\28April\OnlineSub5\', features}
+%     {'D:\EEG\Online\bci4als-online\28April\OnlineSub6\', features}
+%     {'D:\EEG\Online\bci4als-online\28April\OnlineSub7\', features}
+    {'D:\EEG\Online\bci4als-online\28April\OnlineSub8\', features}
+%     {'D:\EEG\Online\bci4als-online\28April\OnlineSub9\', features}
 ];
 
 electrodesToRemove = [8]; % change in online too
@@ -70,15 +77,20 @@ previousFolder = '';
 for i=1 : size(recordings, 1)
     folder = cell2mat(recordings(i, 1));
     rawOrFeatures = cell2mat(recordings(i, 2));
+    if i == 1
+        m = 0;
+    else 
+        m = 2;
+    end
     if rawOrFeatures == raw  
-        MI4_ExtractFeatures_Scaffolding(folder, previousFolder, 0.2, FeatureSelectMode, Features2Select, Feature2SelectFile, 0, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected);
+        MI4_ExtractFeatures_Scaffolding(folder, previousFolder, 0.2, FeatureSelectMode, Features2Select, Feature2SelectFile, m, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected);
         MI5_LearnModel_Scaffolding(folder, learnModel, cv, saveModel);
         disp(['Training ' num2str(i) ' done...']);
         if pauseAfterEachTrain == 1
             pause;
         end        
     else
-        ExtractFeatures_FromOnline(folder, correctWrongOrBoth ,previousFolder, Features2Select);
+        ExtractFeatures_FromOnline(folder, correctWrongOrBoth ,previousFolder, Features2Select, m);
         MI5_LearnModel_Scaffolding(folder, learnModel, cv, saveModel);
         disp(['Training + Features ' num2str(i) ' done...']);
         if pauseAfterEachTrain == 1
