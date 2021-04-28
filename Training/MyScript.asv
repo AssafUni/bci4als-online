@@ -15,7 +15,7 @@ recordings = [
     {'C:\master\bci\recording-28-4\Sub233\', raw}
     {'C:\master\bci\recording-28-4\OnlineSub1\', features}
     {'C:\master\bci\recording-28-4\OnlineSub2\', features}
-    {'C:\master\bci\recording-28-4\OnlineSub3\', features}
+
 ];
 
 electrodesToRemove = [8]; % change in online too

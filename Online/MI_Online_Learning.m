@@ -22,15 +22,16 @@ clc
 
 subID = input('Please enter subject ID/Name: ');    % prompt to enter subject ID or name
 %% Addpath for relevant folders - original recording folder and LSL folders
-trainFolderPath = 'D:\EEG\Online\bci4als-online\'; 
+trainFolderPath = 'C:\master\bci\recording-28-4\'; 
 % Define recording folder location and create the folder
 trainFolder = strcat(trainFolderPath,'\OnlineSub',num2str(subID),'\');
 mkdir(trainFolder);
 
-recordingFolder = 'D:\EEG\Online\bci4als-online\Old\Sub32\';
+recordingFolder = 'C:\master\bci\recording-28-4\OnlineSub3\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
-addpath('D:\EEG\eeglab2020_0')
+addpath 'C:\ToolBoxes\eeglab2020_0'
+addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
 eeglab;
     
 %% Set params
