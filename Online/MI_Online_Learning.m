@@ -35,7 +35,9 @@ addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
 eeglab;
     
 %% Set params
-feedbackFlag = 1;                                   % 1-with feedback, 0-no feedback
+feedbackFlag = 0;                                   % 1-with feedback, 0-no feedback
+apllication_python = 1;                             % running application
+feedback_python = 0;                                % feedback from python
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
 bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification
@@ -53,6 +55,8 @@ images_f_3 = imread('rightt.png', 'png');
 numTrials = 5;                                      % number of trials overall
 trialTime = 30;                                    % duration of each trial in seconds
 cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
+
+
 
 %% Lab Streaming Layer Init
 disp('Loading the Lab Streaming Layer library...');
@@ -106,24 +110,62 @@ myChunk = EEG_Inlet.pull_chunk();                   % get a chunk from the EEG L
 % hides cursor on screen
 
 %% plot feedback graph
-x2 = x_start;
-y2 = y_start;
-figure
-p = plot(x2, y2);
-numIter = numTrials;
-xlim([0 x_lim])
-ylim([0 y_lim])
-axes('pos',[.01 .9 0.5 0.1])
-image = imread('square.jpeg');
-imshow(image)
-k = 10;
+if feedbackFlag == 1
+    x2 = x_start;
+    y2 = y_start;
+    figure
+    p = plot(x2, y2);
+    numIter = numTrials;
+    xlim([0 x_lim])
+    ylim([0 y_lim])
+    axes('pos',[.01 .9 0.5 0.1])
+    image = imread('square.jpeg');
+    imshow(image)
+    k = 10;
 
-xlabel('X')
-ylabel('Y')
-title('	\leftarrow LEFT or RIGHT \rightarrow ');
+    xlabel('X')
+    ylabel('Y')
+    title('	\leftarrow LEFT or RIGHT \rightarrow ');
 
-p.XDataSource = 'x2';
-p.YDataSource = 'y2';
+    p.XDataSource = 'x2';
+    p.YDataSource = 'y2';
+end
+
+%% calling gui from python
+if apllication_python ==1 || feedback_python
+    t = tcpip('localhost', 50007);
+    fopen(t);
+end
+
+%% sending expected_list to python
+if feedback_python ==1
+    for i=1:size(cueVec,2)+1
+        recieved_msg = 1;
+        mag = '';
+        while (recieved_msg)
+                mag, count = fread(t, [1, t.BytesAvailable]);
+                if count > 0
+                    recieved_msg = 0;
+                end
+        end
+        if i == size(cueVec,2)+1
+            fwrite(t, "done");
+            break;
+        else
+            if (cueVec(i) == 1)              %setting the right picture according Vec
+                data = 'idle';
+            elseif (cueVec(i) == 2)
+                data = 'left';
+            else
+                data = 'right';
+            end 
+            fwrite(t, data);
+        end
+    end   
+    
+end
+
+    
 %% This is the main online script
 
 for trial = 1:numTrials
@@ -224,7 +266,42 @@ for trial = 1:numTrials
                 refreshdata
                 drawnow
             end
-%%            
+%% update application / feedback from python
+            if apllication_python ==1 || feedback_python == 1
+                bytes = '';
+                recieved_msg = 1;
+                if myPrediction(decCount) == 2
+                        data = 'left';
+                    elseif myPrediction(decCount) == 3
+                        data = 'right';    
+                    else
+                         data = 'idle';
+                end
+                %this is for getting the right predictions and for the
+                %check of python gui
+%                 if cueVec(trial) == 2
+%                         data_vec = 'left';
+%                     elseif cueVec(trial) == 3
+%                         data_vec = 'right';    
+%                     else
+%                          data_vec = 'idle';
+%                 end
+                
+                %waiting for python to send message
+                while (recieved_msg)
+                    bytes, count = fread(t, [1, t.BytesAvailable]);
+                    if count > 0
+                        recieved_msg = 0;
+                    end
+                end
+                %send prediction
+                fwrite(t, data);
+                
+            end
+        
+
+    
+%%
             disp(strcat('Iteration:', num2str(iteration)));
             disp(strcat('The estimated target is:', num2str(myPrediction(decCount))));
             
@@ -268,6 +345,21 @@ end
 if exist('allClass') == 1
     save(strcat(trainFolder,'\AllDataInFeatures.mat'),'allClass');
 save(strcat(trainFolder,'\AllDataInLabels.mat'),'allClassLabel');
+end
+
+if apllication_python ==1 
+    bytes =''
+    recieved_msg = 1
+    while (recieved_msg)
+        bytes, count = fread(t, [1, t.BytesAvailable]);
+        if count > 0
+            recieved_msg = 0;
+        end
+    end
+    %send wxit msg
+    fwrite(t, 'exit');
+    %close the connection
+    fclose(t);
 end
 
 close all;
