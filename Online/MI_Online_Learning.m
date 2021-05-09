@@ -22,16 +22,16 @@ clc
 
 subID = input('Please enter subject ID/Name: ');    % prompt to enter subject ID or name
 %% Addpath for relevant folders - original recording folder and LSL folders
-trainFolderPath = 'C:\master\bci\recording-28-4\'; 
+trainFolderPath = 'D:\EEG\Online\bci4als-online\28April\'; 
 % Define recording folder location and create the folder
 trainFolder = strcat(trainFolderPath,'\OnlineSub',num2str(subID),'\');
 mkdir(trainFolder);
 
-recordingFolder = 'C:\master\bci\recording-28-4\OnlineSub3\';
+recordingFolder = 'D:\EEG\Online\bci4als-online\28April\OnlineSub9\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
-addpath 'C:\ToolBoxes\eeglab2020_0'
-addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
+addpath 'D:\EEG\eeglab2020_0'
+% addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
 eeglab;
     
 %% Set params
@@ -40,7 +40,7 @@ apllication_python = 1;                             % running application
 feedback_python = 0;                                % feedback from python
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
-bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification
+bufferLength = 10;                                   % how much data (in seconds) to buffer for each classification
 % numVotes = 3;                                     % how many consecutive votes before classification?
 % load('releventFreqs.mat');                          % load best features from extraction & selection stage
 load(strcat(recordingFolder,'Mdl.mat'));            % load model weights from offline section
@@ -53,7 +53,7 @@ images_f_1 = imread('square.jpeg', 'jpeg');
 images_f_2 = imread('leftt.png', 'png');
 images_f_3 = imread('rightt.png', 'png');
 numTrials = 5;                                      % number of trials overall
-trialTime = 30;                                    % duration of each trial in seconds
+trialTime = 90;                                    % duration of each trial in seconds
 cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
 
 
@@ -199,7 +199,7 @@ for trial = 1:numTrials
         % next 2 lines are relevant for Wearable Sensing only:
         %     myChunk = myChunk - myChunk(21,:);              % re-reference to ear channel (21)
         %     myChunk = myChunk([1:15,18,19,22:23],:);        % removes X1,X2,X3,TRG,A2
-        pause(0.1)
+        pause(0.5)
         if ~isempty(myChunk)
             % Apply LaPlacian Filter
             myChunk(3,:) = myChunk(3,:) - ((myChunk(11,:) + myChunk(13,:) + myChunk(5,:) + myChunk(9,:))./4);
@@ -318,16 +318,19 @@ for trial = 1:numTrials
                 wrongCounter = wrongCounter + 1;
                 wrongClass(wrongCounter,:,:) = AllDataInFeatures;
                 wrongClassLabel(wrongCounter) = cueVec(trial);
+                wrongClassSelectedFeatures(wrongCounter,:,:) = EEG_Features;                
             else
                 correctCounter = correctCounter + 1;
                 correctClass(correctCounter,:,:) = AllDataInFeatures;
                 correctLabel(correctCounter) = cueVec(trial);  
+                correctClassSelectedFeatures(correctCounter,:,:) = EEG_Features;  
                 % Send command through LSL:
                 % command_Outlet.push_sample(final_vote);
             end
             
             allClass(decCount,:,:) = AllDataInFeatures;
             allClassLabel(decCount) = cueVec(trial);
+            allClassSelectedFeatures(decCount,:,:) = EEG_Features; 
             
             % clear buffer
             myBuffer = [];
@@ -337,14 +340,17 @@ end
 if exist('wrongClass') == 1
     save(strcat(trainFolder,'\AllDataInFeaturesWrong.mat'),'wrongClass');
     save(strcat(trainFolder,'\AllDataInLabelsWrong.mat'),'wrongClassLabel');
+    save(strcat(trainFolder,'\WrongClassSelectedFeatures.mat'),'wrongClassSelectedFeatures');
 end
 if exist('correctClass') == 1
     save(strcat(trainFolder,'\AllDataInFeaturesCorrect.mat'),'correctClass');
     save(strcat(trainFolder,'\AllDataInLabelsCorrect.mat'),'correctLabel');
+    save(strcat(trainFolder,'\CorrectClassSelectedFeatures.mat'),'correctClassSelectedFeatures')
 end
 if exist('allClass') == 1
-    save(strcat(trainFolder,'\AllDataInFeatures.mat'),'allClass');
-save(strcat(trainFolder,'\AllDataInLabels.mat'),'allClassLabel');
+    save(strcat(trainFolder,'\AllClassDataInFeatures.mat'),'allClass');
+    save(strcat(trainFolder,'\AllClassDataInLabels.mat'),'allClassLabel');
+    save(strcat(trainFolder,'\AllClassSelectedFeatures.mat'),'allClassSelectedFeatures')
 end
 
 if apllication_python ==1 

@@ -328,7 +328,7 @@ if mode == 2
     LableTest = [LableTest  LastTest];
     
     %% feature selection
-    class = fscnca(FeaturesTrain,LableTrain); % feature selection
+    class = fscnca(AllDataInFeatures,AllDataInLabels); % feature selection
     % sorting the weights in desending order and keeping the indexs
     [~,selected] = sort(class.FeatureWeights,'descend');
     
@@ -337,7 +337,7 @@ if mode == 2
     else
         SelectedIdx = cell2mat(struct2cell(load(strcat(recordingFolder,Feature2SelectFile))));
     end
-    
+
     MIAllDataInFeaturesSelected = AllDataInFeatures(:,SelectedIdx); % updating the matrix feature
     MIFeaturesSelected = FeaturesTrain(:,SelectedIdx); % updating the matrix feature
     MIFeaturesSelectedLabelName = MIFeaturesLabelName(:,SelectedIdx);
@@ -366,7 +366,7 @@ elseif mode == 1
 elseif mode == 0
     %% feature selection
     
-    class = fscnca(FeaturesTrain,LableTrain); % feature selection
+    class = fscnca(AllDataInFeatures,AllDataInLabels); % feature selection
     
     % sorting the weights in desending order and keeping the indexs
     [~,selected] = sort(class.FeatureWeights,'descend');
