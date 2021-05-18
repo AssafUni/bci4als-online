@@ -1,4 +1,4 @@
-function [] = MI4_ExtractFeatures_Scaffolding(recordingFolder, lastRecordingFolder, testSample, FeatureSelectMode, Features2Select, Feature2SelectFile, mode, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected)
+function [] = MI4_ExtractFeatures_Scaffolding(recordingFolder, lastRecordingFolder, testSample, FeatureSelectMode, Features2Select, Feature2SelectFile, mode, onlyPowerBands, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected)
 %% This function extracts features for the machine learning process.
 % It takes the segmented data and extracts the power in each label
 % into a variable which is fed into a modeling function.
@@ -166,6 +166,9 @@ for trial = 1:trials
             n = n+1;
         end
         
+        if onlyPowerBands == 1
+           continue 
+        end
         
         %% NOVEL Features
         
@@ -335,7 +338,7 @@ if mode == 2
     if FeatureSelectMode == 0
         SelectedIdx = selected(1:Features2Select);
     else
-        SelectedIdx = cell2mat(struct2cell(load(strcat(recordingFolder,Feature2SelectFile))));
+        SelectedIdx = cell2mat(struct2cell(load(Feature2SelectFile)));
     end
 
     MIAllDataInFeaturesSelected = AllDataInFeatures(:,SelectedIdx); % updating the matrix feature
@@ -375,7 +378,7 @@ elseif mode == 0
         % taking only the specified number of features with the largest weights
         SelectedIdx = selected(1:Features2Select);
     else
-        SelectedIdx = cell2mat(struct2cell(load(strcat(recordingFolder,Feature2SelectFile))));
+        SelectedIdx = cell2mat(struct2cell(load(Feature2SelectFile)));
     end    
     
     MIAllDataInFeaturesSelected = AllDataInFeatures(:,SelectedIdx); % updating the matrix feature

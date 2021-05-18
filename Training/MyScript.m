@@ -15,13 +15,16 @@ eeglab;                                     % open EEGLAB
 raw = 0;
 features = 1;
 recordings = [
+    {'D:\EEG\Online\bci4als-online\28April\Sub11\', raw}
+    {'D:\EEG\Online\bci4als-online\28April\Sub22\', raw}
+    {'D:\EEG\Online\bci4als-online\28April\Sub33\', raw}
 %     {'D:\EEG\Online\bci4als-online\28April\Sub211\', raw}
 %     {'D:\EEG\Online\bci4als-online\28April\Sub222\', raw}
 %     {'D:\EEG\Online\bci4als-online\28April\Sub233\', raw}
 %     {'D:\EEG\Online\bci4als-online\28April\OnlineSub5\', features}
 %     {'D:\EEG\Online\bci4als-online\28April\OnlineSub6\', features}
 %     {'D:\EEG\Online\bci4als-online\28April\OnlineSub7\', features}
-    {'D:\EEG\Online\bci4als-online\28April\OnlineSub8\', features}
+%     {'D:\EEG\Online\bci4als-online\28April\OnlineSub8\', features}
 %     {'D:\EEG\Online\bci4als-online\28April\OnlineSub9\', features}
 ];
 
@@ -40,10 +43,11 @@ automaticNoiseRejection = 0; % Problamatic to keep in consistency with trainingV
 automaticAverageReReference = 0;
 pauseAfterEachPreprocess = 0;
 pauseAfterEachTrain = 0;
-FeatureSelectMode = 0;
+FeatureSelectMode = 1;
 Features2Select = 6;
-Feature2SelectFile = '';
-correctWrongOrBoth = 0; % 0 correct 1 wrong 2 both - On features only train, on what to train
+Feature2SelectFile = 'D:\EEG\Online\bci4als-online\28April\SelectedIdx.mat';
+onlyPowerBands = 1;
+correctWrongOrBoth = 2; % 0 correct 1 wrong 2 both - On features only train, on what to train
 learnModel = 1; % 0 - lda 1 - svm rbf 2 - AdaBoostM2
 cv = 1;
 saveModel = 1;
@@ -83,7 +87,7 @@ for i=1 : size(recordings, 1)
         m = 2;
     end
     if rawOrFeatures == raw  
-        MI4_ExtractFeatures_Scaffolding(folder, previousFolder, 0.2, FeatureSelectMode, Features2Select, Feature2SelectFile, m, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected);
+        MI4_ExtractFeatures_Scaffolding(folder, previousFolder, 0.2, FeatureSelectMode, Features2Select, Feature2SelectFile, m, onlyPowerBands, plotSpectrom, plotSpectogram, plotBins, plotBinsFeaturesSelected);
         MI5_LearnModel_Scaffolding(folder, learnModel, cv, saveModel);
         disp(['Training ' num2str(i) ' done...']);
         if pauseAfterEachTrain == 1
