@@ -5,6 +5,7 @@ load(strcat(recordingFolder,'SelectedIdx.mat'));
 
 numTargets = 3;
 Fs = 120; 
+onlyPowerBands = 1;
 trials = size(MIData,1);
 [R, C] = size(EEG_chans);
 chanLocs = reshape(EEG_chans',[1, R*C]);
@@ -64,6 +65,9 @@ for trial = 1:trials
             n = n+1;
         end
         
+        if onlyPowerBands == 1
+            continue
+        end
         
         %% NOVEL Features
         
