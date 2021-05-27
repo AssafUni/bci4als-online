@@ -49,7 +49,7 @@ apllication_python = 0;                             % running application
 feedback_python = 1;                                % feedback from python
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
-bufferLength = 10;                                   % how much data (in seconds) to buffer for each classification
+bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification
 % numVotes = 3;                                     % how many consecutive votes before classification?
 % load('releventFreqs.mat');                          % load best features from extraction & selection stage
 load(strcat(recordingFolder,'Mdl.mat'));            % load model weights from offline section
@@ -66,6 +66,9 @@ trialTime = 90;                                    % duration of each trial in s
 %cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
 load(strcat(recordingFolder,'trainingVec.mat'));
 cueVec = trainingVec;
+%Noa
+%trialTime = 60;                                    % duration of each trial in seconds
+%cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
 
 
 %% Lab Streaming Layer Init
@@ -209,7 +212,7 @@ for trial = 1:numTrials
         % next 2 lines are relevant for Wearable Sensing only:
         %     myChunk = myChunk - myChunk(21,:);              % re-reference to ear channel (21)
         %     myChunk = myChunk([1:15,18,19,22:23],:);        % removes X1,X2,X3,TRG,A2
-        pause(0.5)
+        pause(0.2)
         if ~isempty(myChunk)
             % Apply LaPlacian Filter
             myChunk(3,:) = myChunk(3,:) - ((myChunk(11,:) + myChunk(13,:) + myChunk(5,:) + myChunk(9,:))./4);
