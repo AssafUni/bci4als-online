@@ -22,22 +22,31 @@ clc
 
 subID = input('Please enter subject ID/Name: ');    % prompt to enter subject ID or name
 %% Addpath for relevant folders - original recording folder and LSL folders
-trainFolderPath = 'D:\EEG\Online\bci4als-online\28April\'; 
+%ASAF - trainFolderPath = 'D:\EEG\Online\bci4als-online\28April\'; 
+trainFolderPath = 'C:\master\bci\BCI - ONLINE\asaf\bci4als-online\28April\'; 
 % Define recording folder location and create the folder
-trainFolder = strcat(trainFolderPath,'\OnlineSub',num2str(subID),'\');
-mkdir(trainFolder);
+%trainFolder = strcat(trainFolderPath,'\OnlineSub',num2str(subID),'\');
+%mkdir(trainFolder);
 
-recordingFolder = 'D:\EEG\Online\bci4als-online\28April\OnlineSub9\';
+%for noa - simulation
+mkdir("C:\master\bci\BCI - ONLINE\asaf\bci4als-online\28April\Sub33");
+
+
+
+%recordingFolder = 'D:\EEG\Online\bci4als-online\28April\OnlineSub9\';
+%recordingFolder = 'C:\master\bci\BCI - ONLINE\asaf\bci4als-online\28April\OnlineSub9\';
+recordingFolder = 'C:\master\bci\BCI - ONLINE\asaf\bci4als-online\28April\Sub33\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
-addpath 'D:\EEG\eeglab2020_0'
-% addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
+%ASAF - addpath 'D:\EEG\eeglab2020_0'
+addpath 'C:\ToolBoxes\eeglab2020_0'
+addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
 eeglab;
     
 %% Set params
 feedbackFlag = 0;                                   % 1-with feedback, 0-no feedback
-apllication_python = 1;                             % running application
-feedback_python = 0;                                % feedback from python
+apllication_python = 0;                             % running application
+feedback_python = 1;                                % feedback from python
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
 bufferLength = 10;                                   % how much data (in seconds) to buffer for each classification
@@ -54,8 +63,9 @@ images_f_2 = imread('leftt.png', 'png');
 images_f_3 = imread('rightt.png', 'png');
 numTrials = 5;                                      % number of trials overall
 trialTime = 90;                                    % duration of each trial in seconds
-cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
-
+%cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
+load(strcat(recordingFolder,'trainingVec.mat'));
+cueVec = trainingVec;
 
 
 %% Lab Streaming Layer Init
@@ -279,13 +289,13 @@ for trial = 1:numTrials
                 end
                 %this is for getting the right predictions and for the
                 %check of python gui
-%                 if cueVec(trial) == 2
-%                         data_vec = 'left';
-%                     elseif cueVec(trial) == 3
-%                         data_vec = 'right';    
-%                     else
-%                          data_vec = 'idle';
-%                 end
+                if cueVec(trial) == 2
+                        data_vec = 'left';
+                    elseif cueVec(trial) == 3
+                        data_vec = 'right';    
+                    else
+                         data_vec = 'idle';
+                end
                 
                 %waiting for python to send message
                 while (recieved_msg)
@@ -295,7 +305,13 @@ for trial = 1:numTrials
                     end
                 end
                 %send prediction
-                fwrite(t, data);
+                if rand < 0.2
+                    fwrite(t, data);
+                    disp(strcat('The estimated target is:', data));
+                else
+                    fwrite(t, data_vec);
+                    disp(strcat('The estimated target is:', data_vec));
+                end
                 
             end
         
@@ -303,7 +319,7 @@ for trial = 1:numTrials
     
 %%
             disp(strcat('Iteration:', num2str(iteration)));
-            disp(strcat('The estimated target is:', num2str(myPrediction(decCount))));
+            %disp(strcat('The estimated target is:', num2str(myPrediction(decCount))));
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % write a function that sends the estimate to the voting machine %%

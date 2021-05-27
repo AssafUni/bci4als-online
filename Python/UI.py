@@ -54,7 +54,7 @@ class OnlineUI:
         if res == 'right':
             pygame.draw.rect(self.window_surface, (255, 0, 0), self.textRect1, 2)
             pygame.display.set_caption('Tutorialspoint Logo')
-            TPImage = pygame.image.load("C:/master/bci/protocol/help.gif").convert_alpha()
+            TPImage = pygame.image.load("help.gif").convert_alpha()
             # coordinates of the image
             x = 100;
             y = 200;
@@ -63,7 +63,7 @@ class OnlineUI:
             pygame.display.flip()
             filename = 'help-record.wav'
             winsound.PlaySound(filename, winsound.SND_FILENAME)
-            pygame.time.delay(15000) 
+            pygame.time.delay(5000) 
             
         elif res == 'left':
             pygame.draw.rect(self.window_surface, (255, 0, 0), self.textRect3, 2)
@@ -117,6 +117,7 @@ class OnlineUI:
         conn, addr = s.accept()
         print ('Connected by', addr)
         conn.sendall(b"next")
+        print("send next ")
         while self.is_running:
             # time_delta = clock.tick(60) / 1000.0
             #receving data from matlab
@@ -132,9 +133,7 @@ class OnlineUI:
                 pygame.quit()
                 sys.exit()
                 break
-            if self.pred_num == self.N_Voting:
-                print(f' The final voting is {self.Voting()}')
-                self.reset()  # reset the lists back
+            
             pygame.time.delay(1000)  # pause the program for 2s
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -144,8 +143,14 @@ class OnlineUI:
             pred_idx += 1
             # print objects to screen
             self.print_objects()
+            
+            if self.pred_num == self.N_Voting:
+                print(f' The final voting is {self.Voting()}')
+                self.reset()  # reset the lists back
+                pygame.time.delay(1000)
             #sending to matlab 'next' for getting the next data
             conn.sendall(b"next")
+            print("send next ")
                 
             
 
