@@ -22,12 +22,12 @@ clc
 
 subID = input('Please enter subject ID/Name: ');    % prompt to enter subject ID or name
 %% Addpath for relevant folders - original recording folder and LSL folders
-trainFolderPath = 'D:\EEG\Online\bci4als-online\28April\'; 
+trainFolderPath = 'D:\EEG\Online\bci4als-online\2Jun\'; 
 % Define recording folder location and create the folder
 trainFolder = strcat(trainFolderPath,'\OnlineSub',num2str(subID),'\');
 mkdir(trainFolder);
 
-recordingFolder = 'D:\EEG\Online\bci4als-online\28April\OnlineSub9\';
+recordingFolder = 'D:\EEG\Online\bci4als-online\2Jun\\Sub1\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
 addpath 'D:\EEG\eeglab2020_0'
@@ -35,8 +35,8 @@ addpath 'D:\EEG\eeglab2020_0'
 eeglab;
     
 %% Set params
-feedbackFlag = 0;                                   % 1-with feedback, 0-no feedback
-apllication_python = 1;                             % running application
+feedbackFlag = 1;                                   % 1-with feedback, 0-no feedback
+apllication_python = 0;                             % running application
 feedback_python = 0;                                % feedback from python
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
@@ -168,6 +168,9 @@ end
     
 %% This is the main online script
 
+correctPreds = 0;
+totalPreds = 0;
+
 for trial = 1:numTrials
     
 %     Screen('TextSize', window, 70);             % Draw text in the bottom portion of the screen in white
@@ -230,6 +233,13 @@ for trial = 1:numTrials
             %%%%%% Use whatever classfication method used in offline MI %%%%%%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             myPrediction(decCount) = predict(Mdl, EEG_Features);
+            
+            if myPrediction(decCount) == cueVec(trial)
+                correctPreds = correctPreds + 1;
+            end
+            
+            totalPreds = totalPreds + 1;
+  
  %% update feedback           
             if feedbackFlag
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -367,5 +377,9 @@ if apllication_python ==1
     %close the connection
     fclose(t);
 end
+
+disp((correctPreds / totalPreds) * 100.0);
+disp(correctPreds);
+disp(totalPreds);
 
 close all;

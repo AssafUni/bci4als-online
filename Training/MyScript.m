@@ -15,9 +15,12 @@ eeglab;                                     % open EEGLAB
 raw = 0;
 features = 1;
 recordings = [
-    {'D:\EEG\Online\bci4als-online\28April\Sub11\', raw}
-    {'D:\EEG\Online\bci4als-online\28April\Sub22\', raw}
-    {'D:\EEG\Online\bci4als-online\28April\Sub33\', raw}
+    {'D:\EEG\Online\bci4als-online\2Jun\\Sub1\', raw}
+%     {'D:\EEG\Online\bci4als-online\27May\Sub2\', raw}
+%     {'D:\EEG\Online\bci4als-online\27May\Sub3\', raw}
+%     {'D:\EEG\Online\bci4als-online\27May\OnlineSub1\', features}
+%     {'D:\EEG\Online\bci4als-online\27May\OnlineSub2\', features}
+%     {'D:\EEG\Online\bci4als-online\27May\OnlineSub3\', features}
 %     {'D:\EEG\Online\bci4als-online\28April\Sub211\', raw}
 %     {'D:\EEG\Online\bci4als-online\28April\Sub222\', raw}
 %     {'D:\EEG\Online\bci4als-online\28April\Sub233\', raw}
@@ -28,7 +31,7 @@ recordings = [
 %     {'D:\EEG\Online\bci4als-online\28April\OnlineSub9\', features}
 ];
 
-electrodesToRemove = [8]; % change in online too
+electrodesToRemove = [10, 11, 12, 15]; % change in online too
 plotLowPassHighPassFreqResp = 0;
 plotScroll = 0;
 plotSpectraMaps = 0;
@@ -45,7 +48,7 @@ pauseAfterEachPreprocess = 0;
 pauseAfterEachTrain = 0;
 FeatureSelectMode = 1;
 Features2Select = 6;
-Feature2SelectFile = 'D:\EEG\Online\bci4als-online\28April\SelectedIdx.mat';
+Feature2SelectFile = 'D:\EEG\Online\bci4als-online\27May\OnlineSub1\SelectedIdx.mat';
 onlyPowerBands = 1;
 correctWrongOrBoth = 2; % 0 correct 1 wrong 2 both - On features only train, on what to train
 learnModel = 1; % 0 - lda 1 - svm rbf 2 - AdaBoostM2

@@ -1,5 +1,5 @@
 function [] = PreprocessBlock(block, Fs, recordingFolder)
-electrodesToRemove = [8];
+electrodesToRemove = [8, 16];
 plotLowPassHighPassFreqResp = 0;
 plotScroll = 0;
 plotSpectraMaps = 0;

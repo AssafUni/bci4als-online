@@ -14,7 +14,7 @@ function [recordingFolder,subID] = MI1_Training_Scaffolding()
 
 
 subID = input('Please enter subject ID/Name: ');    % prompt to enter subject ID or name
-rootFolder = 'C:\master\bci\recording-28-4'; 
+rootFolder = 'D:\EEG\Online\bci4als-online\2Jun\'; 
 % Define recording folder location and create the folder
 recordingFolder = strcat(rootFolder,'\Sub',num2str(subID),'\');
 mkdir(recordingFolder);
