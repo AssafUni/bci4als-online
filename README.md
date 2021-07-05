@@ -48,7 +48,7 @@ The repository is structured into 4 directories:
 
 ## Headset54
 
-1. IMG_1065.MOV- Or  Rabani(orabani@campus.haifa.ac.il) explains how to position the headset.
+1. IMG_1065.MOV- Or Rabani(orabani@campus.haifa.ac.il) explains how to position the headset.
 2. IMG_1060.jpg - IMG_1064.jpg- Images of how to position the headset.
 
 ### I'm lost! How to use this code?
@@ -86,3 +86,29 @@ Next, add to the path the entire repository and its subdirectories. Now we are r
 ***
 
 For more info, see the documentation located in each code file.
+
+### Trobuleshooting
+
+#### Our offline classifier preforms very poorly
+1. A look on the OpenBCI waves output can help us determine the amount of noise we have. The more
+   noise, the less able will be our classifier.
+2. Click several times on the notch filter to bring it to 50hz, even if it is currently on 50hz. 
+   A look on the FFT around 50hz should reveal a negative peak. If you still see a peak, try replacing the bateries or 
+   move to another room. Try eliminiate all sources of noise such as electricity. Try to reposition the headset.
+   Make sure you put the ear pieces on your ear lobes.
+3. Click several times on the band pass and set it on 5-50hz. Even if it is already on 5-50hz.
+4. If you bring the notch filter to none, a noisy channel should be higher than 30 uVrms.
+5. If all channels are lower than 20 uVrms and have simillar uVrms it should be ok.
+6. Another important thing to check is that the FFT has a moderate slope down towards the hightest frequencites.
+7. Thanks to Or Rabani(orabani@campus.haifa.ac.il) for the help on these points.
+
+### The dongle is pluged in but cannot connect to the headset.
+1. Try replacing the batteries.
+
+### Nothing works :(
+1. Disconnect the dongle.
+2. Close all programs.
+3. Wait a bit!
+4. Try again. :) 
+
+Thanks to all the course staff: Oren Shirki(shrikio@bgu.ac.il), Lahav foox(fooxl@post.bgu.ac.il), Asaf Harel(harelasa@post.bgu.ac.il), Or Rabani(orabani@campus.haifa.ac.il) and Daniel Polyakov(polydani@post.bgu.ac.il).
