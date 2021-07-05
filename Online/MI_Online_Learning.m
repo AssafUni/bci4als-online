@@ -10,7 +10,7 @@
 % Assuming: 
 % 1. EEG is recorded using Wearable Sensing / openBCI and streamed through LSL.
 % 2. MI classifier has been trained
-% 3. A different machine/client is reading this LSL oulet stream for the commands sent through this code
+% 3. A different machine/client is reading this predictions.
 % 4. Target labels are [1 2 3] (left idle right)
 
 % This code is part of the BCI-4-ALS Course written by Asaf Harel
@@ -40,9 +40,9 @@ addpath 'D:\EEG\eeglab2020_0'
 eeglab;
     
 %% Set params
-feedbackFlag = 0;                                   % 1-with feedback, 0-no feedback
-apllication_python = 1;                             % running application
-feedback_python = 0;                                % feedback from python
+feedbackFlag = 0;                                   % 1-with feedback matlab gui, 0-no feedback matlab gui
+apllication_python = 1;                             % predictions sent to python application gui
+feedback_python = 0;                                % predictions sent to python feedback gui
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
 bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification
@@ -309,7 +309,7 @@ for trial = 1:numTrials
             % machine in the python gui.
             [final_vote] = myPrediction(decCount); % sendVote(myPrediction);
             
-            % Save features and results to save later
+            % Save features and results to use later
             if final_vote ~= cueVec(trial)
                 wrongCounter = wrongCounter + 1;
                 wrongClass(wrongCounter,:,:) = AllDataInFeatures;
