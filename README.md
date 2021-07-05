@@ -4,8 +4,8 @@
 This is the code repository for the BCI4ALS, team 1, with reimagined headset 54 from Or Rabani.
 The code is a fork of Asaf Harel(harelasa@post.bgu.ac.il) basic code for the course BCI-4-ALS which
 was taken place in Ben Gurion University during 2020/2021. You are free to use, change, adapt and
-% so on - but please cite properly if published. We assume you have already set up a Matlab 
-enviornment with libLSL, OpenBCI, EEGLab with ERPLAB & loadXDF plugins istalled. Additionally,
+so on - but please cite properly if published. We assume you have already set up a Matlab 
+enviornment with libLSL, OpenBCI, EEGLab with ERPLAB & loadXDF plugins installed. Additionally,
 Anaconda python 3.7 with pygame installed to run the python code.
 
 
