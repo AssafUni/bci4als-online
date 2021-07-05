@@ -53,7 +53,7 @@ The repository is structured into 4 directories:
 
 ### I'm lost! How to use this code?
 
-An explanation fo the general work flow might help. First,
+An explanation for the general work flow might help. First,
 we open Matlab. Next, we add to the path libLSL for Matlab. Additionally,
 it is recommended to add eeglab to the path or add it manually in each script. 
 Next, add to the path the entire repository and its subdirectories. Now we are ready to roll:
