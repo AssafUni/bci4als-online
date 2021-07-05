@@ -102,6 +102,8 @@ For more info, see the documentation located in each code file.
 6. Another important thing to check is that the FFT has a moderate slope down towards the hightest frequencites.
 7. Thanks to Or Rabani(orabani@campus.haifa.ac.il) for the help on these points.
 
+* Note: To remove the 25hz peak, you'll need to avoid using a charger and be far away from electronic devices.
+
 ### The dongle is pluged in but cannot connect to the headset.
 1. Try replacing the batteries.
 
