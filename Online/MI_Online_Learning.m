@@ -3,7 +3,7 @@
 % actual classification for application use. The script communications
 % with a UI written in python using tcp/ip. The code assumes a model
 % was trained first and saved as Mdl.mat using the MI5_LearnModel
-% function in the offline phase. To use this script, first
+% function in the offline phase.
 
 % This code creates an online EEG buffer which utilizes the model trained
 % offline, and corresponding conditions, to classify between the possible labels.
