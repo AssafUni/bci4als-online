@@ -1,32 +1,37 @@
-%function MI_Online_Learning(recordingFolder)
-%% MI Online Scaffolding
+%% MI Online script
+% The script is used to either co-train using feedback or preform
+% actual classification for application use. The script communications
+% with a UI written in python using tcp/ip. The code assumes a model
+% was trained first and saved as Mdl.mat using the MI5_LearnModel
+% function in the offline phase. To use this script, first
+
 % This code creates an online EEG buffer which utilizes the model trained
 % offline, and corresponding conditions, to classify between the possible labels.
 % Assuming: 
 % 1. EEG is recorded using Wearable Sensing / openBCI and streamed through LSL.
 % 2. MI classifier has been trained
 % 3. A different machine/client is reading this LSL oulet stream for the commands sent through this code
-% 4. Target labels are [-1 0 1] (left idle right)
+% 4. Target labels are [1 2 3] (left idle right)
 
-% Remaining to be done:
-% 1. Add a "voting machine" which takes the classification and counts how
-% many consecutive answers in the same direction / target to get a high(er)
-% accuracy rate, even though it slows down the process by a large factor.
-% 2. Add an online learn-with-feedback mechanism where there is a cue to
-% one side (or idle) with a confidence bar showing the classification being
-% made.
+% This code is part of the BCI-4-ALS Course written by Asaf Harel
+% and edited by Team 1
+% (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
+% so on - but please cite properly if published.
 
 clearvars
 close all
 clc
 
-subID = input('Please enter subject ID/Name: ');    % prompt to enter subject ID or name
-%% Addpath for relevant folders - original recording folder and LSL folders
+% Change parameters
+testNum = input('Please enter test number: ');    % prompt to enter test number
+% Where to store the online recording, to use later for training a new
+% model.
 trainFolderPath = 'D:\EEG\Online\bci4als-online\2Jun\'; 
-% Define recording folder location and create the folder
-trainFolder = strcat(trainFolderPath,'\OnlineSub',num2str(subID),'\');
+trainFolder = strcat(trainFolderPath, '\OnlineTest', num2str(testNum), '\');
 mkdir(trainFolder);
 
+% The folder where the offline training took place. This is the last
+% aggregated folder.
 recordingFolder = 'D:\EEG\Online\bci4als-online\2Jun\\Sub1\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
@@ -55,8 +60,6 @@ images_f_3 = imread('rightt.png', 'png');
 numTrials = 5;                                      % number of trials overall
 trialTime = 60;                                    % duration of each trial in seconds
 cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
-
-
 
 %% Lab Streaming Layer Init
 disp('Loading the Lab Streaming Layer library...');
@@ -205,8 +208,8 @@ for trial = 1:numTrials
         pause(0.2)
         if ~isempty(myChunk)
             % Apply LaPlacian Filter
-            myChunk(3,:) = myChunk(3,:) - ((myChunk(11,:) + myChunk(13,:) + myChunk(5,:) + myChunk(9,:))./4);
-            myChunk(4,:) = myChunk(4,:) - ((myChunk(12,:) + myChunk(14,:) + myChunk(6,:) + myChunk(10,:))./4);
+            motorData(1,:) = myChunk(1,:) - ((myChunk(3,:) + myChunk(5,:) + myChunk(7,:) + myChunk(9,:))./4);    % LaPlacian (Cz, F3, P3, T3)
+            motorData(2,:) = myChunk(2,:) - ((myChunk(4,:) + myChunk(6,:) + myChunk(8,:) + myChunk(10,:))./4);    % LaPlacian (Cz, F4, P4, T4)
 
             myBuffer = [myBuffer myChunk];              % append new data to the current buffer
             motorData = [];
@@ -223,15 +226,9 @@ for trial = 1:numTrials
             PreprocessBlock(block, Fs, recordingFolder);
 
             % Extract features from the buffered block:
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%% Add your feature extraction function from offline stage %%%%%%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             [EEG_Features, AllDataInFeatures] = ExtractFeaturesFromBlock(recordingFolder);
 
             % Predict using previously learned model:
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%%%% Use whatever classfication method used in offline MI %%%%%%%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             myPrediction(decCount) = predict(Mdl, EEG_Features);
             
             if myPrediction(decCount) == cueVec(trial)
@@ -240,12 +237,8 @@ for trial = 1:numTrials
             
             totalPreds = totalPreds + 1;
   
- %% update feedback           
+            %% update feedback using matlab gui         
             if feedbackFlag
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                % write a function that plots estimate on some type of graph: %
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %%plotEstimate(myPrediction); hold on
                 feedback_iteration = feedback_iteration + 1;
                 new_y = y2(feedback_iteration - 1) + y_step;
                 if new_y > y_lim + y_step
@@ -276,7 +269,7 @@ for trial = 1:numTrials
                 refreshdata
                 drawnow
             end
-%% update application / feedback from python
+            %% update application / feedback using python gui
             if apllication_python ==1 || feedback_python == 1
                 bytes = '';
                 recieved_msg = 1;
@@ -309,21 +302,14 @@ for trial = 1:numTrials
                 
             end
         
-
-    
-%%
             disp(strcat('Iteration:', num2str(iteration)));
             disp(strcat('The estimated target is:', num2str(myPrediction(decCount))));
             
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % write a function that sends the estimate to the voting machine %%
-            %     the output should be between [-1 0 1] to match classes     %%
-            %       this could look like a threshold crossing feedback       %%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Either use a voting machine here, or don't and use a voting
+            % machine in the python gui.
             [final_vote] = myPrediction(decCount); % sendVote(myPrediction);
             
-            % Update classifier - this should be done very gently! (and
-            % mostly relevent to neural nets.
+            % Save features and results to save later
             if final_vote ~= cueVec(trial)
                 wrongCounter = wrongCounter + 1;
                 wrongClass(wrongCounter,:,:) = AllDataInFeatures;
@@ -334,8 +320,6 @@ for trial = 1:numTrials
                 correctClass(correctCounter,:,:) = AllDataInFeatures;
                 correctLabel(correctCounter) = cueVec(trial);  
                 correctClassSelectedFeatures(correctCounter,:,:) = EEG_Features;  
-                % Send command through LSL:
-                % command_Outlet.push_sample(final_vote);
             end
             
             allClass(decCount,:,:) = AllDataInFeatures;
@@ -347,6 +331,8 @@ for trial = 1:numTrials
         end
     end
 end
+
+% Save recording to use later in traning the model
 if exist('wrongClass') == 1
     save(strcat(trainFolder,'\AllDataInFeaturesWrong.mat'),'wrongClass');
     save(strcat(trainFolder,'\AllDataInLabelsWrong.mat'),'wrongClassLabel');

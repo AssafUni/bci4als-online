@@ -54,7 +54,7 @@ class OnlineUI:
         if res == 'right':
             pygame.draw.rect(self.window_surface, (255, 0, 0), self.textRect1, 2)
             pygame.display.set_caption('Tutorialspoint Logo')
-            TPImage = pygame.image.load("C:/master/bci/protocol/help.gif").convert_alpha()
+            TPImage = pygame.image.load("help.gif").convert_alpha()
             # coordinates of the image
             x = 100;
             y = 200;

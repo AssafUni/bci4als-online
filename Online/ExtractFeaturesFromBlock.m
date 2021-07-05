@@ -1,8 +1,23 @@
 function [EEG_Features, AllDataInFeatures] = ExtractFeaturesFromBlock(recordingFolder)
+%% This function extracts features for the machine learning process.
+% It loads a preprocessed chunk, the selected features indexes from
+% the offline phase, and extracts the same features to be selected
+% using these indexes.
+
+% This code is part of the BCI-4-ALS Course written by Asaf Harel
+% and edited by Team 1
+% (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
+% so on - but please cite properly if published.
+
+
+% Loads channels numbering
 load(strcat(recordingFolder,'EEG_chans.mat'));
+% Loads preprocessed chunk
 load(strcat(recordingFolder,'MIData.mat'));
+% Loads the features that were selected in the offline phase
 load(strcat(recordingFolder,'SelectedIdx.mat'));
 
+% Parameters as in the offline phase- should be the same
 numTargets = 3;
 Fs = 120; 
 onlyPowerBands = 1;
@@ -149,6 +164,7 @@ for trial = 1:trials
     end
 end
 
+% Select features as in the offline phase
 MIFeaturesLabel = zscore(MIFeaturesLabel);
 AllDataInFeatures = reshape(MIFeaturesLabel, trials, []);
 EEG_Features = AllDataInFeatures(:, SelectedIdx);

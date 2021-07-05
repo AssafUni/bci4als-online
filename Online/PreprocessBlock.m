@@ -1,5 +1,16 @@
 function [] = PreprocessBlock(block, Fs, recordingFolder)
-electrodesToRemove = [8, 16];
+%% Online Preprocessing
+% Preprocessing using EEGLAB function. Assumes Wearable Sensing DSI-24 EEG
+% The function preprocess raw data chunk as in the offline phase.
+% Make sure parameters are in sync.
+
+% This code is part of the BCI-4-ALS Course written by Asaf Harel
+% and edited by Team 1
+% (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
+% so on - but please cite properly if published.
+
+% Same parameters as in offline phase
+electrodesToRemove = [];
 plotLowPassHighPassFreqResp = 0;
 plotScroll = 0;
 plotSpectraMaps = 0;
@@ -12,7 +23,7 @@ automaticAverageReReference = 0;
 blockPath = strcat(recordingFolder, '\', 'block.mat');
 save(blockPath, 'block');
 
-EEG = pop_importdata('dataformat', 'matlab', 'nbchan', 16, 'data', blockPath, 'srate', Fs, 'pnts', 0, 'xmin', 0);
+EEG = pop_importdata('dataformat', 'matlab', 'nbchan', 13, 'data', blockPath, 'srate', Fs, 'pnts', 0, 'xmin', 0);
 EEG.setname = 'MI_sub';
 
 % update channel names - each group should update this according to
@@ -20,26 +31,25 @@ EEG.setname = 'MI_sub';
 % EEG = pop_select(EEG, 'nochannel',1);% remove time stamp
 EEG = pop_select(EEG, 'nochannel', electrodesToRemove);% remove because too noisy
 
-EEG_chans(1,:) = 'P03'; % ??
-EEG_chans(2,:) = 'P04'; % ??
-EEG_chans(3,:) = 'C03'; % ??
-EEG_chans(4,:) = 'C04';
-EEG_chans(5,:) = 'CP5';
-EEG_chans(6,:) = 'CP6';
-EEG_chans(7,:) = '001';
-EEG_chans(8,:) = '002';
-EEG_chans(9,:) = 'CP1';
-EEG_chans(10,:) = 'CP2';
-EEG_chans(11,:) = 'FC1';
-EEG_chans(12,:) = 'FC2';
-EEG_chans(13,:) = 'FC5';
-EEG_chans(14,:) = 'FC6';
-EEG_chans(15,:) = 'C0Z';
-EEG_chans(16,:) = 'FPz';
+EEG_chans(1,:) = 'C03'; 
+EEG_chans(2,:) = 'C04'; 
+EEG_chans(3,:) = 'CP1'; 
+EEG_chans(4,:) = 'CP2';
+EEG_chans(5,:) = 'FC1';
+EEG_chans(6,:) = 'FC2';
+EEG_chans(7,:) = 'CP5';
+EEG_chans(8,:) = 'CP6';
+EEG_chans(9,:) = 'FC5';
+EEG_chans(10,:) = 'FC6';
+EEG_chans(11,:) = 'T03';
+EEG_chans(12,:) = 'T04';
+EEG_chans(13,:) = 'C0Z';
 
+% Removing channels according to input
 EEG_chans(electrodesToRemove, :) = [];
 numChans = size(EEG_chans, 1);
 
+% Plot eeglab scroll plot
 if plotScroll ~= 0
     pop_eegplot(EEG, 1, 1, 1);
 end
