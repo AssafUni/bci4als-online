@@ -56,6 +56,7 @@ def get_direction_string():
     return IDLE_STRING
 
 def get_expected_list(conn):
+    print("Pending expected list...")
     conn.sendall(b"next")
     data = conn.recv(1024)
     expected_list = []
@@ -64,6 +65,7 @@ def get_expected_list(conn):
         expected_list.append(get_pred(data))
         conn.sendall(b"next")
         data = conn.recv(1024)
+    print(" Recieved...")
     return expected_list
         
     

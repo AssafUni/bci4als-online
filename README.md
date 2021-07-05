@@ -79,6 +79,8 @@ Next, add to the path the entire repository and its subdirectories. Now we are r
 16. Preform several online sessions.
 17. Next, you can train on these sessions(only on the correct trials, wrong or both) in the trainModelScript.m
     but choose features instead of raw this time(in the array parameters, see the file for more info).
+18. To run the python code, first choose feedback_python or application_python in the MI_Online_Learning.m.
+    Next, run feedback.py or UI.py. Finally, run MI_Online_Learning.m.
 18. Good Luck!
 
 ***

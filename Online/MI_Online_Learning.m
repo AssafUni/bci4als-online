@@ -26,13 +26,13 @@ clc
 testNum = input('Please enter test number: ');    % prompt to enter test number
 % Where to store the online recording, to use later for training a new
 % model.
-trainFolderPath = 'D:\EEG\Online\bci4als-online\2Jun\'; 
+trainFolderPath = 'D:\EEG\MI\5Jul\'; 
 trainFolder = strcat(trainFolderPath, '\OnlineTest', num2str(testNum), '\');
 mkdir(trainFolder);
 
 % The folder where the offline training took place. This is the last
 % aggregated folder.
-recordingFolder = 'D:\EEG\Online\bci4als-online\2Jun\\Sub1\';
+recordingFolder = 'D:\EEG\MI\5Jul\Test2\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
 addpath 'D:\EEG\eeglab2020_0'
@@ -40,8 +40,8 @@ addpath 'D:\EEG\eeglab2020_0'
 eeglab;
     
 %% Set params
-feedbackFlag = 1;                                   % 1-with feedback, 0-no feedback
-apllication_python = 0;                             % running application
+feedbackFlag = 0;                                   % 1-with feedback, 0-no feedback
+apllication_python = 1;                             % running application
 feedback_python = 0;                                % feedback from python
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
@@ -146,7 +146,7 @@ if feedback_python ==1
         recieved_msg = 1;
         mag = '';
         while (recieved_msg)
-                mag, count = fread(t, [1, t.BytesAvailable]);
+                [mag, count] = fread(t, [1, t.BytesAvailable]);
                 if count > 0
                     recieved_msg = 0;
                 end
@@ -208,8 +208,8 @@ for trial = 1:numTrials
         pause(0.2)
         if ~isempty(myChunk)
             % Apply LaPlacian Filter
-            motorData(1,:) = myChunk(1,:) - ((myChunk(3,:) + myChunk(5,:) + myChunk(7,:) + myChunk(9,:))./4);    % LaPlacian (Cz, F3, P3, T3)
-            motorData(2,:) = myChunk(2,:) - ((myChunk(4,:) + myChunk(6,:) + myChunk(8,:) + myChunk(10,:))./4);    % LaPlacian (Cz, F4, P4, T4)
+            myChunk(1,:) = myChunk(1,:) - ((myChunk(3,:) + myChunk(5,:) + myChunk(7,:) + myChunk(9,:))./4);    % LaPlacian (Cz, F3, P3, T3)
+            myChunk(2,:) = myChunk(2,:) - ((myChunk(4,:) + myChunk(6,:) + myChunk(8,:) + myChunk(10,:))./4);    % LaPlacian (Cz, F4, P4, T4)
 
             myBuffer = [myBuffer myChunk];              % append new data to the current buffer
             motorData = [];
@@ -292,7 +292,7 @@ for trial = 1:numTrials
                 
                 %waiting for python to send message
                 while (recieved_msg)
-                    bytes, count = fread(t, [1, t.BytesAvailable]);
+                    [bytes, count] = fread(t, [1, t.BytesAvailable]);
                     if count > 0
                         recieved_msg = 0;
                     end
@@ -350,10 +350,10 @@ if exist('allClass') == 1
 end
 
 if apllication_python ==1 
-    bytes =''
-    recieved_msg = 1
+    bytes = '';
+    recieved_msg = 1;
     while (recieved_msg)
-        bytes, count = fread(t, [1, t.BytesAvailable]);
+        [bytes, count] = fread(t, [1, t.BytesAvailable]);
         if count > 0
             recieved_msg = 0;
         end

@@ -27,7 +27,8 @@ eeglab;                                     % open EEGLAB
 raw = 0;
 features = 1;
 recordings = [
-    {'D:\EEG\Online\bci4als-online\2Jun\\Sub1\', raw}
+    {'D:\EEG\MI\5Jul\Test1\', raw}
+    {'D:\EEG\MI\5Jul\Test2\', raw}
 ];
 
 % Alter parameters
@@ -46,7 +47,7 @@ automaticNoiseRejection = 0; % Problamatic to keep in consistency with trainingV
 automaticAverageReReference = 0; % 0- don't use average re-reference 1- use average re-reference.
 pauseAfterEachPreprocess = 0; % 0- don't pause 1- pause after each preprocess
 pauseAfterEachTrain = 0; % 0- don't pause 1- pause after each train
-FeatureSelectMode = 1; % feature 2 select mode, see extractFeatures for more info.
+FeatureSelectMode = 0; % feature 2 select mode, see extractFeatures for more info.
 Features2Select = 6; % the number of features to select
 Feature2SelectFile = ''; % the file path of a pre-determined feature selection
 onlyPowerBands = 1; % whether to use or not to use only power bands features

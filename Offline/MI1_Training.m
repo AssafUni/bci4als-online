@@ -23,7 +23,7 @@ function [recordingFolder, testNum] = MI1_Training()
 % prompt to enter subject ID or name
 testNum = input('Please enter test number: ');
 %%%%% Change root folder according to your system %%%%%
-rootFolder = 'D:\EEG\Online\bci4als-online\2Jun\'; 
+rootFolder = 'D:\EEG\MI\5Jul\'; 
 % Define recording folder location and create the folder
 recordingFolder = strcat(rootFolder, '\Test', num2str(testNum), '\');
 mkdir(recordingFolder);
