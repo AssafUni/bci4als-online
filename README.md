@@ -38,7 +38,7 @@ The repository is structured into 4 directories:
 1. MI_Online_Learning.m- A script used to co-train or run the application of the online session.
    That is, co-train using feedback or run only the target application(no feedback, only predictions to application output).
 2. PreprocessBlock.m- Simillar to the offline phase, this function preprocess online chunk.
-3. ExtractFeaturesFromBlock.m- Simillar to the offline phase, this function extract features frin the proprocessed chunk.
+3. ExtractFeaturesFromBlock.m- Simillar to the offline phase, this function extract features from the preprocessed chunk.
 4. prepareTraining.m- Prepare a training vector for co-learning.
 
 ### Python
