@@ -11,11 +11,21 @@ ORIGINAL_Y = 400
 ORIGINAL_WIDTH = 50
 ORIGINAL_HEIGHT = 50
 
+"""
+When running this code: a red rectangle will be presented in the center of the screen, followed by an instruction.
+The instruction can be one of the following: Think Left, Think Right and Think idle. The instructions vector is a vector
+that is being received from the Matlab code in the beginning of the flow.
+Following each instruction, the Matlab code will try to predict what the mentor is thinking about, left, right or idle
+and forward it's prediction to this code. Then, according to the received prediction the rectangle will move too to the
+prediction side. In case the rectangle is about to reach the margins, the rectangle will move back to the center of the
+screen. In order for it to be clear to the mentor that it did not move to the center because of him, the rectangle will
+change it's color to green while doing it, and will appear and disappear a few times.
+When this code finishes iterating over all the directions in the directions' vector it will exit.
+"""
+
 
 class ExpectedDirections:
     def __init__(self, expected_lst):
-        # todo - Noa might need to change this, might not be an actual list in the way that it is being sent, to parse
-        #  it somehow
         self.expected_directions = expected_lst
         self.original_length = len(self.expected_directions)
 
@@ -42,12 +52,21 @@ def move_x_to_center():
 
 
 def get_run(num_of_iters):
+    """
+
+    :param num_of_iters: number of iterations already performed
+    :return: True in case needs to continue to the next iteration, False otherwise
+    """
     if num_of_iters < expect_directions.get_length_of_expected_directions_list():
         return True
     return False
 
 
 def get_direction_string():
+    """
+
+    :return: the string that will be presented to the mentor, describing the direction he should think of
+    """
     next_direction = expect_directions.get_next_direction()
     if next_direction == LEFT:
         return LEFT_STRING
@@ -55,7 +74,13 @@ def get_direction_string():
         return RIGHT_STRING
     return IDLE_STRING
 
+
 def get_expected_list(conn):
+    """
+
+    :param conn: Matlab connection
+    :return: the directions' vector
+    """
     print("Pending expected list...")
     conn.sendall(b"next")
     data = conn.recv(1024)
@@ -68,9 +93,13 @@ def get_expected_list(conn):
     print(" Recieved...")
     return expected_list
         
-    
 
 def get_pred(data):
+    """
+
+    :param data: the string representation of the predicted direction
+    :return: the int representation of the predicated direction if exists, -1 otherwise
+    """
     print(data)
     if data == b'left':
         return 3
@@ -79,6 +108,7 @@ def get_pred(data):
     if data == b'idle':
         return 1
     return -1
+
 
 if __name__ == '__main__':
     # activate the pygame library

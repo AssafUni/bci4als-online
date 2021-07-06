@@ -9,7 +9,7 @@ enviornment with libLSL, OpenBCI, EEGLab with ERPLAB & loadXDF plugins installed
 Anaconda python 3.7 with pygame installed to run the python code.
 
 
-✨  Team 1 whishes happing coding   ✨ 
+✨  Team 1 wishes happy coding   ✨
 
 ## Project Structure
 
