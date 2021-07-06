@@ -13,13 +13,13 @@ ORIGINAL_HEIGHT = 50
 
 """
 When running this code: a red rectangle will be presented in the center of the screen, followed by an instruction.
-The instruction can be one of the following: Think Left, Think Right and Think idle. The instructions vector is a vector
+The instruction can be one of the following: Think Left, Think Right and Think idle. The instructions' vector is a vector
 that is being received from the Matlab code in the beginning of the flow.
 Following each instruction, the Matlab code will try to predict what the mentor is thinking about, left, right or idle
-and forward it's prediction to this code. Then, according to the received prediction the rectangle will move too to the
-prediction side. In case the rectangle is about to reach the margins, the rectangle will move back to the center of the
+and forward it's prediction to this code. Then, according to the received prediction the rectangle will move to the
+predicted side. In case the rectangle is about to reach the margins, the rectangle will move back to the center of the
 screen. In order for it to be clear to the mentor that it did not move to the center because of him, the rectangle will
-change it's color to green while doing it, and will appear and disappear a few times.
+change it's color to green while doing so, and will appear and disappear a few times.
 When this code finishes iterating over all the directions in the directions' vector it will exit.
 """
 
