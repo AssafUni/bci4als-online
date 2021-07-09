@@ -22,6 +22,9 @@ The repository is structured into 4 directories:
 
 ### Offline
 
+This part of the code is responsible for recording raw EEG data from the headset, preprocess it, segment it, extract features and
+train a classifier.
+
 1. MI1_Training.m- Code for recording new training sessions.
 2. MI2_Preprocess.m- Function to preprocess raw EEG data.
 3. MI3_SegmentData.m- Function that segments the preprocessed data into chunks.
@@ -35,6 +38,10 @@ The repository is structured into 4 directories:
 
 ### Online
 
+This part of the code is responsible for loading the classifier that was trained in the offline section, record raw EEG data, preprocess it, extract features and
+make a prediction using the classifier. Additionally, it saves the features to use for training later(co-learning) and sends the predictions to the python interface using
+TCP/IP. The comuunication part of the code is really simple and sends chunks of data to the python code, until it recives the string "next", in which it sends the next portion of data.
+
 1. MI_Online_Learning.m- A script used to co-train or run the application of the online session.
    That is, co-train using feedback or run only the target application(no feedback, only predictions to application output).
 2. PreprocessBlock.m- Simillar to the offline phase, this function preprocess online chunk.
@@ -42,6 +49,9 @@ The repository is structured into 4 directories:
 4. prepareTraining.m- Prepare a training vector for co-learning.
 
 ### Python
+
+The python code is seperated into two files, both communicate with the matlab code using TCP/IP. A feedback file which is used for co-learning, and ui file which is used
+for the actual application used by the mentor.
 
 1. feedback.py- Script that runs the co-learning feedback application.
 2. UI.py- Script that runs the actual application.
@@ -85,7 +95,7 @@ Next, add to the path the entire repository and its subdirectories. Now we are r
 
 ***
 
-For more info, see the documentation located in each code file.
+For more info, see the documentation located in each code file and the docs file in the documents folder.
 
 ### Trobuleshooting
 
