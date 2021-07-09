@@ -40,7 +40,7 @@ train a classifier.
 
 This part of the code is responsible for loading the classifier that was trained in the offline section, record raw EEG data, preprocess it, extract features and
 make a prediction using the classifier. Additionally, it saves the features to use for training later(co-learning) and sends the predictions to the python interface using
-TCP/IP. The comuunication part of the code is really simple and sends chunks of data to the python code, until it recives the string "next", in which it sends the next portion of data.
+TCP/IP. The communication part of the code is really simple and sends chunks of data to the python code, until it recives the string "next", in which it sends the next portion of data.
 
 1. MI_Online_Learning.m- A script used to co-train or run the application of the online session.
    That is, co-train using feedback or run only the target application(no feedback, only predictions to application output).
