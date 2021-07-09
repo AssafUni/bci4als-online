@@ -54,7 +54,7 @@ The python code is seperated into two files, both communicate with the matlab co
 for the actual application used by the mentor.
 
 1. feedback.py- Script that runs the co-learning feedback application. The Matlab code creates the labels for the co-learning session, sends them to the python code which will present to the user what to imagine and depending on the prediction made in the matlab code, will move a red rectangle to the appropriate side.
-2. UI.py- Script that runs the actual application. As in the feedback script, the Matlab code will sends the prediction to the python code. However, as this is the real application no labels exist. Instad, three colums will be presented to the user and depending on the prediction made in the matlab code, the appropriate column will be filled. When a threshold will be passed(voting), the action regarding that column will execute. The right column is used to signal for help(shows a help sign and sounds an alarm) while the left column is used to open another interface to allow to pick yes or no response.
+2. UI.py- Script that runs the actual application. As in the feedback script, the Matlab code will sends the prediction to the python code. However, as this is the real application no labels exist. Instead, three colums will be presented to the user and depending on the prediction made in the matlab code, the appropriate column will be filled. When a threshold will be passed(voting), the action regarding that column will execute. The right column is used to signal for help(shows a help sign and sounds an alarm) while the left column is used to open another interface to allow to pick yes or no response.
 
 ## Headset54
 
