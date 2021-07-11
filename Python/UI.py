@@ -6,19 +6,27 @@ import winsound
 pygame.init()
 class OnlineUI:
     def __init__(self):
+        # define the constant variables
         self.is_running = True
+        # define screen resolution for the UI
         self.screen_res = (800, 800)
+        # width and height of the icons which describes the model predictions
         self.icon_width = 100
         self.icon_height = 100
+        # the number of predictions to make the final classification (speed - accuracy trade-off)
         self.N_Voting = 5  # the number of predictions to get a decision
         self.segment_length = 3  # the length of each segment to classify in seconds
-        self.background = pygame.transform.scale(pygame.image.load('background.png'), self.screen_res)
-        self.objects = {'right': [], 'left': [], 'idle': []}
+        self.background = pygame.transform.scale(pygame.image.load('background.png'), self.screen_res) # define background image
+        # define dictionaries that will count each model prediction
+        self.objects = {'right': [], 'left': [], 'idle': []} 
+        # define dictionaries that will save icon locations on screen
         self.objects_loc = {'right': [], 'left': [], 'idle': []}
+        # counter for the prediction number out of N_voting for each decision
         self.pred_num = 0
-        pygame.display.set_caption('ON-LINE')
+        pygame.display.set_caption('ON-LINE') # title for the UI screen
         self.window_surface = pygame.display.set_mode(self.screen_res)
-
+        
+        # define text on screen - labels for each stack
         Font = pygame.font.SysFont('timesnewroman', 30)
         self.text1 = Font.render("Right", False, (255, 255, 255), (0, 0, 0))
         self.text2 = Font.render("Idle", False, (255, 255, 255), (0, 0, 0))
@@ -33,11 +41,12 @@ class OnlineUI:
 
     def add_prediction(self, pred):
         """
+        this function gets the current model prediction and adds it to the stacks. if pred_num reaches the N_voting it makes the final classification
         :param pred: int represent the prediction made by the classifier
         """
-        pred2str = {1: 'right', 2: 'left', 3: "idle"}
+        pred2str = {1: 'right', 2: 'left', 3: "idle"} 
         init_locs = {'right': (self.screen_res[0] - self.icon_width, self.screen_res[1]),
-                     'left': (0, self.screen_res[1]), 'idle': (self.screen_res[0] / 2, self.screen_res[1])}
+                     'left': (0, self.screen_res[1]), 'idle': (self.screen_res[0] / 2, self.screen_res[1])} # the starting locations for each stack
         pred = pred2str[pred]
         obj = pygame.transform.scale(pygame.image.load(f'{pred}.png').convert(), (self.icon_width, self.icon_height))
         self.objects[pred].append(obj)
@@ -50,7 +59,12 @@ class OnlineUI:
         self.pred_num += 1  # add 1 to prediction counter
 
     def Voting(self):
+        """
+        this function makes the voting machenism. for each N_voting predictions it returns the classification with the max number of predictions.
+        the function prints red rectangke around the final classification
+        """
         res = max(self.objects.keys(), key=lambda key: len(self.objects[key]))
+        
         if res == 'right':
             pygame.draw.rect(self.window_surface, (255, 0, 0), self.textRect1, 2)
             pygame.display.set_caption('Tutorialspoint Logo')
@@ -74,18 +88,27 @@ class OnlineUI:
         return res
 
     def print_objects(self):
+        """
+        this function prints all objects from the dictionaries on the screen. used after each prediction to update screen
+        """
         for object_list, locs_list in zip(self.objects.values(), self.objects_loc.values()):  # iterate through : right, left, idle
             for object, loc in zip(object_list, locs_list):
                 self.window_surface.blit(object, loc)
         pygame.display.update()
 
     def print_labels(self):
+        """
+        this function prints the labels (left, right, idle or yes/no) to the screen. used after each prediction to update screen
+        """
         self.window_surface.blit(self.text1, self.textRect1)
         self.window_surface.blit(self.text2, self.textRect2)
         self.window_surface.blit(self.text3, self.textRect3)
         pygame.display.update()
 
     def reset(self):
+        """
+        this function redets the dictionaries and screen. used after the final classification.
+        """
         self.objects = {'right': [], 'left': [], 'idle': []}
         self.objects_loc = {'right': [], 'left': [], 'idle': []}
         self.window_surface.fill((0, 0, 0))
@@ -96,7 +119,9 @@ class OnlineUI:
 
 
     def check(self, ):
-
+        ״״״
+        used to check the UI with predefined predications
+        ״״״
         # pygame.display.set_caption('Tutorialspoint Logo')
         # TPImage = pygame.image.load("C:/master/bci/protocol/help.gif")
         # # coordinates of the image
