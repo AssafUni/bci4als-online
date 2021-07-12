@@ -13,12 +13,13 @@ Anaconda python 3.7 with pygame installed to run the python code.
 
 ## Project Structure
 
-The repository is structured into 4 directories:
+The repository is structured into 5 directories:
 
 - Offline- Matlab code used for offline training.
 - Online- Matlab code used for online training.
 - Python- Python code that works with the online Matlab code.
 - Headset54- Materials regarding the headset wiring and additional guiding materials, etc...
+- Documents- Important documents including but not limited to- A general guide and where to go next, UX and video, Product specification document and more...
 
 ### Offline
 
@@ -77,12 +78,12 @@ Next, add to the path the entire repository and its subdirectories. Now we are r
 6. Update the lab recorder streams and start recording. Make sure the status bar in the bottom shows an increasing
    number of data(KBs recieved). 
 7. Continue to training.
-8. After several recording sessions, go to trainModelScript.m. Alter the recordings array with the recording you just preformed. As this is raw recordings, set all of the entires to raw.
+8. After several recording sessions, go to trainModelScript.m. Alter the recordings array with the recording you just preformed. As this is raw recordings, set all of the entries to raw.
 9. Alter the parameters as you see fit, change target classifer as well to see different test results. Make sure saveModel equals 1.
 10. Now we can try to do Online classification. First, make sure the parameters in PreprocessBlock.m and 
     ExtractFeaturesFromBlock.m are the same as in the Online code.
 11. Next, change trainFolderPath to where to store the online recorded features. 
-12. Change recordingFolder to the last folder in the recordings array in trainModelScript.m. The offline code aggregates the     recording and always saves the result in the last folder.
+12. Change recordingFolder to the last folder in the recordings array in trainModelScript.m. The offline code aggregates the recording and always saves the result in the last folder.
 13. Change eeglab folder path to the correct path.
 14. Run the python code, UI or feedback.
 15. Run MI_Online_Learning.m and alter parameters according to which python code is running.
