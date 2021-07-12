@@ -3,6 +3,16 @@ import socket
 import sys
 import winsound
 
+"""
+When running this code: a window will open in the resolution set in the code. Three labels will appear on the screen that
+specifies the possiable classification options (Left, idle, Right). Procceding which model decision, a compatiable icon will 
+appear in the corresponding stack that indicates the model decisions. When the model reaches N_voting decisions, the final
+classification will be made, and a red rectengle will surrond the label to indicate which classification option was made.
+This code supports to main actions:
+1. Help calling - from the main menu choosing right will induce an help sign following a siran sound.
+2. Answering yes/no - from the main menu choosing left will change the labels for yes/no/idle classification.
+"""
+
 pygame.init()
 class OnlineUI:
     def __init__(self):
