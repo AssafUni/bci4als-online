@@ -4,8 +4,8 @@
 This is the code repository for the BCI4ALS, team 1, with reimagined headset 54 from Or Rabani.
 The code is a fork of Asaf Harel(harelasa@post.bgu.ac.il) basic code for the course BCI-4-ALS which
 was taken place in Ben Gurion University during 2020/2021. You are free to use, change, adapt and
-so on - but please cite properly if published. We assume you have already set up a Matlab 
-enviornment with libLSL, OpenBCI, EEGLab with ERPLAB & loadXDF plugins installed. Additionally,
+so on - but please cite properly if published. We assume you have already set up a Matlab
+environment with libLSL, OpenBCI, EEGLab with ERPLAB & loadXDF plugins installed. Additionally,
 Anaconda python 3.7 with pygame installed to run the python code.
 
 
@@ -13,7 +13,7 @@ Anaconda python 3.7 with pygame installed to run the python code.
 
 ## Project Structure
 
-The repository is structured into 6 directories:
+The repository is structured into 7 directories:
 
 - Offline- Matlab code used for offline training.
 - Online- Matlab code used for online training.
@@ -21,7 +21,7 @@ The repository is structured into 6 directories:
 - Headset54- Materials regarding the headset wiring and additional guiding materials, etc...
 - NewHeadsetRecordingsAssaf- Recordings from the new headset on Assaf.
 - OldHeadsetRecordings- Recordings from the old headset.
-
+- Documents- Important documents including but not limited to- A general guide and where to go next, UX and video, Product specification document and more...
 
 ### Offline
 
@@ -43,7 +43,7 @@ train a classifier.
 
 This part of the code is responsible for loading the classifier that was trained in the offline section, record raw EEG data, preprocess it, extract features and
 make a prediction using the classifier. Additionally, it saves the features to use for training later(co-learning) and sends the predictions to the python interface using
-TCP/IP. The comuunication part of the code is really simple and sends chunks of data to the python code, until it recives the string "next", in which it sends the next portion of data.
+TCP/IP. The communication part of the code is really simple and sends chunks of data to the python code, until it recives the string "next", in which it sends the next portion of data.
 
 1. MI_Online_Learning.m- A script used to co-train or run the application of the online session.
    That is, co-train using feedback or run only the target application(no feedback, only predictions to application output).
@@ -56,8 +56,8 @@ TCP/IP. The comuunication part of the code is really simple and sends chunks of 
 The python code is seperated into two files, both communicate with the matlab code using TCP/IP. A feedback file which is used for co-learning, and ui file which is used
 for the actual application used by the mentor.
 
-1. feedback.py- Script that runs the co-learning feedback application.
-2. UI.py- Script that runs the actual application.
+1. feedback.py- Script that runs the co-learning feedback application. The Matlab code creates the labels for the co-learning session, sends them to the python code which will present to the user what to imagine and depending on the prediction made in the matlab code, will move a red rectangle to the appropriate side.
+2. UI.py- Script that runs the actual application. As in the feedback script, the Matlab code will sends the prediction to the python code. However, as this is the real application no labels exist. Instead, three colums will be presented to the user and depending on the prediction made in the matlab code, the appropriate column will be filled. When a threshold will be passed(voting), the action regarding that column will execute. The right column is used to signal for help(shows a help sign and sounds an alarm) while the left column is used to open another interface to allow to pick yes or no response.
 
 ## Headset54
 
@@ -68,24 +68,24 @@ for the actual application used by the mentor.
 
 An explanation for the general work flow might help. First,
 we open Matlab. Next, we add to the path libLSL for Matlab. Additionally,
-it is recommended to add eeglab to the path or add it manually in each script. 
+it is recommended to add eeglab to the path or add it manually in each script.
 Next, add to the path the entire repository and its subdirectories. Now we are ready to roll:
-1. Open MI1_Training.m, read the documentation and change parameters as needed. Most importantly, change 
+1. Open MI1_Training.m, read the documentation and change parameters as needed. Most importantly, change
    where to save the training vector(rootFolder). The training vector is a vector containing the labels for each trial.
 2. Next, open OpenBCI and start a session, don't forget to configure the network widget correctly.
 3. Open lab recorder.
 4. Run MI1_Training.m and follow the console instructions.
-5. Change the output dir of the lab recorder(File name/Template) to the directory created automatically in step 4. 
+5. Change the output dir of the lab recorder(File name/Template) to the directory created automatically in step 4.
    (If you can't change the output dir, make sure BIDS is not checked). Name the file EEG.XDF.
 6. Update the lab recorder streams and start recording. Make sure the status bar in the bottom shows an increasing
-   number of data(KBs recieved). 
+   number of data(KBs recieved).
 7. Continue to training.
-8. After several recording sessions, go to trainModelScript.m. Alter the recordings array with the recording you just preformed. As this is raw recordings, set all of the entires to raw.
+8. After several recording sessions, go to trainModelScript.m. Alter the recordings array with the recording you just preformed. As this is raw recordings, set all of the entries to raw.
 9. Alter the parameters as you see fit, change target classifer as well to see different test results. Make sure saveModel equals 1.
-10. Now we can try to do Online classification. First, make sure the parameters in PreprocessBlock.m and 
+10. Now we can try to do Online classification. First, make sure the parameters in PreprocessBlock.m and
     ExtractFeaturesFromBlock.m are the same as in the Online code.
-11. Next, change trainFolderPath to where to store the online recorded features. 
-12. Change recordingFolder to the last folder in the recordings array in trainModelScript.m. The offline code aggregates the     recording and always saves the result in the last folder.
+11. Next, change trainFolderPath to where to store the online recorded features.
+12. Change recordingFolder to the last folder in the recordings array in trainModelScript.m. The offline code aggregates the recording and always saves the result in the last folder.
 13. Change eeglab folder path to the correct path.
 14. Run the python code, UI or feedback.
 15. Run MI_Online_Learning.m and alter parameters according to which python code is running.
@@ -105,8 +105,8 @@ For more info, see the documentation located in each code file and the docs file
 #### Our offline classifier preforms very poorly
 1. A look on the OpenBCI waves output can help us determine the amount of noise we have. The more
    noise, the less able will be our classifier.
-2. Click several times on the notch filter to bring it to 50hz, even if it is currently on 50hz. 
-   A look on the FFT around 50hz should reveal a negative peak. If you still see a peak, try replacing the bateries or 
+2. Click several times on the notch filter to bring it to 50hz, even if it is currently on 50hz.
+   A look on the FFT around 50hz should reveal a negative peak. If you still see a peak, try replacing the bateries or
    move to another room. Try eliminiate all sources of noise such as electricity. Try to reposition the headset.
    Make sure you put the ear pieces on your ear lobes.
 3. Click several times on the band pass and set it on 5-50hz. Even if it is already on 5-50hz.
@@ -128,6 +128,6 @@ For more info, see the documentation located in each code file and the docs file
 1. Disconnect the dongle.
 2. Close all programs.
 3. Wait a bit!
-4. Try again. :) 
+4. Try again. :)
 
 Thanks to all the course staff: Oren Shirki(shrikio@bgu.ac.il), Lahav foox(fooxl@post.bgu.ac.il), Asaf Harel(harelasa@post.bgu.ac.il), Or Rabani(orabani@campus.haifa.ac.il) and Daniel Polyakov(polydani@post.bgu.ac.il).
