@@ -27,8 +27,24 @@ eeglab;                                     % open EEGLAB
 raw = 0;
 features = 1;
 recordings = [
-    {'D:\EEG\MI\5Jul\Test1\', raw}
-    {'D:\EEG\MI\5Jul\Test2\', raw}
+    {'D:\EEG\subjects\Test1\', raw}
+    {'D:\EEG\subjects\Test2\', raw}
+    {'D:\EEG\subjects\Test3\', raw}
+    {'D:\EEG\subjects\Test4\', raw}
+    {'D:\EEG\subjects\Test5\', raw}
+    {'D:\EEG\subjects\Test6\', raw}
+    {'D:\EEG\subjects\Test7\', raw}
+    {'D:\EEG\subjects\Test8\', raw}
+    {'D:\EEG\subjects\Test9\', raw}
+    {'D:\EEG\subjects\Test10\', raw}
+    {'D:\EEG\subjects\Test11\', raw}
+    {'D:\EEG\subjects\Test12\', raw}
+    {'D:\EEG\subjects\Test13\', raw}
+    {'D:\EEG\subjects\Test14\', raw}
+    {'D:\EEG\subjects\Test15\', raw}
+    {'D:\EEG\subjects\Test16\', raw}
+    {'D:\EEG\subjects\Test17\', raw}
+    {'D:\EEG\subjects\Test18\', raw}
 ];
 
 % Alter parameters

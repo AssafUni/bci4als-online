@@ -13,12 +13,15 @@ Anaconda python 3.7 with pygame installed to run the python code.
 
 ## Project Structure
 
-The repository is structured into 4 directories:
+The repository is structured into 6 directories:
 
 - Offline- Matlab code used for offline training.
 - Online- Matlab code used for online training.
 - Python- Python code that works with the online Matlab code.
 - Headset54- Materials regarding the headset wiring and additional guiding materials, etc...
+- NewHeadsetRecordingsAssaf- Recordings from the new headset on Assaf.
+- OldHeadsetRecordings- Recordings from the old headset.
+
 
 ### Offline
 
@@ -116,6 +119,10 @@ For more info, see the documentation located in each code file and the docs file
 
 ### The dongle is pluged in but cannot connect to the headset.
 1. Try replacing the batteries.
+
+### PsychToolbox is stuck and not moving forward with the training
+1. First, it might take some time in slow computers.
+2. Second, put the transparency on a lower value than 1(there is a line in the code already for this) and watch the log to see where it is stuck.
 
 ### Nothing works :(
 1. Disconnect the dongle.

@@ -23,7 +23,7 @@ function [recordingFolder, testNum] = MI1_Training()
 % prompt to enter subject ID or name
 testNum = input('Please enter test number: ');
 %%%%% Change root folder according to your system %%%%%
-rootFolder = 'D:\EEG\MI\5Jul\'; 
+rootFolder = 'D:\EEG\subjects\'; 
 % Define recording folder location and create the folder
 recordingFolder = strcat(rootFolder, '\Test', num2str(testNum), '\');
 mkdir(recordingFolder);
@@ -60,9 +60,13 @@ pause;                                  % Wait for experimenter to press a key
 %% Psychtoolbox, Stim, Screen Params Init:
 disp('Setting up Psychtoolbox parameters...');
 disp('This will open a black screen - good luck!');
-% This function will make the Psychtoolbox window semi-transparent:
-PsychDebugWindowConfiguration(0, 1);     % Use this to debug the psychtoolbox screen
+% This function will make the Psychtoolbox window semi-transparent:   
+Screen('Preference', 'SkipSyncTests', 1);
+% PsychDebugWindowConfiguration(0, 1); 
+PsychDebugWindowConfiguration(0, 0.8);  % Use this to debug the psychtoolbox screen
 
+
+disp('Initializing...');
 [window,white,~,~,screenYpixels,~,~,ifi] = PsychInit();
 topPriorityLevel = MaxPriority(window);
 Priority(topPriorityLevel);                     % set highest priority for screen processes
@@ -70,6 +74,7 @@ vbl = Screen('Flip', window);                   % get the vertical beam line
 waitFrames = 1;                                 % how many frames to wait for between screen refresh
 %% Prepare frequencies and binary sequences
 % prepare set of training trials (IMPORTANT FOR LATER MODEL TRAINING)
+disp('Generating training...');
 trainingVec = prepareTraining(numTrials, numTargets);    % vector with the conditions for each trial %% ask asaf%%
 save(strcat(recordingFolder,'trainingVec.mat'), 'trainingVec');
 
@@ -81,6 +86,7 @@ HideCursor;                                     % hides cursor on screen
 %% Record Training Stage
 outletStream.push_sample(startRecordings);    % start of recordings. Later, reject all EEG data prior to this marker
 totTrials = length(trainingVec);
+disp('Starting training...');
 for trial = 1:totTrials
     
     currentTrial = trainingVec(trial);           % What condition is it?
@@ -97,27 +103,33 @@ for trial = 1:totTrials
         
         myimgfile='arrow_right.jpeg';
     end
+    disp('Loading image...');
     ima=imread(myimgfile, 'jpeg');
     Screen('PutImage', window, ima); % put image on screen
     Screen('Flip', window);           % now visible on screen
     pause(cueLength);
     % Show "Ready" on screen for 2 seconds, followed by the relevant target
+    disp('Presenting ready...');
     Screen('TextSize', window, 70);             % Draw text in the bottom portion of the screen in white
     DrawFormattedText(window, 'Ready', 'center', screenYpixels * 0.75, white);
     Screen('Flip', window);
     pause(readyLength);                         % "Ready" stays on screen
     
-        
+    disp('Showing image...');  
     Screen('PutImage', window, ima); % put image on screen
     Screen('Flip', window);           % now visible on screen
+    disp('Starting trial...');
     outletStream.push_sample(startTrail);  % new trial recording
     outletStream.push_sample(currentTrial);  % new trial recording 
     
+    disp('Pausing...'); 
     pause(trialLength);              % target stays on screen
     
+    disp('Presenting next...'); 
     Screen('TextSize', window, 70);  % Draw text in the bottom portion of the screen in white
     DrawFormattedText(window, 'Next', 'center', screenYpixels * 0.75, white);
     Screen('Flip', window);
+    disp('Pausing...');
     pause(nextLength);               % "Next" stays on screen
     
     [~,~, keyCode] = KbCheck;    % check for keyboard press
@@ -129,6 +141,7 @@ for trial = 1:totTrials
     % Show on screen all the stimuli - assures correct refresh rate
     vbl = Screen('Flip', window, vbl + (waitFrames - 0.5) * ifi);
     %end
+    disp('Ending trial...');
     outletStream.push_sample(endTrail); % represent that the last section ends
 end
 %% End of recording session

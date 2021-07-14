@@ -233,6 +233,7 @@ if __name__ == '__main__':
         # sending to matlab 'next' for getting the next data
         conn.sendall(b"next")
 
+    conn.sendall(b"end")
     pygame.time.delay(6000)
     # closes the pygame window
     pygame.quit()

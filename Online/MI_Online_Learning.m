@@ -26,13 +26,13 @@ clc
 testNum = input('Please enter test number: ');    % prompt to enter test number
 % Where to store the online recording, to use later for training a new
 % model.
-trainFolderPath = 'D:\EEG\MI\5Jul\'; 
+trainFolderPath = 'D:\EEG\subjects\'; 
 trainFolder = strcat(trainFolderPath, '\OnlineTest', num2str(testNum), '\');
 mkdir(trainFolder);
 
 % The folder where the offline training took place. This is the last
 % aggregated folder.
-recordingFolder = 'D:\EEG\MI\5Jul\Test2\';
+recordingFolder = 'D:\EEG\subjects\Test18\';
 % addpath('YOUR RECORDING FOLDER PATH HERE');
 % addpath('YOUR LSL FOLDER PATH HERE');
 addpath 'D:\EEG\eeglab2020_0'
@@ -41,8 +41,8 @@ eeglab;
     
 %% Set params
 feedbackFlag = 0;                                   % 1-with feedback matlab gui, 0-no feedback matlab gui
-apllication_python = 1;                             % predictions sent to python application gui
-feedback_python = 0;                                % predictions sent to python feedback gui
+apllication_python = 0;                             % predictions sent to python application gui
+feedback_python = 1;                                % predictions sent to python feedback gui
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
 bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification
@@ -57,7 +57,7 @@ images(3,:,:,:) = imread('arrow_right.jpeg', 'jpeg');
 images_f_1 = imread('square.jpeg', 'jpeg'); 
 images_f_2 = imread('leftt.png', 'png');
 images_f_3 = imread('rightt.png', 'png');
-numTrials = 5;                                      % number of trials overall
+numTrials = 1;                                      % number of trials overall
 trialTime = 60;                                    % duration of each trial in seconds
 cueVec = prepareTraining(numTrials,numConditions);  % prepare the cue vector
 
@@ -136,12 +136,15 @@ end
 
 %% calling gui from python
 if apllication_python ==1 || feedback_python
+    disp('Connecting to python script!');
     t = tcpip('localhost', 50007);
     fopen(t);
+    disp('Connected!!');
 end
 
 %% sending expected_list to python
 if feedback_python ==1
+    disp('Setting up feedback for python!!');
     for i=1:size(cueVec,2)+1
         recieved_msg = 1;
         mag = '';
@@ -165,7 +168,7 @@ if feedback_python ==1
             fwrite(t, data);
         end
     end   
-    
+    disp('Done!!');
 end
 
     
@@ -174,6 +177,8 @@ end
 correctPreds = 0;
 totalPreds = 0;
 
+disp('Starting feedback training!!');
+end_train = 0;
 for trial = 1:numTrials
     
 %     Screen('TextSize', window, 70);             % Draw text in the bottom portion of the screen in white
@@ -294,9 +299,20 @@ for trial = 1:numTrials
                 while (recieved_msg)
                     [bytes, count] = fread(t, [1, t.BytesAvailable]);
                     if count > 0
+                        disp('Got it!!');
                         recieved_msg = 0;
+                        disp(bytes)
+                        if (count == 3 && bytes(1) == 'e' && bytes(2) == 'n' && bytes(3) == 'd') || (count == 7 && bytes(1) == 'n' && bytes(2) == 'e' && bytes(3) == 'x' && bytes(4) == 't' && bytes(5) == 'e' && bytes(6) == 'n' && bytes(7) == 'd')
+                            disp('Connection closed, done!!');
+                            end_train = 1;
+                        end                        
                     end
                 end
+                
+                if end_train == 1
+                    break
+                end
+                
                 %send prediction
                 fwrite(t, data);
                 
@@ -327,9 +343,21 @@ for trial = 1:numTrials
             allClassSelectedFeatures(decCount,:,:) = EEG_Features; 
             
             % clear buffer
-            myBuffer = [];
+            myBuffer = [];    
+            
+            if end_train == 1
+                break
+            end             
         end
+        
+        if end_train == 1
+            break
+        end         
     end
+    
+    if end_train == 1
+        break
+    end     
 end
 
 % Save recording to use later in traning the model
