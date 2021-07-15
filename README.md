@@ -19,6 +19,7 @@ The repository is structured into 7 directories:
 - Online- Matlab code used for online training.
 - Python- Python code that works with the online Matlab code.
 - Headset54- Materials regarding the headset wiring and additional guiding materials, etc...
+- NewHeadsetRecordingsOmri- Recording from the new headset on Omri(Our mentor), we managed to reach 66%-70% accurecy with onlyPowerBands=0 and 57%-70% with onlyPowerBands=1.
 - NewHeadsetRecordingsAssaf- Recordings from the new headset on Assaf.
 - OldHeadsetRecordings- Recordings from the old headset.
 - Documents- Important documents including but not limited to- A general guide and where to go next, UX and video, Product specification document and more...

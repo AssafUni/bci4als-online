@@ -27,24 +27,9 @@ eeglab;                                     % open EEGLAB
 raw = 0;
 features = 1;
 recordings = [
-    {'D:\EEG\subjects\Test1\', raw}
     {'D:\EEG\subjects\Test2\', raw}
     {'D:\EEG\subjects\Test3\', raw}
     {'D:\EEG\subjects\Test4\', raw}
-    {'D:\EEG\subjects\Test5\', raw}
-    {'D:\EEG\subjects\Test6\', raw}
-    {'D:\EEG\subjects\Test7\', raw}
-    {'D:\EEG\subjects\Test8\', raw}
-    {'D:\EEG\subjects\Test9\', raw}
-    {'D:\EEG\subjects\Test10\', raw}
-    {'D:\EEG\subjects\Test11\', raw}
-    {'D:\EEG\subjects\Test12\', raw}
-    {'D:\EEG\subjects\Test13\', raw}
-    {'D:\EEG\subjects\Test14\', raw}
-    {'D:\EEG\subjects\Test15\', raw}
-    {'D:\EEG\subjects\Test16\', raw}
-    {'D:\EEG\subjects\Test17\', raw}
-    {'D:\EEG\subjects\Test18\', raw}
 ];
 
 % Alter parameters
@@ -66,7 +51,7 @@ pauseAfterEachTrain = 0; % 0- don't pause 1- pause after each train
 FeatureSelectMode = 0; % feature 2 select mode, see extractFeatures for more info.
 Features2Select = 6; % the number of features to select
 Feature2SelectFile = ''; % the file path of a pre-determined feature selection
-onlyPowerBands = 1; % whether to use or not to use only power bands features
+onlyPowerBands = 0; % whether to use or not to use only power bands features
 % When training on online data(from features only in the recording array),
 % you can train on correct labled trials, wrong, or both.
 correctWrongOrBoth = 2; % 0 correct 1 wrong 2 both - On features only train, on what to train
