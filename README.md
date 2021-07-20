@@ -12,7 +12,7 @@ Anaconda python 3.7 with pygame installed to run the python code.
 ✨  Team 1 wishes happy coding   ✨
 
 - Assaf Peleg(assafpel@post.bgu.ac.il)
-- Noa Bayern(noabay@post.bgu.ac.il)
+- Noa Bayer(noabay@post.bgu.ac.il)
 - Adi Krasin(adikra@post.bgu.ac.il)
 - Dor Zazon(zazond@post.bgu.ac.il)
 
@@ -26,8 +26,10 @@ The repository is structured into 7 directories:
 - Headset54- Materials regarding the headset wiring and additional guiding materials, etc...
 - NewHeadsetRecordingsOmri- Recording from the new headset on Omri(Our mentor), we managed to reach with all three recordings 66%-70% accurecy with onlyPowerBands=0 and 57%-70% with onlyPowerBands=1. These recordings were created
 in the home of Omri where there are many inteferences and noise. The classifier is the SVM RBF.
-- NewHeadsetRecordingsAssaf- Recordings from the new headset on Assaf, we managed to reach with all the recordings 60%-86% in my house where there are many inteferences and noise with onlyPowerBands=0 and 30%-60% with onlyPowerBands=1. The classifier is the SVM RBF.
-- OldHeadsetRecordings- Recordings from the old headset. We managed to get with the old headset at Noa's house where the training took place at a very quiet location with not many inteferences most of the time 60%-80% with onlyPowerBands=1.
+- NewHeadsetRecordingsAssaf- Recordings from the new headset on Assaf, we managed to reach with all the recordings 60%-86% in my house where there are many inteferences and noise with onlyPowerBands=1 and 30%-60% with onlyPowerBands=0. The classifier is the SVM RBF.
+- OldHeadsetRecordings- Recordings from the old headset. We managed to get with the old headset at Noa's house where the training took place at a very quiet location with not many inteferences most of the time 60%-80% combining both offline and online recording and with onlyPowerBands=0. Please
+note that the code now don't support these recordings and the channel mapping has changed, i.e. the laplacian is wrong and we omit channels that existed here. To reach best results with old recording, we recommend to go back in history of the repository and look for old recordings, the preprocess files the matchs them, the
+channels that were removed and the recordings that were used.
 - Documents- Important documents including but not limited to- A general guide and where to go next, UX and video, Product specification document and more...
 
 ### Offline
