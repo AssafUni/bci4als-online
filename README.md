@@ -102,7 +102,7 @@ Next, add to the path the entire repository and its subdirectories. Now we are r
 4. Run MI1_Training.m and follow the console instructions.
 5. Change the output dir of the lab recorder(File name/Template) to the directory created automatically in step 4.
    (If you can't change the output dir, make sure BIDS is not checked). Name the file EEG.XDF.
-6. Update the lab recorder streams and start recording. Make sure the status bar in the bottom shows an increasing
+6. Update the lab recorder streams, select both of them(eeg and marker), and start recording. Make sure the status bar in the bottom shows an increasing
    number of data(KBs recieved).
 7. Continue to training.
 8. After several recording sessions, go to trainModelScript.m. Alter the recordings array with the recording you just preformed. As this is raw recordings, set all of the entries to raw.
