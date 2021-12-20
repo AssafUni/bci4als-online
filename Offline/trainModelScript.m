@@ -19,8 +19,7 @@ clc; clear; close all;
 
 rng(546351789) % For reproducibility
 
-%% Some parameters (this needs to change according to your system):
-addpath 'D:\EEG\eeglab2020_0'
+addpath utils\
 % addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
 eeglab;                                     % open EEGLAB 
 
