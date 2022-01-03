@@ -18,9 +18,6 @@ load(strcat(recordingFolder,'MIData.mat'));
 load(strcat(recordingFolder,'SelectedIdx.mat'));
 
 % Parameters as in the offline phase- should be the same
-numTargets = 3;
-Fs = 120; 
-onlyPowerBands = 1;
 trials = size(MIData,1);
 [R, C] = size(EEG_chans);
 chanLocs = reshape(EEG_chans',[1, R*C]);
@@ -28,14 +25,11 @@ numChans = size(MIData,2);
 
 motorDataChan = {};
 welch = {};
-idxTarget = {};
-lg={};
 
 freq.low = 0.5;
 freq.high = 60;
 freq.Jump = 0.1; 
 f = freq.low:freq.Jump:freq.high;
-trailT = length(MIData);
 window = [];
 noverlap = [];
 
@@ -46,7 +40,7 @@ for i = 1:numChans
     welch{i} = reshape(welch{i}, size(welch{i}, 2), []);
 end    
 
-[MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, trials, numChans, welch, Fs);
+[MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch);
 
 
 % Select features as in the offline phase

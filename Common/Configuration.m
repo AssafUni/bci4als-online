@@ -1,18 +1,26 @@
 classdef Configuration
    properties (Constant)
-
-    RNG_CONST = 546351789; % For reproducibility
+%     RNG_CONST = 546351789; % For reproducibility
+    RNG_CONST = 1; % For reproducibility
     ROOT_PATH = '';
-
+    
+    N_CLASSES = 3;
+    TRIALS_PER_CLASS = 5;
+    IDLE_LABEL = 1;
+    LEFT_LABEL = 2;
+    RIGHT_LABEL = 3;
+    
     PREPROCESS_BAD_ELECTRODES = []; %electrodesToRemove
     PREPROCESS_PLOT = true; % plot during preprocessing?
     PREPROCESS_AVOID_FILTER = -1;
     PREPROCESS_HIGH_PASS = 50; % in Hz, to avoid applying the filter set to 'PREPROCESS_AVOID_FILTER'
     PREPROCESS_LOW_PASS = 1; % in Hz, to avoid applying the filter set to 'PREPROCESS_AVOID_FILTER'
+    PREPROCESS_NOTCH = 50;
     PREPROCESS_NOISE_REJECTION = 0; % automaticNoiseRejection
     PREPROCESS_AVG_REREF = 0; % automaticAverageReReference 
-    SAMPLE_RATE = 125;
-
+    SAMPLE_RATE = 120; % set to 0 if you don't want to resample
+    
+    FE_MULTIPLE_RECORDINGS = 0;
     FE_MODE = 0; % FeatureSelectMode
     FE_N = 6; % Features2Select 
     FE_FILE = ''; %Feature2SelectFile

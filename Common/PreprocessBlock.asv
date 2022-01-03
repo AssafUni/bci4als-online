@@ -8,18 +8,6 @@ function [] = PreprocessBlock(block, Fs, recordingFolder)
 % and edited by Team 1
 % (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
 % so on - but please cite properly if published.
-
-% Same parameters as in offline phase
-electrodesToRemove = [];
-plotLowPassHighPassFreqResp = 0;
-plotScroll = 0;
-plotSpectraMaps = 0;
-useLowPassHighPass = 1;
-useNotchHighPass = 1;
-resampleFsHz = 120;
-automaticNoiseRejection = 0;
-automaticAverageReReference = 0;
-
 blockPath = strcat(recordingFolder, '\', 'block.mat');
 save(blockPath, 'block');
 

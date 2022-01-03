@@ -1,4 +1,4 @@
-function [MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch)
+function [MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, trials, numChans, welch)
     trials = size(MIData, 1);                                           % get number of trials from main data variable
     numChans = size(MIData,2);                                    % get number of channels from main data variable
 
@@ -39,7 +39,11 @@ function [MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch)
                 MIFeaturesLabelName(trial,channel,n) = str;
                 n = n+1;
             end
-                        
+            
+            if Configuration.onlyPowerBands == 1
+               continue 
+            end
+            
             %% NOVEL Features
             
             % Normalize the Pwelch matrix
