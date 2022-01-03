@@ -38,7 +38,7 @@ targetLabels = cell2mat(struct2cell(load(strcat(recordingFolder, '\trainingVec')
 
 % Some parameters
 numTargets = 3;                                                     % set number of possible targets (classes)
-Fs = 120;                                                           % preprocessing output sample rate
+Fs = 125;                                                           % preprocessing output sample rate
 trials = size(MIData, 1);                                           % get number of trials from main data variable
 [R, C] = size(EEG_chans);                                           % get EEG_chans (char matrix) size - rows and columns
 chanLocs = reshape(EEG_chans',[1, R*C]);                            % reshape into a vector in the correct order

@@ -7,7 +7,7 @@ function MI3_SegmentData(recordingFolder)
 % so on - but please cite properly if published.
 
 %% Parameters and previous variables:
-Fs = 120;               % openBCI sample rate
+Fs = 125;               % openBCI sample rate
 trialLength = 5;        % needs to be equal to offline trainig parameters
 load(strcat(recordingFolder, '\cleaned_sub.mat'));                % load the filtered EEG data in .mat format
 load(strcat(recordingFolder, '\trainingVec.mat'));                % load the training vector (which target at which trial)

@@ -208,6 +208,10 @@ for trial = 1:numTrials
         %     myChunk = myChunk([1:15,18,19,22:23],:);        % removes X1,X2,X3,TRG,A2
         pause(0.2)
         if ~isempty(myChunk)
+            %% TODO: check how to insert blinking to online 
+            % remove blinks
+            % myChunk = pop_autobsseog( myChunk, 128, 128, 'sobi', {'eigratio', 1000000}, 'eog_fd', {'range',[1  5]});
+            % myChunk = pop_autobssemg( myChunk, 5.12, 5.12, 'bsscca', {'eigratio', 1000000}, 'emg_psd', {'ratio', [10],'fs', 125,'femg', 15,'estimator', spectrum.welch({'Hamming'}, 62),'range', [0  8]});
             % Apply LaPlacian Filter
             myChunk(1,:) = myChunk(1,:) - ((myChunk(3,:) + myChunk(5,:) + myChunk(7,:) + myChunk(9,:))./4);    % LaPlacian (Cz, F3, P3, T3)
             myChunk(2,:) = myChunk(2,:) - ((myChunk(4,:) + myChunk(6,:) + myChunk(8,:) + myChunk(10,:))./4);    % LaPlacian (Cz, F4, P4, T4)

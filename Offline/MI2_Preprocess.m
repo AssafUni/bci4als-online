@@ -36,6 +36,10 @@ recordingFile = strcat(recordingFolder, '\', 'EEG.XDF');
 EEG = pop_loadxdf(recordingFile, 'streamtype', 'EEG', 'exclude_markerstreams', {});
 EEG.setname = 'MI_sub';
 
+% remove blinks
+EEG = pop_autobsseog( EEG, 128, 128, 'sobi', {'eigratio', 1000000}, 'eog_fd', {'range',[1  5]});
+EEG = pop_autobssemg( EEG, 5.12, 5.12, 'bsscca', {'eigratio', 1000000}, 'emg_psd', {'ratio', [10],'fs', 125,'femg', 15,'estimator', spectrum.welch({'Hamming'}, 62),'range', [0  8]});
+
 % Apply LaPlacian Filter
 %%%%% Change according to your wiring and keep in sync with online LaPlacian
 EEG.data(1,:) = EEG.data(1,:) - ((EEG.data(3,:) + EEG.data(5,:) + EEG.data(7,:) + EEG.data(9,:))./4);

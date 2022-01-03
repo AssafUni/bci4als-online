@@ -5,7 +5,7 @@ function [] = PreprocessBlock(block, Fs, recordingFolder)
 % Make sure parameters are in sync.
 
 % This code is part of the BCI-4-ALS Course written by Asaf Harel
-% and edited by Team 1
+% and edited by Team 1f
 % (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
 % so on - but please cite properly if published.
 

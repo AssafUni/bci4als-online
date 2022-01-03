@@ -16,11 +16,11 @@
 %% parameters.
 
 clc; clear; close all;
-addpath Common\
+
+rng(546351789) % For reproducibility
+
 addpath utils\
-
-rng(Configuration.RNG_CONST) % For reproducibility
-
+% addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
 eeglab;                                     % open EEGLAB 
 
 raw = 0;
