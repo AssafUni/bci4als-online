@@ -26,23 +26,19 @@ clc
 testNum = input('Please enter test number: ');    % prompt to enter test number
 % Where to store the online recording, to use later for training a new
 % model.
-trainFolderPath = 'D:\EEG\subjects\'; 
+trainFolderPath = 'NewHeadsetRecordingsOmri\'; 
 trainFolder = strcat(trainFolderPath, '\OnlineTest', num2str(testNum), '\');
 mkdir(trainFolder);
 
 % The folder where the offline training took place. This is the last
 % aggregated folder.
-recordingFolder = 'D:\EEG\subjects\Test18\';
-% addpath('YOUR RECORDING FOLDER PATH HERE');
-% addpath('YOUR LSL FOLDER PATH HERE');
-addpath 'D:\EEG\eeglab2020_0'
-% addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
+recordingFolder = 'NewHeadsetRecordingsOmri\Test4\';
 eeglab;
     
 %% Set params
 feedbackFlag = 0;                                   % 1-with feedback matlab gui, 0-no feedback matlab gui
 apllication_python = 0;                             % predictions sent to python application gui
-feedback_python = 1;                                % predictions sent to python feedback gui
+feedback_python = 0;                                % predictions sent to python feedback gui
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
 bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification

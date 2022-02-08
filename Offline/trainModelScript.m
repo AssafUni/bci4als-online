@@ -19,17 +19,16 @@ clc; clear; close all;
 
 rng(546351789) % For reproducibility
 
-%% Some parameters (this needs to change according to your system):
-addpath 'D:\EEG\eeglab2020_0'
+addpath utils\
 % addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
 eeglab;                                     % open EEGLAB 
 
 raw = 0;
 features = 1;
 recordings = [
-    {'D:\EEG\subjects\Test2\', raw}
-    {'D:\EEG\subjects\Test3\', raw}
-    {'D:\EEG\subjects\Test4\', raw}
+    {'NewHeadsetRecordingsOmri\Test2\', raw}
+    {'NewHeadsetRecordingsOmri\Test3\', raw}
+    {'NewHeadsetRecordingsOmri\Test4\', raw}
 ];
 
 % Alter parameters
@@ -43,7 +42,7 @@ plotBins = 0; % plot bins of all features
 plotBinsFeaturesSelected = 0; % plot bins of only selected featues
 useLowPassHighPass = 1; % 0- don't use filter 1- use low-high-pass fiter
 useNotchHighPass = 1; % 0- don't use filter 1- use notch filter
-resampleFsHz = 120; % resample rate
+resampleFsHz = 125; % resample rate
 automaticNoiseRejection = 0; % Problamatic to keep in consistency with trainingVec- could alter training and keep data in events
 automaticAverageReReference = 0; % 0- don't use average re-reference 1- use average re-reference.
 pauseAfterEachPreprocess = 0; % 0- don't pause 1- pause after each preprocess
