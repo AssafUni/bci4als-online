@@ -26,23 +26,19 @@ clc
 testNum = input('Please enter test number: ');    % prompt to enter test number
 % Where to store the online recording, to use later for training a new
 % model.
-trainFolderPath = 'D:\EEG\subjects\'; 
+trainFolderPath = 'NewHeadsetRecordingsOmri\'; 
 trainFolder = strcat(trainFolderPath, '\OnlineTest', num2str(testNum), '\');
 mkdir(trainFolder);
 
 % The folder where the offline training took place. This is the last
 % aggregated folder.
-recordingFolder = 'D:\EEG\subjects\Test18\';
-% addpath('YOUR RECORDING FOLDER PATH HERE');
-% addpath('YOUR LSL FOLDER PATH HERE');
-addpath 'D:\EEG\eeglab2020_0'
-% addpath 'C:\ToolBoxes\eeglab2020_0\plugins\xdfimport1.14\xdf-EEGLAB'
+recordingFolder = 'NewHeadsetRecordingsOmri\Test4\';
 eeglab;
     
 %% Set params
 feedbackFlag = 0;                                   % 1-with feedback matlab gui, 0-no feedback matlab gui
 apllication_python = 0;                             % predictions sent to python application gui
-feedback_python = 1;                                % predictions sent to python feedback gui
+feedback_python = 0;                                % predictions sent to python feedback gui
 % Fs = 300;                                         % Wearable Sensing sample rate
 Fs = 125;                                           % openBCI sample rate
 bufferLength = 5;                                   % how much data (in seconds) to buffer for each classification
@@ -212,9 +208,15 @@ for trial = 1:numTrials
         %     myChunk = myChunk([1:15,18,19,22:23],:);        % removes X1,X2,X3,TRG,A2
         pause(0.2)
         if ~isempty(myChunk)
-            % Apply LaPlacian Filter
-            myChunk(1,:) = myChunk(1,:) - ((myChunk(3,:) + myChunk(5,:) + myChunk(7,:) + myChunk(9,:))./4);    % LaPlacian (Cz, F3, P3, T3)
-            myChunk(2,:) = myChunk(2,:) - ((myChunk(4,:) + myChunk(6,:) + myChunk(8,:) + myChunk(10,:))./4);    % LaPlacian (Cz, F4, P4, T4)
+            %% TODO: check how to insert blinking to online 
+            % remove blinks
+            % myChunk = pop_autobsseog( myChunk, 128, 128, 'sobi', {'eigratio', 1000000}, 'eog_fd', {'range',[1  5]});
+            % myChunk = pop_autobssemg( myChunk, 5.12, 5.12, 'bsscca', {'eigratio', 1000000}, 'emg_psd', {'ratio', [10],'fs', 125,'femg', 15,'estimator', spectrum.welch({'Hamming'}, 62),'range', [0  8]});
+% ITAY : removed it grom here as we already apply the laplacian in the
+% preporcess common function
+            %             % Apply LaPlacian Filter
+%             myChunk(1,:) = myChunk(1,:) - ((myChunk(3,:) + myChunk(5,:) + myChunk(7,:) + myChunk(9,:))./4);    % LaPlacian (Cz, F3, P3, T3)
+%             myChunk(2,:) = myChunk(2,:) - ((myChunk(4,:) + myChunk(6,:) + myChunk(8,:) + myChunk(10,:))./4);    % LaPlacian (Cz, F4, P4, T4)
 
             myBuffer = [myBuffer myChunk];              % append new data to the current buffer
             motorData = [];
@@ -228,7 +230,7 @@ for trial = 1:numTrials
             block = [myBuffer];                 % move data to a "block" variable
             
             % Pre-process the data
-            PreprocessBlock(block, Fs, recordingFolder);
+            PreprocessBlock(recordingFolder, block);
 
             % Extract features from the buffered block:
             [EEG_Features, AllDataInFeatures] = ExtractFeaturesFromBlock(recordingFolder);

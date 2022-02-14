@@ -33,16 +33,17 @@ cueLength = 0.5;
 readyLength = 0.5;
 nextLength = 0.5;
 % set length and classes
-numTrials = 5;                         % set number of training trials per condition
-numTargets = 3;                         % set number of possible targets (classes)
+numTrials = Configuration.TRIALS_PER_CLASS;                         % set number of training trials per condition
+numTargets = Configuration.N_CLASSES;                         % set number of possible targets (classes)
 % set markers
 startRecordings = 111;
 
 % Marker stream markers
 startTrail = 1111; 
-Idle = 1;
-Left = 2;
-Right = 3;
+Idle = Configuration.IDLE_LABEL;
+Left = Configuration.LEFT_LABEL;
+Right = Configuration.RIGHT_LABEL;
+
 endTrail = 9;
 endRecrding = 99;
 
