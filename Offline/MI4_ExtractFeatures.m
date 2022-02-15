@@ -1,4 +1,4 @@
-function [] = MI4_ExtractFeatures(recordingFolder, lastRecordingFolder)
+function features = MI4_ExtractFeatures(recordingFolder, flag_save)
 %% This function extracts features for the machine learning process.
 % It takes the segmented data and extracts the power in each label
 % into a variable which is fed into a modeling function.
@@ -31,127 +31,46 @@ function [] = MI4_ExtractFeatures(recordingFolder, lastRecordingFolder)
 
 
 %% Load previous variables:
-
-load(strcat(recordingFolder, 'EEG_chans.mat'));                   % load the openBCI channel location
-load(strcat(recordingFolder, 'MIData.mat'));                      % load the EEG data
-targetLabels = cell2mat(struct2cell(load(strcat(recordingFolder, '\trainingVec'))));
+load(strcat(recordingFolder, '\EEG_chans.mat'));                   % load the openBCI channel location
+load(strcat(recordingFolder, '\MIData.mat'));                      % load the EEG data
 
 % Some parameters
-trials = size(MIData, 1);                                           % get number of trials from main data variable
-numChans = size(MIData,2);                                    % get number of channels from main data variable
-[R, C] = size(EEG_chans);                                           % get EEG_chans (char matrix) size - rows and columns
-chanLocs = reshape(EEG_chans',[1, R*C]);                            % reshape into a vector in the correct order
+trials   = size(MIData, 1);      % get number of trials from main data variable
+numChans = size(MIData,2);       % get number of channels from main data variable
 
-%% for using only specific channels
-% motor1Index = strfind(chanLocs,'C03');                      % find first occipital channel
-% motor1Index = ceil(motor1Index/C);                          % index of C01 channel
-% motor2Index = strfind(chanLocs,'C04');                      % find second occipital channel
-% motor2Index = ceil(motor2Index/C);                          % index of C02 channel
-% MIData = MIData(:,[motor1Index motor2Index],:);             % only use the occipital channels (C1 & C2)
-clear motor1Index motor2Index chanLocs R C
 %% Power Spectrom
-
 % init cells for  Power Spectrom display
-motorDataChan = {};
-welch = {};
-idxTarget = {};
-lg={};
+welch     = {};
 
 % Some parameters for pre-features processing
-motorIndex = {'C03','C04'};                 % INSERT the chosen electrode (for legend)
-freq.low = Configuration.PREPROCESS_LOW_PASS; % INSERT the lowest freq you want
-freq.high = Configuration.PREPROCESS_HIGH_PASS; % INSERT the highst freq you want
-freq.Jump = 0.1;                            % SET the freq resolution you desire
-f_vector = freq.low:freq.Jump:freq.high;           % freaquncies vector
-trailT = length(MIData);                    % trail length
-window = [];                                % INSERT time window for pwelch
-noverlap = [];                              % INSERT number of overlaps for pwelch
+freq.low  = Configuration.PREPROCESS_LOW_PASS;     % INSERT the lowest freq you want
+freq.high = Configuration.PREPROCESS_HIGH_PASS;    % INSERT the highst freq you want
+freq.Jump = 0.1;                                   % SET the freq resolution you desire
+f_vector  = freq.low:freq.Jump:freq.high;          % freaquncies vector
+window    = [];                                    % INSERT time window for pwelch
+noverlap  = [];                                    % INSERT number of overlaps for pwelch
+% motorIndex = {'C03','C04'};                      % INSERT the chosen electrode (for legend)
+% trailT  = length(MIData);                        % trail length
 
-% calculate for each electrode in each of the conditions its own Power
-% Spectrom
-q = 0;
+
+
+% calculate each electrode Power spectrum (Pwelch)
 for i = 1:numChans
-    if mod(i,5) == 0
-        figure;
-        q = 1;
-    else
-        q = q + 1;
-    end
-
-    motorDataChan{i} = squeeze(MIData(:,i,:))';                     % convert the data to a 2D matrix fillers by channel
-    welch{i} = pwelch(motorDataChan{i},window, noverlap, f_vector, Configuration.SAMPLE_RATE);    % calculate the pwelch for each electrode
-
-    for j = 1:Configuration.N_CLASSES
-        idxTarget{j} = find(targetLabels == j);                         % find the target index
-        %        title(['Electrode: ',motorIndex{i}]);
-        %        lg{j} = [num2str(conditionFreq(j)),  ' [Hz]'];         % txt for legend
-    end
+    DataChan = squeeze(MIData(:,i,:))';                                                    % convert the data to a 2D matrix fillers by channel
+    welch{i} = pwelch(DataChan, window, noverlap, f_vector, Configuration.SAMPLE_RATE);    % calculate the pwelch for each electrode
 end    
 
-%%%%%%%%5
-%%%%%%%%
-%%%%%%%%%
-[MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch);
-
-MIFeaturesLabel = zscore(MIFeaturesLabel);
+%% extract the features
+[features, feat_names] = GetFeatures(MIData, welch);
 
 % Reshape into 2-D matrix
-MIFeatures = reshape(MIFeaturesLabel,trials,[]);
-MIFeaturesLabelName = reshape(MIFeaturesLabelName,trials,[]);
-AllDataInFeatures = MIFeatures;
-AllDataInLabels = targetLabels;
+features = reshape(features,trials,[]);
+feat_names = reshape(feat_names,trials,[]);
 
-%% handeling the featuer matrix depanding on the mode
-
-%% mode 1 - Aggregate all previous recordings
-if Configuration.FE_MULTIPLE_RECORDINGS == 1        
-    LastAllDataInFeatures = cell2mat(struct2cell(load(strcat(lastRecordingFolder,'\AllDataInFeatures'))));
-    LastAllDataInLabels = cell2mat(struct2cell(load(strcat(lastRecordingFolder,'\AllDataInLabels'))));
-    AllDataInFeatures = [AllDataInFeatures ;LastAllDataInFeatures];
-    AllDataInLabels = [AllDataInLabels  LastAllDataInLabels];
-    
-    %% feature selection
-    class = fscnca(AllDataInFeatures,AllDataInLabels); % feature selection
-    % sorting the weights in desending order and keeping the indexs
-    [~,selected] = sort(class.FeatureWeights,'descend');
-    
-    if Configuration.FE_MODE == 0
-        SelectedIdx = selected(1:Configuration.FE_N);
-    else
-        SelectedIdx = cell2mat(struct2cell(load(Configuration.FE_FILE)));
-    end
-
-    MIAllDataInFeaturesSelected = AllDataInFeatures(:,SelectedIdx); % updating the matrix feature
-    MIFeaturesSelectedLabelName = MIFeaturesLabelName(:,SelectedIdx);
-    %% saving
-    save(strcat(recordingFolder,'\AllDataInFeatures.mat'),'AllDataInFeatures');
-    save(strcat(recordingFolder,'\MIAllDataInFeaturesSelected.mat'),'MIAllDataInFeaturesSelected');
-    save(strcat(recordingFolder,'\SelectedIdx.mat'),'SelectedIdx');
-    save(strcat(recordingFolder,'\AllDataInLabels.mat'),'AllDataInLabels');    
- 
-%% mode 1 - using only one recording  
-elseif Configuration.FE_MULTIPLE_RECORDINGS == 0
-    %% feature selection
-    class = fscnca(AllDataInFeatures,AllDataInLabels); % feature selection
-    
-    % sorting the weights in desending order and keeping the indexs
-    [~,selected] = sort(class.FeatureWeights,'descend');
-    
-    if Configuration.FE_MODE == 0
-        % taking only the specified number of features with the largest weights
-        SelectedIdx = selected(1:Configuration.FE_N);
-    else
-        SelectedIdx = cell2mat(struct2cell(load(Configuration.FE_FILE)));
-    end    
-    
-    MIAllDataInFeaturesSelected = AllDataInFeatures(:,SelectedIdx); % updating the matrix feature
-    MIFeaturesSelectedLabelName = MIFeaturesLabelName(:,SelectedIdx);
-    
-    %% saving
-    save(strcat(recordingFolder,'\AllDataInFeatures.mat'),'AllDataInFeatures');
-    save(strcat(recordingFolder,'\MIAllDataInFeaturesSelected.mat'),'MIAllDataInFeaturesSelected');
-    save(strcat(recordingFolder,'\SelectedIdx.mat'),'SelectedIdx');
-    save(strcat(recordingFolder,'\AllDataInLabels.mat'),'AllDataInLabels');    
+% saving
+if flag_save
+    save(strcat(recordingFolder,'\features.mat'),'features');
+    save(strcat(recordingFolder,'\feat_names.mat'),'feat_names');
 end
 
 disp('Successfuly extracted features!');

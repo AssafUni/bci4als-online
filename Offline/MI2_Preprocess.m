@@ -41,7 +41,7 @@ EEG.setname = 'MI_sub';
 % Save the data into .mat variables on the computer
 EEG_data = EEG.data;
 EEG_event = EEG.event;
-save(strcat(recordingFolder,'\','cleaned_sub.mat'),'EEG_data');
+save(strcat(recordingFolder,'\','EEG_data.mat'),'EEG_data');
 save(strcat(recordingFolder,'\','EEG_events.mat'),'EEG_event');
 save(strcat(recordingFolder,'\','EEG_chans.mat'),'EEG_chans');
                 

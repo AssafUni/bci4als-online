@@ -1,77 +1,56 @@
-% This is a script to automate training a model. The steps to follow are:
-% 1. Record using the MI1_Training function raw recordings using as many recording as
-% needed. (Run function file to record, not this script).
-% 2. Change the eeglab path in line 17
-% 3. Alter the recordings array in line 23. Each element of the array
-% specifies if to aggregate raw recording or feautes extracted fron an
-% online session.
-% 4. Alter parameters as needed.
+% this script performs data aggregation, data preprocessing and training a
+% model to predict right left or idle, follow the instructions bellow to
+% manage the script:
+% 
+% change the folders paths in 'recordings_offline' and 'recordings_online'
+% to the relevant recordings you intend to use to train the model.
+%
+% notice the path of eeglab package - line 13, change it as you wish to
+% match the path it is stored in your PC. 
+%
+% notice that data from online recordings can be correct/wrong (or both)
+% predictions from the model we used in the online training. this might be
+% usefull to set different weights in the loss function for wrong
+% predictions to improve the model.
 
-% This code is part of the BCI-4-ALS Course written by Asaf Harel
-% and edited by Team 1
-% (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
-% so on - but please cite properly if published.
-clc; clear; close all;
-addpath Common\
+clc; clear all; close all;
+addpath ..\Common\
+addpath(genpath('..\..\interfaces\eeglab2021.1\'))  % #### change according to your local path ####
+Configuration = Configuration();
 
 rng(Configuration.RNG_CONST) % For reproducibility
+offline = 0;
 
-eeglab;                                     % open EEGLAB 
-
-raw = 0;
-features = 1;
-recordings = [
-    {'NewHeadsetRecordingsOmri\Test2\', raw}
-    {'NewHeadsetRecordingsOmri\Test3\', raw}
-    {'NewHeadsetRecordingsOmri\Test4\', raw}
+% choose folders to agregate data from
+recordings_offline = [
+    {'..\NewestHeadsetRecordingsTomer\Test1'}
 ];
+recordings_online = [];
 
-% Preprocess raw recordings
-for i=1 : size(recordings, 1)
-    folder = cell2mat(recordings(i, 1));
-    rawOrFeatures = cell2mat(recordings(i, 2));
-    if rawOrFeatures == raw
-        MI2_Preprocess(folder);
-        disp(['Preprocess ' num2str(i) ' done...']);
-    end
+% data pipeline
+all_feat  = [];
+all_label = [];
+
+for i = 1:size(recordings_offline, 1)
+    folder = recordings_offline{i};
+    curr_feat = feat_from_offline(folder);
+    curr_label = load(strcat(recordings_offline{i}, '\labels.mat'));
+    all_feat  = cat(1, all_feat, curr_feat);
+    all_label = cat(2, all_label, curr_label.labels);
 end
 
-disp(' ');
-
-% Segment preprocessed data
-for i=1 : size(recordings, 1)
-    folder = cell2mat(recordings(i, 1));
-    rawOrFeatures = cell2mat(recordings(i, 2));
-    if rawOrFeatures == raw
-        MI3_SegmentData(folder);
-        disp(['Segmententation ' num2str(i) ' done...']);         
-    end
+for i = 1:size(recordings_online, 1) 
+    folder = recordings_online{i};
+    curr_feat = feat_from_online(folder, Configuration.ONLINE_COLEARN_MODE_CWB);
+    all_feat  = cat(1, all_feat, curr_feat);
+    all_label = cat(2, all_label, curr_label.labels);
 end
 
-disp(' ');
+folder = '..\NewHeadsetRecordingsOmri\combined';
+selected_feat = MI5_feature_selection(all_feat, all_label, folder);
+MI6_LearnModel(folder, Configuration.CLASSIFIER_TYPE, Configuration.CLASSIFIER_SAVE);
 
-% Extract features and train model
-previousFolder = '';
-for i=1 : size(recordings, 1)
-    folder = cell2mat(recordings(i, 1));
-    rawOrFeatures = cell2mat(recordings(i, 2));
-    if i == 1
-        m = 0;
-    else 
-        m = 1;
-    end
-    if rawOrFeatures == raw  
-        MI4_ExtractFeatures(folder, previousFolder);
-        MI5_LearnModel(folder, Configuration.CLASSIFIER_TYPE, Configuration.CLASSIFIER_SAVE);
-        disp(['Training ' num2str(i) ' done...']);
-    else
-        ExtractFeatures_FromOnline(folder, Configuration.ONLINE_COLEARN_MODEcorrectWrongOrBoth,...
-            previousFolder, Configuration.FE_N, m);
-        MI5_LearnModel(folder, learnModel, saveModel);
-        disp(['Training + Features ' num2str(i) ' done...']);
-    end
-    
-    previousFolder = folder;
-end
 
-close all;
+
+
+

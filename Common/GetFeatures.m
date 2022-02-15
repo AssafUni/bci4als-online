@@ -1,4 +1,4 @@
-function [MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch)
+function [MIFeatures, MIFeaturesName] = GetFeatures(MIData, welch)
     trials = size(MIData, 1);                                           % get number of trials from main data variable
     numChans = size(MIData,2);                                    % get number of channels from main data variable
 
@@ -16,15 +16,15 @@ function [MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch)
     bands{5} = [12.5,30];
     
     % times of frequency band features
-    times{1} = (1*Configuration.SAMPLE_RATE : 3*Configuration.SAMPLE_RATE);
-    times{2} = (3*Configuration.SAMPLE_RATE : 4.5*Configuration.SAMPLE_RATE);
-    times{3} = (4.25*Configuration.SAMPLE_RATE : size(MIData,3));
-    times{4} = (2*Configuration.SAMPLE_RATE : 2.75*Configuration.SAMPLE_RATE);
-    times{5} = (2.5*Configuration.SAMPLE_RATE : 4*Configuration.SAMPLE_RATE);
-    
-    numFeatures = length(bands);                                             % how many features overall exist
-    MIFeaturesLabel = NaN(trials,numChans,numFeatures);                      % init features+labels matrix
-    MIFeaturesLabelName = string(zeros(trials,numChans,numFeatures));        % save features names for plotting
+    times{1} = (1 : 2*Configuration.SAMPLE_RATE);
+    times{2} = (2*Configuration.SAMPLE_RATE : 3*Configuration.SAMPLE_RATE);
+    times{3} = (3*Configuration.SAMPLE_RATE : 4*Configuration.SAMPLE_RATE);
+    times{4} = (1 : 4*Configuration.SAMPLE_RATE);
+    times{5} = (1 : 3*Configuration.SAMPLE_RATE);
+   
+    numFeatures = length(bands);                                        % how many features overall exist
+    MIFeatures = NaN(trials,numChans,numFeatures);                      % init features+labels matrix
+    MIFeaturesName = string(zeros(trials,numChans,numFeatures));        % save features names for plotting
     
     
     %% Extract features (powerbands in alpha, beta, delta, theta, gamma bands)
@@ -34,9 +34,9 @@ function [MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch)
             
             for feature = 1:numFeatures
                 % Extract features: bandpower +-1 Hz around each target frequency
-                MIFeaturesLabel(trial,channel,n) = bandpower(squeeze(MIData(trial,channel,times{feature})),Configuration.SAMPLE_RATE,bands{feature});
+                MIFeatures(trial,channel,n) = bandpower(squeeze(MIData(trial,channel,times{feature})),Configuration.SAMPLE_RATE,bands{feature});
                 str = strcat("Channel ", num2str(channel), ", BandPower ",  num2str(bands{feature}(1)), "-", num2str(bands{feature}(2)));
-                MIFeaturesLabelName(trial,channel,n) = str;
+                MIFeaturesName(trial,channel,n) = str;
                 n = n+1;
             end
                         
@@ -47,13 +47,13 @@ function [MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch)
             normlizedMatrix = welch{channel}(:,trial)./pfTot; % Normalize the Pwelch matrix by dividing the matrix in its sum for each trail
             
             % rootTotalPower
-            MIFeaturesLabel(trial,channel,n) = sqrt(pfTot);%Calculate the square-root of the total power
-            MIFeaturesLabelName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "square-root of the total power");
+            MIFeatures(trial,channel,n) = sqrt(pfTot);%Calculate the square-root of the total power
+            MIFeaturesName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "square-root of the total power");
             n = n+1;
             
             % spectral_moment
-            MIFeaturesLabel(trial,channel,n)=sum(normlizedMatrix.*f_vector');%calculate the spectral moment
-            MIFeaturesLabelName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "spectral moment");
+            MIFeatures(trial,channel,n)=sum(normlizedMatrix.*f_vector');%calculate the spectral moment
+            MIFeaturesName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "spectral moment");
             n = n+1;
             
             % spectral_edge
@@ -65,13 +65,13 @@ function [MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch)
             lengthfunc=@(y)length(fun4Values{y})+1;%creating local function for length
             %Apply function to each element of normlizedMatrix
             fun4length = cell2mat(arrayfun(lengthfunc, 1:size(normlizedMatrix',1), 'un',0));
-            MIFeaturesLabel(trial,channel,n)=f_vector(fun4length);%insert it to the featurs matrix
-            MIFeaturesLabelName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "spectral_edge");
+            MIFeatures(trial,channel,n)=f_vector(fun4length);%insert it to the featurs matrix
+            MIFeaturesName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "spectral_edge");
             n = n+1;
             
             % spectral_entropy
-            MIFeaturesLabel(trial,channel,n)=-sum(normlizedMatrix.*log2(normlizedMatrix)); %calculate the spectral entropy
-            MIFeaturesLabelName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "spectral_entropy");
+            MIFeatures(trial,channel,n)=-sum(normlizedMatrix.*log2(normlizedMatrix)); %calculate the spectral entropy
+            MIFeaturesName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "spectral_entropy");
             n = n+1;
             
             % slope
@@ -82,34 +82,34 @@ function [MIFeaturesLabel, MIFeaturesLabelName] = GetFeatures(MIData, welch)
             %function on transposeMat, the slope is in each odd value in the matrix
             %Apply function to each element of tansposeMat
             pFitLiner = cell2mat(arrayfun(FitFH, 1:size(transposeMat,1), 'un',0));
-            MIFeaturesLabel(trial,channel,n)=pFitLiner(1:2 :length(pFitLiner));
-            MIFeaturesLabelName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "slope");
+            MIFeatures(trial,channel,n)=pFitLiner(1:2 :length(pFitLiner));
+            MIFeaturesName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "slope");
             n = n+1;
             
             % intercept
             %the slope is in each double value in the matrix
-            MIFeaturesLabel(trial,channel,n)=pFitLiner(2:2:length(pFitLiner));
-            MIFeaturesLabelName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "intercept");
+            MIFeatures(trial,channel,n)=pFitLiner(2:2:length(pFitLiner));
+            MIFeaturesName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "intercept");
             
             n= n+1;
             
             % Mean frequency
             % returns the mean frequency of a power spectral density (PSD) estimate, pxx.
             % The frequencies, f, correspond to the estimates in pxx.
-            MIFeaturesLabel(trial,channel,n) = meanfreq(normlizedMatrix,f_vector);
-            MIFeaturesLabelName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "mean frequency");
+            MIFeatures(trial,channel,n) = meanfreq(normlizedMatrix,f_vector);
+            MIFeaturesName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "mean frequency");
             n= n+1;
             
             % Occupied bandwidth
             % returns the 99% occupied bandwidth of the power spectral density (PSD) estimate, pxx.
             % The frequencies, f, correspond to the estimates in pxx.
-            MIFeaturesLabel(trial,channel,n) = obw(normlizedMatrix,f_vector);
-            MIFeaturesLabelName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "occupied bandwidth");
+            MIFeatures(trial,channel,n) = obw(normlizedMatrix,f_vector);
+            MIFeaturesName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "occupied bandwidth");
             n= n+1;
             
             % Power bandwidth
-            MIFeaturesLabel(trial,channel,n) = powerbw(normlizedMatrix,Configuration.SAMPLE_RATE);
-            MIFeaturesLabelName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "power bandwidth");
+            MIFeatures(trial,channel,n) = powerbw(normlizedMatrix,Configuration.SAMPLE_RATE);
+            MIFeaturesName(trial,channel,n) = strcat("Channel ", num2str(channel), ", ", "power bandwidth");
             n=n+1;
             
             

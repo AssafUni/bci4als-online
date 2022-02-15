@@ -19,18 +19,21 @@ function [recordingFolder, testNum] = MI1_Training()
 
 %% Make sure you have Psychtoolbox & Lab Streaming Layer installed.
 %%%%% Set parameters (these will need to change according to your system):
+addpath(genpath('..\..\interfaces\liblsl-Matlab'))  % #### change according to your local path ####
+addpath(genpath('..\..\interfaces\LabRecorder'))  % #### change according to your local path ####
+
 
 % prompt to enter subject ID or name
 testNum = input('Please enter test number: ');
 %%%%% Change root folder according to your system %%%%%
-rootFolder = 'D:\EEG\subjects\'; 
+rootFolder = '..\test recordings'; 
 % Define recording folder location and create the folder
 recordingFolder = strcat(rootFolder, '\Test', num2str(testNum), '\');
 mkdir(recordingFolder);
 %%% Parameters
-trialLength = 5;                        % each trial length in seconds 
+trialLength = Configuration.TRIAL_LENGTH;                        % each trial length in seconds 
 cueLength = 0.5;
-readyLength = 0.5;
+readyLength = 1.5;
 nextLength = 0.5;
 % set length and classes
 numTrials = Configuration.TRIALS_PER_CLASS;                         % set number of training trials per condition
@@ -76,8 +79,8 @@ waitFrames = 1;                                 % how many frames to wait for be
 %% Prepare frequencies and binary sequences
 % prepare set of training trials (IMPORTANT FOR LATER MODEL TRAINING)
 disp('Generating training...');
-trainingVec = prepareTraining(numTrials, numTargets);    % vector with the conditions for each trial %% ask asaf%%
-save(strcat(recordingFolder,'trainingVec.mat'), 'trainingVec');
+labels = prepareTraining(numTrials, numTargets);    % vector with the conditions for each trial %% ask asaf%%
+save(strcat(recordingFolder,'labels.mat'), 'labels');
 
 % Define the keyboard keys that are listened for:
 KbName('UnifyKeyNames');
@@ -86,11 +89,11 @@ escapeKey = KbName('Escape');                   % let psychtoolbox know what the
 HideCursor;                                     % hides cursor on screen
 %% Record Training Stage
 outletStream.push_sample(startRecordings);    % start of recordings. Later, reject all EEG data prior to this marker
-totTrials = length(trainingVec);
+totTrials = length(labels);
 disp('Starting training...');
 for trial = 1:totTrials
     
-    currentTrial = trainingVec(trial);           % What condition is it?
+    currentTrial = labels(trial);           % What condition is it?
     
     if currentTrial == Idle % idle target
         
