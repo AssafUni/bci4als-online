@@ -1,4 +1,4 @@
-function MI3_SegmentData(recordingFolder)
+function [MIData] = MI3_SegmentData(recordingFolder)
 %% Segment data using markers
 % This function segments the continuous data into trials or epochs in a matrix ready for classifier training.
 

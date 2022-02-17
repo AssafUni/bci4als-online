@@ -79,7 +79,10 @@ waitFrames = 1;                                 % how many frames to wait for be
 %% Prepare frequencies and binary sequences
 % prepare set of training trials (IMPORTANT FOR LATER MODEL TRAINING)
 disp('Generating training...');
-labels = prepareTraining(numTrials, numTargets);    % vector with the conditions for each trial %% ask asaf%%
+labels = (1:numTargets);
+labels = repmat(trainingVec, 1, numTrials);
+labels = trainingVec(randperm(length(trainingVec)));
+
 save(strcat(recordingFolder,'labels.mat'), 'labels');
 
 % Define the keyboard keys that are listened for:
