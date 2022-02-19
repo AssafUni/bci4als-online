@@ -1,10 +1,14 @@
-function [MIData] = MI3_SegmentData(recordingFolder)
+function [segments] = MI3_SegmentData(recordingFolder)
 %% Segment data using markers
-% This function segments the continuous data into trials or epochs in a matrix ready for classifier training.
-
-% This code is part of the BCI-4-ALS Course written by Asaf Harel
-% (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
-% so on - but please cite properly if published.
+% This function segments the continuous data into trials or epochs creating
+% a 3D matrix where dimentions are - [trial, channels, time (data samples)]
+%
+% Input: 
+%   - recordingFolder - a path of the folder containing the raw data 
+%
+% Output: 
+%   - MIData - a 3D matrix containing segments of the raw data
+%
 
 %% Parameters and previous variables:
 Fs = Configuration.SAMPLE_RATE;               % openBCI sample rate
@@ -32,13 +36,13 @@ if trials ~= num_labels
     disp('!!!! Some form of mis-match between number of recorded and planned trials.')
     return
 end
-MIData = [];                                                 % initialize main matrix
+segments = [];                                                 % initialize main matrix
 
 %% Main data segmentation process:
 for trial = 1:trials
-    [MIData] = sortElectrodes(MIData, EEG_data, EEG_event, Fs, trialLength, markerIndex(trial), numChans, trial);
+    [segments] = sortElectrodes(segments, EEG_data, EEG_event, Fs, trialLength, markerIndex(trial), numChans, trial);
 end
 
-save(strcat(recordingFolder,'\MIData.mat'),'MIData');
+save(strcat(recordingFolder,'\MIData.mat'),'segments');
 
 end

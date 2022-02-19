@@ -19,6 +19,8 @@ clc; clear all; close all;
 addpath('..\Common\')
 addpath(genpath('..\..\interfaces\eeglab2021.1\'))  % #### change according to your local eeglab path ####
 addpath('..\DL pipelines\')    % path of DL models we might use
+addpath('..\feature extraction methods\') % path of feature extraction methods we might use
+
 
 % define a class member with all the constants used in the pipeline 
 Configuration = Configuration();

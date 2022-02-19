@@ -1,15 +1,25 @@
 function [train, train_labels, test, test_labels, val, val_labels] = train_test_split(data_paths, split_ratio, cross_rec, feat_or_data, val_set, val_ratio)
-% this function splits the data set into train set and test set.
-% set cross_rec to 0 if you want to make a test set that has data from
-% different recording sessions then the train set.
-% split ratio is the ratio between train and test data size, expressing the
-% test set proportion to the data size.
+% this function splits the data set into train,test and validation sets.
+%
+% Inputs:
+%   - data_paths - folder paths to where the data (XDF file) is stored
+%   - split_ratio - a number between 0-1, determines the percentage of
+%   trials to allocate for the testing set from all the data.
+%   - cross_rec - true, test and train share recordings. false, tests are 
+%   a different recordings then train.
+%   - feat_or_data - a tring of either "feat" or "data" to determine if the
+%   sets the function returns are features or data samples.
+%   - val_set - true(1), a validation set will be created. false(0), a 
+%   validation set will not be created.
+%   - val_ratio - a number between 0-1, determines the percentage of
+%   trials to allocate for the validation set from the training set.
 
 %################# need to add the correct/wrong/both options for online recordings ################
 
 %################# need to fix the percentage of test train, due to rounding we get ################
 %################# too many test examples, consider spliting after loading all the  ################
-%################# folders instead of spliting each folder at a time.               ################
+%################# folders instead of spliting each folder at a time. this is a     ################  
+%################# problem only in the state where cross_rec = true                 ################
 
 train = []; train_labels = [];
 test = []; test_labels = [];
@@ -39,7 +49,6 @@ if strcmp(feat_or_data, 'feat')
                 train  = cat(1, train, curr_feat);
                 train_labels = cat(2, train_labels, curr_label);
             end
-
         end
     else
         % same recording sessions for train and test
@@ -52,9 +61,9 @@ if strcmp(feat_or_data, 'feat')
             test_idx_1 = find(curr_label == 1);
             test_idx_2 = find(curr_label == 2);
             test_idx_3 = find(curr_label == 3);
-            idx_1 = randperm(length(test_idx_1), floor(length(test_idx_1)*split_ratio));
-            idx_2 = randperm(length(test_idx_2), floor(length(test_idx_2)*split_ratio));
-            idx_3 = randperm(length(test_idx_3), floor(length(test_idx_3)*split_ratio));
+            idx_1 = randperm(length(test_idx_1), round(length(test_idx_1)*split_ratio));
+            idx_2 = randperm(length(test_idx_2), round(length(test_idx_2)*split_ratio));
+            idx_3 = randperm(length(test_idx_3), round(length(test_idx_3)*split_ratio));
             test_idx = [test_idx_1(idx_1), test_idx_2(idx_2), test_idx_3(idx_3)]; % set the test set idx
             curr_test = curr_feat(test_idx,:);
             curr_test_labels = curr_label(test_idx,:);
@@ -100,9 +109,9 @@ elseif strcmp(feat_or_data, 'data')
             test_idx_1 = find(curr_label == 1);
             test_idx_2 = find(curr_label == 2);
             test_idx_3 = find(curr_label == 3);
-            idx_1 = randperm(length(test_idx_1), floor(length(test_idx_1)*split_ratio));
-            idx_2 = randperm(length(test_idx_2), floor(length(test_idx_2)*split_ratio));
-            idx_3 = randperm(length(test_idx_3), floor(length(test_idx_3)*split_ratio));
+            idx_1 = randperm(length(test_idx_1), round(length(test_idx_1)*split_ratio));
+            idx_2 = randperm(length(test_idx_2), round(length(test_idx_2)*split_ratio));
+            idx_3 = randperm(length(test_idx_3), round(length(test_idx_3)*split_ratio));
             test_idx = [test_idx_1(idx_1), test_idx_2(idx_2), test_idx_3(idx_3)]; % set the test set idx
             curr_test = curr_data(test_idx,:,:);
             curr_test_labels = curr_label(test_idx);

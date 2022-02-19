@@ -8,6 +8,9 @@ function selected_feat = MI5_feature_selection(all_feat,all_labels, saving_folde
 %
 
 
+% ###### need to change and improve the feature selection process #######
+
+
 class = fscnca(all_feat, all_labels); % feature selection
 
 % sorting the weights in desending order and keeping the indexs

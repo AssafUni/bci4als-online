@@ -1,13 +1,8 @@
 function [] = MI6_LearnModel(recordingFolder, model, saveModel)
-% MI5_LearnModel_Scaffolding outputs a weight vector for all the features
+% MI6_LearnModel_Scaffolding outputs a weight vector for all the features
 % using a simple multi-class LDA approach.
 % Add your own classifier (SVM, CSP, DL, CONV, Riemann...), and make sure
 % to add an accuracy test.
-
-% This code is part of the BCI-4-ALS Course written by Asaf Harel
-% and edited by Team 1
-% (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
-% so on - but please cite properly if published.
 
 % The function reads aggregated recording features from $recordingFolder$,
 % and depending on the model to train trains a clasiffier and displays
@@ -15,6 +10,18 @@ function [] = MI6_LearnModel(recordingFolder, model, saveModel)
 % afterwards in the online phase, set saveModel to 1.
 % The modes(classifers) are:
 % 0 - lda 1 - svm rbf 2 - AdaBoostM2
+
+% this function creates and train a classification model
+%
+% Input: fill in after fixing the code
+%
+% Output: fill in after fixing the code
+%
+%
+
+%########### need to change the loading data method, and the saving model
+%folder. i think the way they compute the accuracy is wrong here need to
+%verify it and fix if needed #############
 
 %% Read the features & labels 
 features = cell2mat(struct2cell(load(strcat(recordingFolder, '\selected_feat.mat'))));

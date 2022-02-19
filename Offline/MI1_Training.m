@@ -5,11 +5,6 @@ function [recordingFolder, testNum] = MI1_Training()
 % cued for the entire trial).This code assumes EEG is recorded and streamed
 % through LSL for later offline preprocessing and model learning.
 
-% This code is part of the BCI-4-ALS Course written by Asaf Harel
-% and edited by Team 1
-% (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
-% so on - but please cite properly if published.
-
 % The function prompts for a test number, and creates a new folder in
 % $rootFolder$. Next, the training begins according to parameters given
 % after %Parameters%. The training will be saved into a vector which
