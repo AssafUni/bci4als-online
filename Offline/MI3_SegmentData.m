@@ -43,6 +43,6 @@ for trial = 1:trials
     [segments] = sortElectrodes(segments, EEG_data, EEG_event, Fs, trialLength, markerIndex(trial), numChans, trial);
 end
 
-save(strcat(recordingFolder,'\MIData.mat'),'segments');
+save(strcat(recordingFolder,'\segments.mat'),'segments');
 
 end

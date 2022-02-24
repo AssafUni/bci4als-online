@@ -1,4 +1,4 @@
-function [] = MI6_LearnModel(recordingFolder, model, saveModel)
+function [] = MI6_LearnModel(features, labels, model_alg, saveModel)
 % MI6_LearnModel_Scaffolding outputs a weight vector for all the features
 % using a simple multi-class LDA approach.
 % Add your own classifier (SVM, CSP, DL, CONV, Riemann...), and make sure
@@ -20,15 +20,10 @@ function [] = MI6_LearnModel(recordingFolder, model, saveModel)
 %
 
 %########### need to change the loading data method, and the saving model
-%folder. i think the way they compute the accuracy is wrong here need to
-%verify it and fix if needed #############
+% folder. i think the way they compute the accuracy is wrong here need to
+% verify it and fix if needed #############
 
-%% Read the features & labels 
-features = cell2mat(struct2cell(load(strcat(recordingFolder, '\selected_feat.mat'))));
-labels = cell2mat(struct2cell(load(strcat(recordingFolder, '\all_labels.mat'))));
-
-
-if model == 0
+if strcmp(model_alg, 'LDA')
     c = cvpartition(labels, 'KFold', 5);
     discrCVModel = fitcdiscr(features, labels, 'CVPartition', c);
     loss = kfoldLoss(discrCVModel);
@@ -36,9 +31,9 @@ if model == 0
     
     if saveModel == 1
         discrCVModel = fitcdiscr(features, labels);
-        save(strcat(recordingFolder,'Mdl.mat'), 'discrCVModel');       
+%         save(strcat(recordingFolder,'Mdl.mat'), 'discrCVModel');       
     end    
-elseif model == 1
+elseif strcmp(model_alg, 'SVM')
     t = templateSVM('KernelFunction', 'gaussian');
     Mdl = fitcecoc(features, labels, 'Learners', t);
     CVMdl = crossval(Mdl, 'kfold', 5);
@@ -48,9 +43,9 @@ elseif model == 1
     if saveModel == 1
         t = templateSVM('KernelFunction','gaussian');
         Mdl = fitcecoc(features, labels, 'Learners', t);
-        save(strcat(recordingFolder,'Mdl.mat'), 'Mdl'); 
+%         save(strcat(recordingFolder,'Mdl.mat'), 'Mdl'); 
     end
-elseif model == 2
+elseif strcmp(model_alg, 'ADABOOST')
     t = templateTree('MaxNumSplits', 1);
     Mdl = fitcensemble(features, labels, 'Method', 'AdaBoostM2', 'Learners', t, 'NumLearningCycles', 100);
     CVMdl = crossval(Mdl, 'kfold', 5);
@@ -60,7 +55,7 @@ elseif model == 2
     if saveModel == 1
         t = templateTree('MaxNumSplits',1);
         Mdl = fitcensemble(features, labels, 'Method', 'AdaBoostM2', 'Learners',  t, 'NumLearningCycles', 100);
-        save(strcat(recordingFolder,'Mdl.mat'), 'Mdl'); 
+%         save(strcat(recordingFolder,'Mdl.mat'), 'Mdl'); 
     end
 
 end

@@ -75,8 +75,8 @@ waitFrames = 1;                                 % how many frames to wait for be
 % prepare set of training trials (IMPORTANT FOR LATER MODEL TRAINING)
 disp('Generating training...');
 labels = (1:numTargets);
-labels = repmat(trainingVec, 1, numTrials);
-labels = trainingVec(randperm(length(trainingVec)));
+labels = repmat(labels, 1, numTrials);
+labels = labels(randperm(length(labels)));
 
 save(strcat(recordingFolder,'labels.mat'), 'labels');
 

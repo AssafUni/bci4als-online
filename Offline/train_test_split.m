@@ -1,4 +1,4 @@
-function [train, train_labels, test, test_labels, val, val_labels] = train_test_split(data_paths, split_ratio, cross_rec, feat_or_data, val_set, val_ratio)
+function [train, train_labels, test, test_labels, val, val_labels] = train_test_split(data_paths, options)
 % this function splits the data set into train,test and validation sets.
 %
 % Inputs:
@@ -21,6 +21,13 @@ function [train, train_labels, test, test_labels, val, val_labels] = train_test_
 %################# folders instead of spliting each folder at a time. this is a     ################  
 %################# problem only in the state where cross_rec = true                 ################
 
+split_ratio = options.test_split_ratio;  % percent of the data which will go to the test set
+cross_rec = options.cross_rec;  % true - test and train share recordings, false - tests are a different recordings then train
+feat_or_data = options.feat_or_data; % return "train" as data or features
+val_set = options.val_set; % create a validation set when creating test train split
+val_ratio = options.val_ratio; % percentage of data to allocate to validation set from training set
+feat_alg = options.feat_alg; % feature extraction algorithm, choose from {'basic', 'wavelet'}
+
 train = []; train_labels = [];
 test = []; test_labels = [];
 
@@ -39,7 +46,7 @@ if strcmp(feat_or_data, 'feat')
         rec_idx = randperm(rec_num, num_test_rec);
         for i = 1:length(data_paths)
             folder = data_paths{i};
-            curr_feat = feat_from_offline(folder);
+            curr_feat = feat_from_offline(folder, feat_alg);
             curr_label = load(strcat(data_paths{i}, '\labels.mat'));
             curr_label = curr_label.labels;
             if ismember(i,rec_idx)
@@ -54,7 +61,7 @@ if strcmp(feat_or_data, 'feat')
         % same recording sessions for train and test
         for i = 1:length(data_paths)
             folder = data_paths{i};
-            curr_feat = feat_from_offline(folder);
+            curr_feat = feat_from_offline(folder, feat_alg);
             curr_label = load(strcat(data_paths{i}, '\labels.mat'));
             curr_label = curr_label.labels;
             % make sure to keep even distribution of labels in the split sets
@@ -66,7 +73,7 @@ if strcmp(feat_or_data, 'feat')
             idx_3 = randperm(length(test_idx_3), round(length(test_idx_3)*split_ratio));
             test_idx = [test_idx_1(idx_1), test_idx_2(idx_2), test_idx_3(idx_3)]; % set the test set idx
             curr_test = curr_feat(test_idx,:);
-            curr_test_labels = curr_label(test_idx,:);
+            curr_test_labels = curr_label(test_idx);
             test  = cat(1, test, curr_test);
             test_labels = cat(2, test_labels, curr_test_labels);
             curr_feat(test_idx,:) = [];      % remove test data from train data

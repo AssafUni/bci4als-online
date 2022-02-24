@@ -32,11 +32,11 @@ function features = MI4_ExtractFeatures(recordingFolder, flag_save)
 
 %% Load previous variables:
 load(strcat(recordingFolder, '\EEG_chans.mat'));                   % load the openBCI channel location
-load(strcat(recordingFolder, '\MIData.mat'));                      % load the EEG data
+load(strcat(recordingFolder, '\segments.mat'));                      % load the EEG data
 
 % Some parameters
-trials   = size(MIData, 1);      % get number of trials from main data variable
-numChans = size(MIData,2);       % get number of channels from main data variable
+trials   = size(segments, 1);      % get number of trials from main data variable
+numChans = size(segments,2);       % get number of channels from main data variable
 
 %% Power Spectrom
 % init cells for  Power Spectrom display
@@ -50,18 +50,18 @@ f_vector  = freq.low:freq.Jump:freq.high;          % freaquncies vector
 window    = [];                                    % INSERT time window for pwelch
 noverlap  = [];                                    % INSERT number of overlaps for pwelch
 % motorIndex = {'C03','C04'};                      % INSERT the chosen electrode (for legend)
-% trailT  = length(MIData);                        % trail length
+% trailT  = length(segments);                        % trail length
 
 
 
 % calculate each electrode Power spectrum (Pwelch)
 for i = 1:numChans
-    DataChan = squeeze(MIData(:,i,:))';                                                    % convert the data to a 2D matrix fillers by channel
+    DataChan = squeeze(segments(:,i,:))';                                                    % convert the data to a 2D matrix fillers by channel
     welch{i} = pwelch(DataChan, window, noverlap, f_vector, Configuration.SAMPLE_RATE);    % calculate the pwelch for each electrode
 end    
 
 %% extract the features
-[features, feat_names] = GetFeatures(MIData, welch);
+[features, feat_names] = GetFeatures(segments, welch);
 
 % Reshape into 2-D matrix
 features = reshape(features,trials,[]);
