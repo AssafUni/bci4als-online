@@ -47,7 +47,7 @@ options.val_set = true; % create a validation set when creating test train split
 options.val_ratio = 0.1; % percentage of data to allocate to validation set from training set
 options.feat_alg = 'wavelet'; % feature extraction algorithm, choose from {'basic', 'wavelet'}
 
-% define the model type to train and some other parameters
+% define the classic ML model type to train and some other parameters
 model_alg = 'LDA'; % ML model to train, choose from {'SVM', 'ADABOOST', 'LDA'}
 save_model = 'false'; % choose to save the trained model or not #### need to add the saving folder path as a variable this feat is not working for now ######
 
@@ -57,14 +57,15 @@ save_model = 'false'; % choose to save the trained model or not #### need to add
 
 
 % classic ML models pipeline
-folder = '..\NewHeadsetRecordingsOmri\combined';
-[selected_feat_idx]  = MI5_feature_selection(train, train_labels);
-train = train(:,selected_feat_idx);
-test = test(:,selected_feat_idx);
-val = val(:,selected_feat_idx);
-MI6_LearnModel(train, train_labels, model_alg, save_model);
-
-
-% % DL models pipeline
-% [train_acuraccy, test_acuraccy] = EEGNet(train, train_labels, val, val_labels, test, test_labels);
+if strcmp(options.feat_or_data,'feat')
+    folder = '..\NewHeadsetRecordingsOmri\combined';
+    [selected_feat_idx]  = MI5_feature_selection(train, train_labels);
+    train = train(:,selected_feat_idx);
+    test = test(:,selected_feat_idx);
+    val = val(:,selected_feat_idx);
+    MI6_LearnModel(train, train_labels, model_alg, save_model);
+else
+    % DL models pipeline
+    [train_acuraccy, test_acuraccy] = EEGNet(train, train_labels, val, val_labels, test, test_labels);
+end
 
