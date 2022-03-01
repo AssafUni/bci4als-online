@@ -19,8 +19,6 @@ load(strcat(recordingFolder,'SelectedIdx.mat'));
 
 % Parameters as in the offline phase- should be the same
 trials = size(MIData,1);
-[R, C] = size(EEG_chans);
-chanLocs = reshape(EEG_chans',[1, R*C]);
 numChans = size(MIData,2);
 
 motorDataChan = {};

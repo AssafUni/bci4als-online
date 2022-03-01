@@ -13,11 +13,6 @@ function [] = MI2_Preprocess(recordingFolder)
 % 6. Filter data above 0.5 & below 40 Hz according to input
 % 7. Notch filter @ 50 Hz according to input 
 
-% This code is part of the BCI-4-ALS Course written by Asaf Harel
-% and edited by Team 1
-% (harelasa@post.bgu.ac.il) in 2020. You are free to use, change, adapt and
-% so on - but please cite properly if published.
-
 % The function preprocess training data recorded earlier into
 % $recordingFolder$. The xdf file should be named EEG.XDF.
 % The function expects to be given several parameters as follows:
@@ -41,7 +36,7 @@ EEG.setname = 'MI_sub';
 % Save the data into .mat variables on the computer
 EEG_data = EEG.data;
 EEG_event = EEG.event;
-save(strcat(recordingFolder,'\','cleaned_sub.mat'),'EEG_data');
+save(strcat(recordingFolder,'\','EEG_data.mat'),'EEG_data');
 save(strcat(recordingFolder,'\','EEG_events.mat'),'EEG_event');
 save(strcat(recordingFolder,'\','EEG_chans.mat'),'EEG_chans');
                 
