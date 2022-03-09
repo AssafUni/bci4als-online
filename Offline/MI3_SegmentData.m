@@ -12,7 +12,7 @@ function [segments] = MI3_SegmentData(recordingFolder)
 
 %% Parameters and previous variables:
 Fs = Configuration.SAMPLE_RATE;               % openBCI sample rate
-trialLength = Configuration.TRIAL_LENGTH;        % needs to be equal to offline trainig parameters
+trialLength = Configuration.TRIAL_LENGTH_CLASSIFY;        % needs to be equal to offline trainig parameters
 load(strcat(recordingFolder, '\EEG_data.mat'));                % load the filtered EEG data in .mat format
 load(strcat(recordingFolder, '\EEG_chans.mat'));                  % load the EEG channel locations
 load(strcat(recordingFolder, '\EEG_events.mat'));                 % load the EEG event markers

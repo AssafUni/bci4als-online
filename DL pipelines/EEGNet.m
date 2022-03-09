@@ -83,6 +83,14 @@ test_pred = predict(eegnet, test_data);
 train_accuracy = sum((train_pred.' - train_lab) == 0)/length(train_lab);
 test_accuracy = sum((test_pred.' - test_lab) == 0)/length(test_lab);
 
+% plot confusion matrices
+C_train = confusionmat(train_lab,train_pred);
+C_test = confusionmat(test_lab,test_pred);
+figure('train confusion matrix');
+confusionchart(C_train);
+figure('test confusion matrix');
+confusionchart(C_test);
+
 display(['EEGNet has finish training!' newline ...
     sprintf('train accuray is: %.3f',train_accuracy) newline ...
     sprintf('test accuray is: %.3f',test_accuracy)]);

@@ -1,6 +1,14 @@
 # BCI4ALS- Team 1- Headset 54
 ## README
 
+to do list:
+- change online feature extraction to behave like offline feature extraction but with the correct/wrong/both option
+
+- need to inform in the saved files which model was used to label the online session recording.
+
+- fix commonpreprocces - change the filters and make them work properly
+ 
+
 This is the code repository for the BCI4ALS, team 1, with reimagined headset 54 from Or Rabani.
 The code is a fork of Asaf Harel(harelasa@post.bgu.ac.il) basic code for the course BCI-4-ALS which
 was taken place in Ben Gurion University during 2020/2021. You are free to use, change, adapt and

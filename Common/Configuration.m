@@ -5,12 +5,13 @@ classdef Configuration
     ROOT_PATH                  = '';
     
     N_CLASSES                  = 3;
-    TRIALS_PER_CLASS           = 5;
+    TRIALS_PER_CLASS           = 10;
     IDLE_LABEL                 = 1;
     LEFT_LABEL                 = 2;
     RIGHT_LABEL                = 3;
     TRIAL_LENGTH               = 5;
-    
+    TRIAL_LENGTH_CLASSIFY      = 5; % this value cant be larger than TRIAL_LENGTH
+
     PREPROCESS_BAD_ELECTRODES  = [];      % electrodesToRemove
     PREPROCESS_PLOT            = true;    % plot during preprocessing?
     PREPROCESS_AVOID_FILTER    = -1;
