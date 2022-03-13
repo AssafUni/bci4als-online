@@ -60,9 +60,11 @@ pause;                                  % Wait for experimenter to press a key
 disp('Setting up Psychtoolbox parameters...');
 disp('This will open a black screen - good luck!');
 % This function will make the Psychtoolbox window semi-transparent:   
-%Screen('Preference', 'SkipSyncTests', 1);
+
+% Screen('Preference', 'SkipSyncTests', 1);
 % PsychDebugWindowConfiguration(0, 1); 
-%PsychDebugWindowConfiguration(0, 0.8);  % Use this to debug the psychtoolbox screen
+% PsychDebugWindowConfiguration(0, 0.8);  % Use this to debug the psychtoolbox screen
+
 
 
 disp('Initializing...');
