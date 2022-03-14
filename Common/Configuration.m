@@ -1,5 +1,8 @@
 classdef Configuration
    properties (Constant)
+
+    BUFFER_START               = 1200;
+    BUFFER_END                 = 150;       
        
     RNG_CONST                  = 1;       % For reproducibility
     ROOT_PATH                  = '';
@@ -12,12 +15,17 @@ classdef Configuration
     TRIAL_LENGTH               = 5;
     TRIAL_LENGTH_CLASSIFY      = 5; % this value cant be larger than TRIAL_LENGTH
 
+    % filters constants
+    HIGH_FREQ       = 40;      % in Hz, to avoid applying the filter set to 'PREPROCESS_AVOID_FILTER'
+    HIGH_WIDTH      = 3;       % the width of the transition band for the high freq cutoff
+    LOW_FREQ        = 5;       % in Hz, to avoid applying the filter set to 'PREPROCESS_AVOID_FILTER'
+    LOW_WIDTH       = 3;       % the width of the transition band for the low freq cutoff
+    NOTCH           = 50;      % freq to implement notch filter
+    NOTCH_WIDTH     = 0.5;     %
+
     PREPROCESS_BAD_ELECTRODES  = [];      % electrodesToRemove
     PREPROCESS_PLOT            = true;    % plot during preprocessing?
     PREPROCESS_AVOID_FILTER    = -1;
-    PREPROCESS_HIGH_PASS       = 40;      % in Hz, to avoid applying the filter set to 'PREPROCESS_AVOID_FILTER'
-    PREPROCESS_LOW_PASS        = 5;       % in Hz, to avoid applying the filter set to 'PREPROCESS_AVOID_FILTER'
-    PREPROCESS_NOTCH           = 50;
     PREPROCESS_NOISE_REJECTION = 0;       % automaticNoiseRejection
     PREPROCESS_AVG_REREF       = 0;       % automaticAverageReReference
     PREPROCESS_LAPLACIAN       = 0;       % 1 - use laplacian filtering, 0 - don't use
