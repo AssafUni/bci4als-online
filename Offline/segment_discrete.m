@@ -1,4 +1,4 @@
-function [dataVar, remove_label] = segment_discrete(dataVar, EEG_data, EEG_event, Fs, trialLength, markIndex, numChans, trial)
+function [dataVar, remove_label] = segment_discrete(dataVar, EEG_data, EEG_event, Fs, trialLength, markIndex, trial)
 %% sortElectrodes sorts the EEG_data into the dataVar by electrode name 
 % after electrodes were removed in the preprocessing stage. Segments the
 % data into trialLength + buffer.

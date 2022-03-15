@@ -23,7 +23,7 @@ classdef Configuration
     NOTCH           = 50;      % freq to implement notch filter
     NOTCH_WIDTH     = 0.5;     %
 
-    PREPROCESS_BAD_ELECTRODES  = [];      % electrodesToRemove
+    PREPROCESS_BAD_ELECTRODES  = [12,13,14,15,16];      % electrodesToRemove
     PREPROCESS_PLOT            = true;    % plot during preprocessing?
     PREPROCESS_AVOID_FILTER    = -1;
     PREPROCESS_NOISE_REJECTION = 0;       % automaticNoiseRejection

@@ -32,13 +32,14 @@ cont_or_disc     = options.cont_or_disc;     % segmentation type choose from {'d
 seg_dur          = options.seg_dur;          % segments duration in seconds
 overlap          = options.overlap;          % following segments overlapping duration in seconds
 thresh           = options.threshold;        % threshold for labeling in continuous segmentation
+seq_len          = options.sequence_len;
 
 % calculate the step size for continouos segmentation
 CONSTANTS = Configuration();
 Fs = CONSTANTS.SAMPLE_RATE;
 segment_size = seg_dur*Fs;      % segments size
 overlap_size = overlap*Fs;      % overlap between every 2 segments
-step_size = segment_size - overlap_size; % step size between 2 segments
+% step_size = segment_size - overlap_size; % step size between 2 segments
 
 % define empty matrices
 train = []; train_labels = [];
@@ -48,8 +49,8 @@ test = []; test_labels = [];
 % different recordings
 if length(data_paths) < 4
     cross_rec = 1;
-    disp(['not enought recordings for different recording split hence split is done regulary, meaning "cross_rec = true"' newline...
-        'pls press any key to continue!']);
+    disp(['not enought recordings for different recording split hence split' newline...
+        'is done regulary, meaning "cross_rec = true" pls press any key to continue!']);
     pause()
 end
 
@@ -57,9 +58,9 @@ if strcmp(feat_or_data, 'feat')
     % extract features and split into train and test
     if ~cross_rec
         % different recording sessions for train and test
-        rec_num = length(data_paths);
-        num_test_rec = round(rec_num*test_split_ratio);
-        rec_idx = randperm(rec_num, num_test_rec);
+        num_total_rec = length(data_paths);
+        num_test_rec = round(num_total_rec*test_split_ratio);
+        rec_idx = randperm(num_total_rec, num_test_rec);
         for i = 1:length(data_paths)
             folder = data_paths{i};
             [curr_feat, curr_label] = feat_from_offline(folder, feat_alg, cont_or_disc, seg_dur, overlap, thresh);
@@ -99,13 +100,14 @@ elseif strcmp(feat_or_data, 'data')
     % divide the data itself into test and train
     if ~cross_rec
         % different recording sessions for train and test
-        rec_num = length(data_paths);
-        num_test_rec = round(rec_num*test_split_ratio);
-        rec_idx = randperm(rec_num, num_test_rec);
+        num_total_rec = length(data_paths);
+        num_test_rec = round(num_total_rec*test_split_ratio);
+        rec_idx = randperm(num_total_rec, num_test_rec);
         for i = 1:length(data_paths)
             folder = data_paths{i};
             [segments, curr_label] = MI2_SegmentData(folder, cont_or_disc, seg_dur, overlap, thresh);
             curr_data = MI3_Preprocess(segments, cont_or_disc);
+            [curr_data, curr_label] = create_sequence(curr_data, curr_label, seq_len);
             if ismember(i,rec_idx)
                 test  = cat(1, test, curr_data);
                 test_labels = cat(2, test_labels, curr_label);
@@ -120,6 +122,7 @@ elseif strcmp(feat_or_data, 'data')
             folder = data_paths{i};
             [segments, curr_label] = MI2_SegmentData(folder, cont_or_disc, seg_dur, overlap, thresh);
             curr_data = MI3_Preprocess(segments, cont_or_disc);
+            [curr_data, curr_label] = create_sequence(curr_data, curr_label, seq_len);
             % make sure to keep even distribution of labels in the split sets
             test_idx_1 = find(curr_label == 1);
             test_idx_2 = find(curr_label == 2);

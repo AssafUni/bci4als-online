@@ -17,10 +17,9 @@ function [segments, labels, EEG_chans] = MI2_SegmentData(recordingFolder, cont_o
 %   - labels - a label vector coresponding to the trials in segments
 %
 
-%######### insert channel removal here in the future #########
 
 % load subject data and labels
-recordingFile = strcat(recordingFolder, '/', 'EEG.XDF');
+recordingFile = strcat(recordingFolder, '\', 'EEG.XDF');
 EEG = pop_loadxdf(recordingFile, 'streamtype', 'EEG');
 load(strcat(recordingFolder, '\labels.mat')); % load the labels vector 
 
@@ -35,6 +34,14 @@ EEG_chans = transpose(string({EEG.chanlocs(:).labels}));
 % extract the events and data
 EEG_event = EEG.event;
 EEG_data = EEG.data;
+
+% remove unwanted channels
+chan2remove = Configuration.PREPROCESS_BAD_ELECTRODES; % indices of chanels to remove
+EEG_data(chan2remove,:) = [];
+
+% update the EEG structure
+EEG.data = EEG_data;
+EEG.nbchan = EEG.nbchan - length(chan2remove);
 
 % check for inconsistencies in the events data and the labels vector
 num_labels = length(labels);   % derive number of trials from training label vector
@@ -58,7 +65,7 @@ segments = [];                 % initialize an empty matrix
 numChans = size(EEG_chans,1);  % number of channels 
 if strcmp(cont_or_disc, 'discrete')
     for trial = 1:num_trials
-        [segments, remove_label] = segment_discrete(segments, EEG_data, EEG_event, Fs, trialLength, markerIndex(trial), numChans, trial);
+        [segments, remove_label] = segment_discrete(segments, EEG_data, EEG_event, Fs, trialLength, markerIndex(trial), trial);
         if remove_label
             labels(trial) = nan;
         end

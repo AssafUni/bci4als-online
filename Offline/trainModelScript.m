@@ -25,18 +25,18 @@ addpath('..\feature extraction methods\') % path of feature extraction methods w
 % define a class member with all the constants used in the pipeline 
 Configuration = Configuration();
 
-rng(Configuration.RNG_CONST) % For reproducibility
+% rng(Configuration.RNG_CONST) % For reproducibility
 
 % select folders to aggregate data from - online, offline or both
-% recordings_offline = [
-%     {'..\rec_assaf\Test1'}, {'..\rec_assaf\Test2'}, {'..\rec_assaf\Test3'}...
-%     {'..\rec_assaf\Test4'}, {'..\rec_assaf\Test5'}, {'..\rec_assaf\Test6'}...
-%     {'..\rec_assaf\Test7'}, {'..\rec_assaf\Test8'}, {'..\rec_assaf\Test9'}...
-%     {'..\rec_assaf\Test10'}, {'..\rec_assaf\Test11'}, {'..\rec_assaf\Test12'}...
-%     {'..\rec_assaf\Test13'}, {'..\rec_assaf\Test14'}, {'..\rec_assaf\Test15'}...
-%     {'..\rec_assaf\Test16'}, {'..\rec_assaf\Test17'}, {'..\rec_assaf\Test18'}];
-recordings_offline = [{'..\rec_omri\offline\Test1'}, {'..\rec_omri\offline\Test2'}, {'..\rec_omri\offline\Test3'}...
-                      {'..\rec_omri\offline\Test4'}, {'..\rec_omri\offline\Test5'}];
+recordings_offline = [
+    {'..\rec_assaf\Test1'}, {'..\rec_assaf\Test2'}, {'..\rec_assaf\Test3'}...
+    {'..\rec_assaf\Test4'}, {'..\rec_assaf\Test5'}, {'..\rec_assaf\Test6'}...
+    {'..\rec_assaf\Test7'}, {'..\rec_assaf\Test8'}, {'..\rec_assaf\Test9'}...
+    {'..\rec_assaf\Test10'}, {'..\rec_assaf\Test11'}, {'..\rec_assaf\Test12'}...
+    {'..\rec_assaf\Test13'}, {'..\rec_assaf\Test14'}, {'..\rec_assaf\Test15'}...
+    {'..\rec_assaf\Test16'}, {'..\rec_assaf\Test17'}, {'..\rec_assaf\Test18'}];
+% recordings_offline = [{'..\rec_omri\offline\Test1'}, {'..\rec_omri\offline\Test2'}, {'..\rec_omri\offline\Test3'}...
+%                       {'..\rec_omri\offline\Test4'}, {'..\rec_omri\offline\Test5'}];
 % recordings_offline = [{'..\rec_assaf\Test11'}, {'..\rec_assaf\Test15'}, {'..\rec_assaf\Test7'}...
 %                       {'..\rec_assaf\Test9'}, {'..\rec_assaf\Test5'}, {'..\rec_assaf\Test1'}];
 recordings_online = [];
@@ -44,15 +44,17 @@ recordings_online = [];
 % define the wanted pipeline and split options
 data_paths = [recordings_offline; recordings_online];
 options.test_split_ratio = 0.1;          % percent of the data which will go to the test set
-options.cross_rec        = true;         % true - test and train share recordings, false - tests are a different recordings then train
+options.cross_rec        = true;        % true - test and train share recordings, false - tests are a different recordings then train
 options.feat_or_data     = 'data';       % return "train" as data or features
 options.val_set          = true;         % create a validation set when creating test train split
 options.val_split_ratio  = 0.1;          % percentage of data to allocate to validation set from training set
 options.feat_alg         = 'wavelet';    % feature extraction algorithm, choose from {'basic', 'wavelet'}
 options.cont_or_disc     = 'continuous'; % segmentation type choose from {'discrete', 'continuous'}
-options.seg_dur          = 4;            % segments duration in seconds
-options.overlap          = 3;            % following segments overlapping duration in seconds
-options.threshold        = 0.85;         % threshold for labeling in continuous segmentation
+options.seg_dur          = 5;            % segments duration in seconds
+options.overlap          = 4;            % following segments overlapping duration in seconds
+options.threshold        = 0.8;         % threshold for labeling in continuous segmentation
+options.sequence_len     = 6;            % length of a sequence to enter in sequence DL models
+options.DL_model         = 'EEGNet_lstm';     % specify which DL model to train from {'EEGNet', 'EEGNet_lstm'}
 
 % define the classic ML model type to train and some other parameters
 model_alg = 'LDA'; % ML model to train, choose from {'SVM', 'ADABOOST', 'LDA'}
@@ -70,8 +72,14 @@ if strcmp(options.feat_or_data,'feat')
     test = test(:,selected_feat_idx);
     val = val(:,selected_feat_idx);
     MI6_LearnModel(train, train_labels, model_alg, save_model);
-else
-    % DL models pipeline
-    [eegnet, train_acuraccy, test_acuraccy] = EEGNet(train(:,1:13,:), train_labels, val(:,1:13,:), val_labels, test(:,1:13,:), test_labels);
+else % DL models pipeline
+    if strcmp(options.DL_model, 'EEGNet')
+        [eegnet, train_acuraccy, test_acuraccy] = EEGNet(train(:,1:13,:), train_labels, val(:,1:13,:), val_labels, test(:,1:13,:), test_labels);
+    elseif strcmp(options.DL_model, 'EEGNet_lstm')
+        [eegnet_lstm, train_acuraccy, test_acuraccy] = EEGNet_lstm(train, train_labels, val, val_labels, test, test_labels);
+    end
 end
 
+% EEGNet_lstm_1.options = options;
+% EEGNet_lstm_1.model = eegnet_lstm;
+% save('EEGNet_lstm_1', 'EEGNet_lstm_1')

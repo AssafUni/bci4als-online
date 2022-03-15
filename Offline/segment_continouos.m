@@ -7,7 +7,7 @@ function [segments, labels] = segment_continouos(EEGstruct, segment_duration, ov
 %   - overlap_duration - the overlap duration between following
 %   segmentations in seconds.
 %   - class_thres - a threshold for the classification of every segment,
-%   int between 0-1.
+%   int between [0,1].
 %
 % Output:
 %   - segments - a 3D matrix of the segmented data, dimentions are -
@@ -26,26 +26,28 @@ data = EEGstruct.data;
 marker_times = cell2mat(events(:,2));
 marker_sign = cell2mat(events(:,1));
 
+
 % reject data prior to recording start marker and after recording end marker
 start_rec_marker_idx = strcmp(events(:,1),'111.0000000000000');
 end_rec_marker_idx = strcmp(events(:,1),'99.00000000000000');
 if sum(start_rec_marker_idx) > 1 || find(start_rec_marker_idx) ~= 1 || sum(end_rec_marker_idx) > 1 || find(end_rec_marker_idx) ~= size(events,1)
     error(['there is a problem in the events structure due to one of the reasons:' newline...
-        '1. start recording marker has been marked more than once.' newline...
-        '2. there is more then 1 marker for starting recording' newline...
-        '3. end recording marker has been marked more than once.' newline...
-        '4. there is more then 1 marker for ending recording' newline...
-        'pls review the events structure to find the problem and fix it'])
+        '1. Start recording marker has been marked more than once.' newline...
+        '2. There is more than 1 marker for starting recording' newline...
+        '3. End recording marker has been marked more than once.' newline...
+        '4. There is more than 1 marker for ending recording' newline...
+        'Pls review the events structure to find the problem and fix it'])
 end
-end_rec_idx = events{end_rec_marker_idx,2};
-start_rec_idx = events{start_rec_marker_idx,2};
+
+% end_rec_idx = events{end_rec_marker_idx,2};
+% start_rec_idx = events{start_rec_marker_idx,2};
 % data(:,end_rec_idx + end_buff:end) = []; % delete the data after expirement ended
 % data(:,1:start_rec_idx - start_buff) = []; % delete the data prior to expirement start time
 
 % define segmentation parameters
 Fs = Configuration.SAMPLE_RATE;          % sample rate
-segment_size = segment_duration*Fs + start_buff + end_buff;      % segments size
-overlap_size = overlap_duration*Fs +start_buff + end_buff;      % overlap between every 2 segments
+segment_size = floor(segment_duration*Fs + start_buff + end_buff);      % segments size
+overlap_size = floor(overlap_duration*Fs +start_buff + end_buff);      % overlap between every 2 segments
 step_size = segment_size - overlap_size; % step size between 2 segments
 
 
@@ -69,9 +71,9 @@ for j = 1:length(times)
         sup_vec(j) = 1;
     end
 end
+
 % sup_vec(end_rec_idx + end_buff:end) = [];  % delete the labels after expirement ended
 % sup_vec(1:start_rec_idx - start_buff) = [];  % delete the labels prior to expirement start time
-
 
 % segment the data and create a new labels vector
 start_idx = 1;
