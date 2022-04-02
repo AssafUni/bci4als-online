@@ -1,0 +1,1 @@
+this model was trained on 5 recordings from omri

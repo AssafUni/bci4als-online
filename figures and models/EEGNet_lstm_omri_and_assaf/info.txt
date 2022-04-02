@@ -1,0 +1,1 @@
+this model was trained with 5 recordings from omri, and 18 recordings from assaf
