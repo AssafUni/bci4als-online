@@ -2,19 +2,8 @@ function [train, train_labels, test, test_labels, val, val_labels] = train_test_
 % this function splits the data set into train,test and validation sets.
 %
 % Inputs:
-%   - data_paths - folder paths to where the data (XDF file) is stored
-%   - test_split_ratio - a number between 0-1, determines the percentage of
-%   trials to allocate for the testing set from all the data.
-%   - cross_rec - true, test and train share recordings. false, tests are 
-%   a different recordings then train.
-%   - feat_or_data - a tring of either "feat" or "data" to determine if the
-%   sets the function returns are features or data samples.
-%   - val_set - true(1), a validation set will be created. false(0), a 
-%   validation set will not be created.
-%   - val_ratio - a number between 0-1, determines the percentage of
-%   trials to allocate for the validation set from the training set.
-
-%################# need to add the correct/wrong/both options for online recordings ################
+%   data_paths - folder paths to where the data (XDF file) is stored
+%   options - a structure containing the options of the split function
 
 %################# need to fix the percentage of test train, due to rounding we get ################
 %################# too many test examples, consider spliting after loading all the  ################
