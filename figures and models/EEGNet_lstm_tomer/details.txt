@@ -1,0 +1,6 @@
+this model was trained on 12 recordings from tomer. 
+the model used augmented data (WGN and xflip).
+model results:
+train accuray: 0.958
+validation accuray: 0.840
+test accuray: 0.833
