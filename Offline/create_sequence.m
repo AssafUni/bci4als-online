@@ -9,8 +9,10 @@ function [seq_data, seq_label] = create_sequence(data, labels, seq_len)
 %
 %
 
+
 % if sequence length is 1 then dont perform sequencing!
 if seq_len == 1
+    error('need to return data as a cell array if seq_len = 1!!') % a reminder for what needs to be done
     seq_data = data;
     seq_label = labels;
     return

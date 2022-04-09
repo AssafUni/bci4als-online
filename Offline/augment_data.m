@@ -3,10 +3,9 @@ function aug_data = augment_data(datastore)
 % NN recieves
 %
 % Inputs:
-%   data: a 3d matrix containing the processed and segmented data samples
-%         of the EEG recordings
-%   aug_types: a string array containing the types of augmentations you
-%              desire to perform on the data set
+%   datastore: a cell array containing the data in the first
+%             column and the labels (as categorical objects) in the second
+%             column
 %
 % outputs:
 %   aug_data: a cell array containing the augmented data in the first
@@ -20,11 +19,20 @@ labels = datastore(:,2);
 N = size(data,1); % extract number of samples
 
 % aplly x flip with 0.5 probability 
-indices = randperm(N, round(N*0.5));
-data(indices) = cellfun(@(X) flip(X,2), data(indices), "UniformOutput", false);
+indices_flip = randperm(N, round(N*0.5));
+data(indices_flip) = cellfun(@(X) flip(X,2), data(indices_flip), "UniformOutput", false);
 
-% aplly random gaussian noise with 0.5 probability - need to add the function
+% aplly white gaussian noise with 0.5 probability
+indices_noise = randperm(N, round(N*0.5));
+data(indices_noise) = cellfun(@(X) awgn_func(X, 20), data(indices_noise), "UniformOutput", false);
 
 aug_data = [data labels];
 end
 
+function x = awgn_func(x, snr)
+for i = 1:size(x,4)
+    temp_x = x(:,:,:,i).'; 
+    temp_x = awgn(temp_x, snr, 'measured');
+    x(:,:,:,i) = temp_x.';
+end
+end

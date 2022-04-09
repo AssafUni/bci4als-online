@@ -12,7 +12,7 @@ function filt_data = MI3_Preprocess(segments, cont_or_disc)
 %   - postprocces_segments - a 3D matrix of the segments after being
 %   preproccesed, the dimentions are the same as in 'segments'
 
-% add in the future
+% Notes - add in the future:
 % 1. Remove redundant channels
 % 2. redifine bad channels as an interpulation of it's neighbor channels 
 % 3. see comments in the end the script
@@ -34,27 +34,33 @@ notch_freq   = CONSTANTS.NOTCH;
 notch_width  = CONSTANTS.NOTCH_WIDTH;
 
 % implement a bandpass filter and a notch filter.
-% we will use IIR filters to get faster classification in the online sessions.
+% we will use IIR filters to get faster preprocessing in the online sessions.
 
-% design an IIR bandpass filter
-BP_filter = designfilt('bandpassiir','StopbandFrequency1',low_freq - low_width,...
-    'PassbandFrequency1',low_freq,...
-    'PassbandFrequency2',high_freq,...
-    'StopbandFrequency2',high_freq + high_width,...
-    'StopbandAttenuation1',60,...
-    'PassbandRipple',1,...
-    'StopbandAttenuation2',60,...
-    'SampleRate',Fs);
+persistent BP_filter notch_filter; 
 
-% design an IIR notch filter
-N  = 6;            % Order
-F0 = notch_freq;   % Center frequency
-BW = notch_width;  % Bandwidth
+if isempty(BP_filter)
+    % design an IIR bandpass filter
+    h = fdesign.bandpass('fst1,fp1,fp2,fst2,ast1,ap,ast2', low_freq - low_width, low_freq, ...
+    high_freq, high_freq + high_width, 60, 1, 60, Fs);
+    
+    BP_filter = design(h, 'cheby1', ...
+        'MatchExactly', 'passband', ...
+        'SOSScaleNorm', 'Linf');
+    
+    % design an IIR notch filter
+    N  = 6;            % Order
+    F0 = notch_freq;   % Center frequency
+    BW = notch_width;  % Bandwidth
+    
+    h = fdesign.notch('N,F0,BW', N, F0, BW, Fs);
 
-h = fdesign.notch('N,F0,BW', N, F0, BW, Fs);
 
 notch_filter = design(h, 'butter', ...
     'SOSScaleNorm', 'Linf');
+
+set(notch_filter,'PersistentMemory',true);    % save the filter in memory for next function call
+set(BP_filter,'PersistentMemory',true);       % save filter in memory for next function call
+end
 
 trial_length = size(segments,3);
 filt_data = zeros(num_trials,num_channels,trial_length - buff_start - buff_end);
@@ -62,7 +68,7 @@ filt_data = zeros(num_trials,num_channels,trial_length - buff_start - buff_end);
 if strcmp(cont_or_disc, 'discrete')
     for i = 1:num_trials
         % BP filtering
-        temp = filtfilt(BP_filter, squeeze(segments(i,:,:)).');
+        temp = filtfilt(BP_filter.sosMatrix, BP_filter.ScaleValues , squeeze(segments(i,:,:)).');
         temp = temp.';
         % notch filtering
         temp = filter(notch_filter, temp, 2);
@@ -74,7 +80,7 @@ elseif strcmp(cont_or_disc, 'continuous')
     % might change it later if needed!
     for i = 1:num_trials
         % BP filtering
-        temp = filtfilt(BP_filter, squeeze(segments(i,:,:)).');
+        temp = filtfilt(BP_filter.sosMatrix, BP_filter.ScaleValues, squeeze(segments(i,:,:)).');
         temp = temp.';
         % notch filtering
         temp = filter(notch_filter, temp, 2);
@@ -89,7 +95,6 @@ end
 
 % consider adding in the future
 
-% TODO: for now removing it from here
 % % remove blinks
 % EEG = pop_autobsseog( EEG, 128, 128, 'sobi', {'eigratio', 1000000}, 'eog_fd', {'range',[1  5]});
 % EEG = pop_autobssemg( EEG, 5.12, 5.12, 'bsscca', {'eigratio', 1000000}, 'emg_psd', {'ratio', [10],'fs', 125,'femg', 15,'estimator', spectrum.welch({'Hamming'}, 62),'range', [0  8]});

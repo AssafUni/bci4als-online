@@ -2,25 +2,29 @@
 % model to predict right left or idle, follow the instructions bellow to
 % manage the script:
 % 
-% change the folders paths in 'recordings_offline' and 'recordings_online'
-% to the relevant recordings you intend to use to train the model.
+% - change the folders paths in 'recordings_offline' and 'recordings_online'
+%   to the relevant recordings you intend to use to train the model.
+% - change the options settings according to the desired pipeline you wish
+%   to create.
+% - for more changes check the 'Configuration' class function in 'Common'
+%   folder.
 %
-% notice the path of eeglab package - line 13, change it as you wish to
-% match the path it is stored in your PC. 
+% Notes:
+%   notice the path of eeglab package in the begining of the script,
+%   change it as you wish to match the path it is stored in your PC. 
 %
-% notice that data from online recordings can be correct/wrong (or both)
-% predictions from the model we used in the online training. this might be
-% usefull to set different weights in the loss function for wrong
-% predictions to improve the model.
 
 clc; clear all; close all;
 
 % add relevant paths to the script
-addpath('..\Common\')
+addpath(genpath('..\')); 
+warning('off'); % suppress a warning about function names conflicts (there is nothing to do with it)
 addpath(genpath('..\..\interfaces\eeglab2021.1\'))  % #### change according to your local eeglab path ####
-addpath('..\DL pipelines\')    % path of DL models we might use
-addpath('..\feature extraction methods\') % path of feature extraction methods we might use
+warning('on');
 
+% addpath('..\Common\')
+% addpath('..\DL pipelines\')    % path of DL models we might use
+% addpath('..\feature extraction methods\') % path of feature extraction methods we might use
 
 % define a class member with all the constants used in the pipeline 
 Configuration = Configuration();
@@ -28,43 +32,70 @@ Configuration = Configuration();
 % rng(Configuration.RNG_CONST) % For reproducibility
 
 % select folders to aggregate data from - online, offline or both
-% recordings_offline = [
-%     {'..\rec_assaf\Test1'}, {'..\rec_assaf\Test2'}, {'..\rec_assaf\Test3'}...
-%     {'..\rec_assaf\Test4'}, {'..\rec_assaf\Test5'}, {'..\rec_assaf\Test6'}...
-%     {'..\rec_assaf\Test7'}, {'..\rec_assaf\Test8'}, {'..\rec_assaf\Test9'}...
-%     {'..\rec_assaf\Test10'}, {'..\rec_assaf\Test11'}, {'..\rec_assaf\Test12'}...
-%     {'..\rec_assaf\Test13'}, {'..\rec_assaf\Test14'}, {'..\rec_assaf\Test15'}...
-%     {'..\rec_assaf\Test16'}, {'..\rec_assaf\Test17'}, {'..\rec_assaf\Test18'}...
-%     {'..\rec_omri\offline\Test1'}, {'..\rec_omri\offline\Test2'}, {'..\rec_omri\offline\Test3'}...
-%     {'..\rec_omri\offline\Test4'}, {'..\rec_omri\offline\Test5'}];
-recordings_offline = [{'..\rec_omri\offline\Test1'}, {'..\rec_omri\offline\Test2'}, {'..\rec_omri\offline\Test3'}...
-                      {'..\rec_omri\offline\Test4'}, {'..\rec_omri\offline\Test5'}];
-% recordings_offline = [{'..\rec_assaf\Test11'}, {'..\rec_assaf\Test15'}, {'..\rec_assaf\Test7'}...
-%                       {'..\rec_assaf\Test9'}, {'..\rec_assaf\Test5'}, {'..\rec_assaf\Test1'}];
+recordings_offline = [
+    {'..\rec_tomer\Test1'}, {'..\rec_tomer\Test2'}, {'..\rec_tomer\Test3'}...
+    {'..\rec_tomer\Test4'}, {'..\rec_tomer\Test5'}, {'..\rec_tomer\Test6'}...
+    {'..\rec_tomer\Test7'}, {'..\rec_tomer\Test8'}, {'..\rec_tomer\Test9'}...
+    {'..\rec_tomer\Test10'}, {'..\rec_tomer\Test11'}, {'..\rec_tomer\Test12'}];
+
+%     {'..\rec_tomer\Test13'}, {'..\rec_tomer\Test14'}, {'..\rec_tomer\Test15'}...
+%     {'..\rec_tomer\Test16'}, {'..\rec_tomer\Test17'}, {'..\rec_tomer\Test18'}...
+%     {'..\rec_tomer\Test19'}, {'..\rec_tomer\Test20'}, {'..\rec_tomer\Test21'}...
+%     {'..\rec_tomer\Test22'}, {'..\rec_tomer\Test23'}, {'..\rec_tomer\Test24'}
+
+% recordings_offline = [{'..\rec_omri\Test1'}, {'..\rec_omri\Test2'}, {'..\rec_omri\Test3'}...
+%                       {'..\rec_omri\Test4'}, {'..\rec_omri\Test5'}];
+
 recordings_online = [];
 
 % define the wanted pipeline and split options
 data_paths = [recordings_offline; recordings_online];
-options.test_split_ratio = 0.2;         % percent of the data which will go to the test set
-options.cross_rec        = true;         % true - test and train share recordings, false - tests are a different recordings then train
-options.feat_or_data     = 'data';       % return "train" as data or features
+options.test_split_ratio = 0.1;          % percent of the data which will go to the test set
+options.val_split_ratio  = 0.1;          % percentage of data to allocate to validation set from training set
 options.val_set          = true;         % create a validation set when creating test train split
-options.val_split_ratio  = 0.2;         % percentage of data to allocate to validation set from training set
+options.cross_rec        = false;        % true - test and train share recordings, false - tests are a different recordings then train
+options.feat_or_data     = 'data';       % return "train" as data or features
+options.DL_model         = 'EEGNet_lstm';% specify which DL model to train from {'EEGNet', 'EEGNet_lstm'}
 options.feat_alg         = 'wavelet';    % feature extraction algorithm, choose from {'basic', 'wavelet'}
 options.cont_or_disc     = 'continuous'; % segmentation type choose from {'discrete', 'continuous'}
 options.seg_dur          = 5;            % segments duration in seconds
 options.overlap          = 4;            % following segments overlapping duration in seconds
-options.threshold        = 0.6;          % threshold for labeling in continuous segmentation
-options.sequence_len     = 5;            % length of a sequence to enter in sequence DL models, set to 1 if you dont want to create sequences (for EEGNet model)
-options.DL_model         = 'EEGNet_lstm';% specify which DL model to train from {'EEGNet', 'EEGNet_lstm'}
+options.threshold        = 0.7;          % threshold for labeling in continuous segmentation - percentage of the window containing the class (0-1)
+options.sequence_len     = 4;            % length of a sequence to enter in sequence DL models, set to 1 if you dont want to create sequences (for EEGNet model)
 
 % define the classic ML model type to train and some other parameters
-model_alg = 'LDA'; % ML model to train, choose from {'SVM', 'ADABOOST', 'LDA'}
+model_alg = 'LDA';    % ML model to train, choose from {'SVM', 'ADABOOST', 'LDA'}
 save_model = 'false'; % choose to save the trained model or not #### need to add the saving folder path as a variable this feat is not working for now ######
 
-
-[train, train_labels, test, test_labels, val, val_labels] = ...
+[train, train_labels, test, test_labels, val, val_labels,...
+    train_sup_vec, test_sup_vec, val_sup_vec] = ...
     train_test_split(data_paths, options);
+
+% check data distribution in each data set
+disp('training data distribution')
+train_distr = tabulate(train_labels);
+tabulate(train_labels)
+disp('validation data distribution')
+tabulate(val_labels)
+disp('testing data distribution')
+tabulate(test_labels)
+
+% fix imbalanced data in the train set for better fitting - we just
+% resample classes 2 & 3
+train_class_2 = train(train_labels == 2);
+train_class_3 = train(train_labels == 3);
+ratio_1_2 = floor(train_distr(1,2)/train_distr(2,2));
+ratio_1_3 = floor(train_distr(1,2)/train_distr(3,2));
+train_class_2 = repmat(train_class_2, round(ratio_1_2*0.5),1);
+train_class_3 = repmat(train_class_3, round(ratio_1_3*0.5),1);
+train_class_2_lab = ones(1,size(train_class_2,1)).*2;
+train_class_3_lab = ones(1,size(train_class_3,1)).*3;
+
+train = [train; train_class_2; train_class_3];
+train_labels = [train_labels, train_class_2_lab, train_class_3_lab];
+disp('new training data distribution');
+tabulate(train_labels);
+
 
 %% create a datastore for the data - this is usefull if we want to augment our data while training the NN
 % shift the data dimentions to match the input layer - hXwXcXn
@@ -128,7 +159,7 @@ plot(X,Y) % plot the perfcurve for visualization
 thresh = T(I); % the working point
 
 % label the samples according to the new threshold and plot CM
-labels = zeros(size(temp_test_labels)); % set an empty labels vector
+labels = zeros(size(test_labels)); % set an empty labels vector
 labels(test_pred(:,1) >= thresh) = 1;
 labels(test_pred(:,1) < thresh & test_pred(:,2) >= test_pred(:,3)) = 2;
 labels(test_pred(:,1) < thresh & test_pred(:,2) < test_pred(:,3)) = 3;
@@ -139,14 +170,24 @@ confusionchart(C_test,["Idle";"Left"; "Right"]);
 
 
 % save the model and its settings
-% EEGNet_lstm_2.options = options;
-% EEGNet_lstm_2.model = eegnet_lstm;
-% save('..\figures and plots\EEGNet_lstm_omri_and_assaf\EEGNet_lstm_2', 'EEGNet_lstm_2')
+EEGNet_lstm.options = options;
+EEGNet_lstm.model = eegnet_lstm;
+save('..\figures and models\EEGNet_lstm_tomer\EEGNet_lstm', 'EEGNet_lstm')
 
 % classify time points instead of samples according to the number of
 % the last #num samples classified in each class and check if we are
 % missing any action (left\right). this will be our final evaluation of the
 % classifier!
+if ~isempty(train_sup_vec)
+    Fs = Configuration.SAMPLE_RATE;
+    segment_size = options.seg_dur*Fs;       % segments size
+    overlap_size = options.overlap*Fs;       % overlap between every 2 segments
+    step_size = segment_size - overlap_size; % step size between 2 segments
+    time = (0:(length(test_sup_vec) - 1))./Fs;
+    figure('Name', 'test labels vs time plot')
+    plot(time, test_sup_vec, 'r*', 'MarkerSize', 2); hold on; xlabel('time'); ylabel('labels');
+    plot(time(1:step_size:end), labels, 'b+', 'MarkerSize', 2)
+end
 
 
 %% visualize the network weights - try to explaine the network computations

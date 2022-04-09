@@ -1,18 +1,20 @@
-function [segments, labels] = segment_continouos(EEGstruct, segment_duration, overlap_duration, class_thres)
+function [segments, labels, sup_vec] = segment_continouos(EEGstruct, segment_duration, overlap_duration, class_thres)
 % this function creates a continouos segmentation of the raw data
 %
 % Input:
-%   - EEGstruct - the eeg structure loaded from the EEG.xdf file
-%   - segment_duration - the duration of each segment in seconds.
-%   - overlap_duration - the overlap duration between following
-%   segmentations in seconds.
-%   - class_thres - a threshold for the classification of every segment,
-%   int between [0,1].
+%   EEGstruct: the eeg structure loaded from the EEG.xdf file
+%   segment_duration: the duration of each segment in seconds.
+%   overlap_duration: the overlap duration between following
+%                     segmentations in seconds.
+%   class_thres: a threshold for the classification of every segment,
+%                int between [0,1].
 %
 % Output:
-%   - segments - a 3D matrix of the segmented data, dimentions are -
-%   [trials, channels, time (sampled data)].
-%   - labels - labels vector for the segmented data
+%   segments: a 3D matrix of the segmented data, dimentions are -
+%             [trials, channels, time (sampled data)].
+%   labels: labels vector for the segmented data
+%   sup_vec: a vector of indications of the class presented in each
+%            timestemp
 %
 
 CONSTANTS = Configuration();
@@ -96,4 +98,6 @@ for i = 1:num_segments
         labels(i) = 1; 
     end
 end
+sup_vec(seg_idx(end) - end_buff + 1:end) = []; % trim unused labels
+sup_vec = [sup_vec, zeros(1,step_size - 1)]; % add zeros for future concatenating
 end

@@ -10,8 +10,8 @@ classdef Configuration
     ROOT_PATH                  = '';
     
     % buffers size for segmentations
-    BUFFER_START               = 1200;
-    BUFFER_END                 = 150;       
+    BUFFER_START               = 1800; 
+    BUFFER_END                 = 500;   % this buffer is way too big for real time aplication - need to improve the BPF we are using     
     
     % new recording settings
     TRIALS_PER_CLASS           = 10; % num of examples per class
