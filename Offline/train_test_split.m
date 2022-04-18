@@ -1,4 +1,6 @@
-function [train, train_labels, test_set, test_labels, val, val_labels, train_sup_vec, test_sup_vec, val_sup_vec] = train_test_split(data_paths, options)
+function [train, train_labels, test_set, test_labels, val, val_labels,...
+    train_sup_vec, test_sup_vec, val_sup_vec, test_idx, val_idx,...
+    train_time_samp, val_time_samp, test_time_samp] = train_test_split(data_paths, options)
 % this function splits the data set into train,test and validation sets
 % while maintaining an even class distribution between these sets.
 %
@@ -43,6 +45,8 @@ train = []; train_labels = [];
 test_set = []; test_labels = [];
 val = []; val_labels = [];
 train_sup_vec = []; test_sup_vec = []; val_sup_vec = [];
+test_idx = []; val_idx = [];
+test_time_samp = []; val_time_samp = []; train_time_samp = []; 
 
 % if there are not enought recording sessions then dont split base on
 % different recordings
@@ -111,22 +115,25 @@ elseif strcmp(feat_or_data, 'data')
         for i = 1:length(data_paths)
             waitbar(i/length(data_paths),f,['preprocessing data, recording ' num2str(i) ' out of ' num2str(length(data_paths))]);
             folder = data_paths{i};
-            [segments, curr_label, curr_sup_vec] = MI2_SegmentData(folder, cont_or_disc, seg_dur, overlap, thresh);
+            [segments, curr_label, curr_sup_vec, curr_time_sampled] = MI2_SegmentData(folder, cont_or_disc, seg_dur, overlap, thresh);
             curr_data = MI3_Preprocess(segments, cont_or_disc);
-            [curr_data, curr_label] = create_sequence(curr_data, curr_label, seq_len);
-            curr_sup_vec(1:(seq_len - 1)*step_size + segment_size + start_buff - 1) = [];
+            [curr_data, curr_label, curr_time_sampled] = create_sequence(curr_data, curr_label, seq_len, curr_time_sampled);
+            curr_sup_vec(:,1:(seq_len - 1)*step_size + segment_size + start_buff - 1) = [];
             if ismember(i,test_idx)
                 test_set  = cat(1, test_set, curr_data);
                 test_labels = cat(2, test_labels, curr_label);
                 test_sup_vec = cat(2, test_sup_vec, curr_sup_vec);
+                test_time_samp = cat(2, test_time_samp, curr_time_sampled);
             elseif ismember(i,val_idx)
                 val  = cat(1, val, curr_data);
                 val_labels = cat(2, val_labels, curr_label);
                 val_sup_vec = cat(2, val_sup_vec, curr_sup_vec);
+                val_time_samp = cat(2, val_time_samp, curr_time_sampled);
             else
                 train  = cat(1, train, curr_data);
                 train_labels = cat(2, train_labels, curr_label);
                 train_sup_vec = cat(2, train_sup_vec, curr_sup_vec);
+                train_time_samp = cat(2, train_time_samp, curr_time_sampled);
             end
         end
     else

@@ -2,7 +2,7 @@
 % model to predict right left or idle, follow the instructions bellow to
 % manage the script:
 % 
-% - change the folders paths in 'recordings_offline' and 'recordings_online'
+% - change the folders paths in 'recordings_offline'
 %   to the relevant recordings you intend to use to train the model.
 % - change the options settings according to the desired pipeline you wish
 %   to create.
@@ -22,10 +22,6 @@ warning('off'); % suppress a warning about function names conflicts (there is no
 addpath(genpath('..\..\interfaces\eeglab2021.1\'))  % #### change according to your local eeglab path ####
 warning('on');
 
-% addpath('..\Common\')
-% addpath('..\DL pipelines\')    % path of DL models we might use
-% addpath('..\feature extraction methods\') % path of feature extraction methods we might use
-
 % define a class member with all the constants used in the pipeline 
 Configuration = Configuration();
 
@@ -37,11 +33,11 @@ recordings_offline = [
     {'..\rec_tomer\Test4'}, {'..\rec_tomer\Test5'}, {'..\rec_tomer\Test6'}...
     {'..\rec_tomer\Test7'}, {'..\rec_tomer\Test8'}, {'..\rec_tomer\Test9'}...
     {'..\rec_tomer\Test10'}, {'..\rec_tomer\Test11'}, {'..\rec_tomer\Test12'}];
+% {'..\rec_tomer\Test13'}, {'..\rec_tomer\Test14'}, {'..\rec_tomer\Test15'}...
+%     {'..\rec_tomer\Test16'}, {'..\rec_tomer\Test17'}
 
-%     {'..\rec_tomer\Test13'}, {'..\rec_tomer\Test14'}, {'..\rec_tomer\Test15'}...
-%     {'..\rec_tomer\Test16'}, {'..\rec_tomer\Test17'}, {'..\rec_tomer\Test18'}...
-%     {'..\rec_tomer\Test19'}, {'..\rec_tomer\Test20'}, {'..\rec_tomer\Test21'}...
-%     {'..\rec_tomer\Test22'}, {'..\rec_tomer\Test23'}, {'..\rec_tomer\Test24'}
+% apperantly we have one bad recording, try finding it and delete it
+% bad recordings = [2]
 
 % recordings_offline = [{'..\rec_omri\Test1'}, {'..\rec_omri\Test2'}, {'..\rec_omri\Test3'}...
 %                       {'..\rec_omri\Test4'}, {'..\rec_omri\Test5'}];
@@ -59,19 +55,20 @@ options.DL_model         = 'EEGNet_lstm';% specify which DL model to train from 
 options.feat_alg         = 'wavelet';    % feature extraction algorithm, choose from {'basic', 'wavelet'}
 options.cont_or_disc     = 'continuous'; % segmentation type choose from {'discrete', 'continuous'}
 options.seg_dur          = 5;            % segments duration in seconds
-options.overlap          = 4;            % following segments overlapping duration in seconds
+options.overlap          = 4.5;          % following segments overlapping duration in seconds
 options.threshold        = 0.7;          % threshold for labeling in continuous segmentation - percentage of the window containing the class (0-1)
-options.sequence_len     = 4;            % length of a sequence to enter in sequence DL models, set to 1 if you dont want to create sequences (for EEGNet model)
+options.sequence_len     = 8;            % length of a sequence to enter in sequence DL models, set to 1 if you dont want to create sequences (for EEGNet model)
 
 % define the classic ML model type to train and some other parameters
 model_alg = 'LDA';    % ML model to train, choose from {'SVM', 'ADABOOST', 'LDA'}
 save_model = 'false'; % choose to save the trained model or not #### need to add the saving folder path as a variable this feat is not working for now ######
 
 [train, train_labels, test, test_labels, val, val_labels,...
-    train_sup_vec, test_sup_vec, val_sup_vec] = ...
+    train_sup_vec, test_sup_vec, val_sup_vec, test_idx, val_idx,...
+    train_time_samp, val_time_samp, test_time_samp] = ...
     train_test_split(data_paths, options);
 
-% check data distribution in each data set
+%% check data distribution in each data set
 disp('training data distribution')
 train_distr = tabulate(train_labels);
 tabulate(train_labels)
@@ -129,8 +126,8 @@ train_ds_aug = transform(train_ds, @augment_data);
 % preview(train_ds_aug)
 
 
-%% classic ML models pipeline
-if strcmp(options.feat_or_data,'feat')
+%% train a model
+if strcmp(options.feat_or_data,'feat') % classic ML models pipeline
     [selected_feat_idx]  = MI5_feature_selection(train, train_labels);
     train = train(:,selected_feat_idx);
     test = test(:,selected_feat_idx);
@@ -138,15 +135,15 @@ if strcmp(options.feat_or_data,'feat')
     MI6_LearnModel(train, train_labels, model_alg, save_model);
 else % DL models pipeline
     if strcmp(options.DL_model, 'EEGNet')
-        [eegnet, train_acuraccy, test_acuraccy] = EEGNet(train(:,1:13,:), train_labels, val(:,1:13,:), val_labels, test(:,1:13,:), test_labels);
+        [model, train_acuraccy, test_acuraccy] = EEGNet(train(:,1:13,:), train_labels, val(:,1:13,:), val_labels, test(:,1:13,:), test_labels);
     elseif strcmp(options.DL_model, 'EEGNet_lstm')
-        [eegnet_lstm, train_acuraccy, test_acuraccy] = EEGNet_lstm(train_ds_aug, val_ds, test_ds);
+        [model, train_acuraccy, test_acuraccy] = EEGNet_lstm(train_ds_aug, val_ds, test_ds);
     end
 end
 
 %% set working points and classification functions
 % get the scores of the test set from the network
-test_pred = predict(eegnet_lstm, test_ds);
+test_pred = predict(model, test_ds);
 
 % get the criterion you desire - here i chose sensitivity and specificity
 % for class 1
@@ -154,8 +151,8 @@ test_pred = predict(eegnet_lstm, test_ds);
 figure('Name', 'perfcurve'); xlabel('sensetivity'); ylabel('speceficity');
 plot(X,Y) % plot the perfcurve for visualization
 
-% set a working point of specificity = 0.95 for class 1 (Idle)
-[~,I] = min(abs(X - 0.88));
+% set a working point of specificity = ## for class 1 (Idle)
+[~,I] = min(abs(X - 0.9));
 thresh = T(I); % the working point
 
 % label the samples according to the new threshold and plot CM
@@ -171,24 +168,23 @@ confusionchart(C_test,["Idle";"Left"; "Right"]);
 
 % save the model and its settings
 EEGNet_lstm.options = options;
-EEGNet_lstm.model = eegnet_lstm;
+EEGNet_lstm.model = model;
 save('..\figures and models\EEGNet_lstm_tomer\EEGNet_lstm', 'EEGNet_lstm')
 
 % classify time points instead of samples according to the number of
 % the last #num samples classified in each class and check if we are
 % missing any action (left\right). this will be our final evaluation of the
 % classifier!
-if ~isempty(train_sup_vec)
+if ~isempty(test_sup_vec)
     Fs = Configuration.SAMPLE_RATE;
     segment_size = options.seg_dur*Fs;       % segments size
     overlap_size = options.overlap*Fs;       % overlap between every 2 segments
     step_size = segment_size - overlap_size; % step size between 2 segments
-    time = (0:(length(test_sup_vec) - 1))./Fs;
     figure('Name', 'test labels vs time plot')
-    plot(time, test_sup_vec, 'r*', 'MarkerSize', 2); hold on; xlabel('time'); ylabel('labels');
-    plot(time(1:step_size:end), labels, 'b+', 'MarkerSize', 2)
+    plot(test_sup_vec(2,:), test_sup_vec(1,:), 'r*', 'MarkerSize', 2); hold on; xlabel('time'); ylabel('labels');
+    plot(test_time_samp, labels, 'b+', 'MarkerSize', 2)
 end
 
 
 %% visualize the network weights - try to explaine the network computations
-temporal_conv_weights = eegnet_lstm.Layers(3).Weights;
+temporal_conv_weights = model.Layers(3).Weights;

@@ -68,7 +68,7 @@ filt_data = zeros(num_trials,num_channels,trial_length - buff_start - buff_end);
 if strcmp(cont_or_disc, 'discrete')
     for i = 1:num_trials
         % BP filtering
-        temp = filtfilt(BP_filter.sosMatrix, BP_filter.ScaleValues , squeeze(segments(i,:,:)).');
+        temp = filter(BP_filter, squeeze(segments(i,:,:)).');
         temp = temp.';
         % notch filtering
         temp = filter(notch_filter, temp, 2);
@@ -80,7 +80,7 @@ elseif strcmp(cont_or_disc, 'continuous')
     % might change it later if needed!
     for i = 1:num_trials
         % BP filtering
-        temp = filtfilt(BP_filter.sosMatrix, BP_filter.ScaleValues, squeeze(segments(i,:,:)).');
+        temp = filter(BP_filter, squeeze(segments(i,:,:)).');
         temp = temp.';
         % notch filtering
         temp = filter(notch_filter, temp, 2);

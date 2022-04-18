@@ -1,5 +1,5 @@
-system('C:\Users\tomer\Desktop\ALS\interfaces\LabRecorder\LabRecorder.exe &');
-system('C:\Users\tomer\Desktop\ALS\interfaces\OpenBCI_GUI\OpenBCI_GUI.exe &','-echo');
+% system('C:\Users\tomer\Desktop\ALS\interfaces\LabRecorder\LabRecorder.exe &');
+% system('C:\Users\tomer\Desktop\ALS\interfaces\OpenBCI_GUI\OpenBCI_GUI.exe &','-echo');
 answer = input('do you wish to record new data? (y/n):');
 addpath('..\Common\')
 Configuration = Configuration();

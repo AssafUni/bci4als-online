@@ -1,4 +1,4 @@
-function [seq_data, seq_label] = create_sequence(data, labels, seq_len)
+function [seq_data, seq_label, seg_time_sampled] = create_sequence(data, labels, seq_len, seg_time_sampled)
 % this function creates a sequence of eeg data recordings
 %
 % Inputs:
@@ -20,6 +20,7 @@ end
 
 % define the new label vector
 seq_label = labels(seq_len:end);
+seg_time_sampled = seg_time_sampled(seq_len:end);
 
 % create the sequences of the eeg recordings
 num_of_rec = size(data,1); % number of recordings

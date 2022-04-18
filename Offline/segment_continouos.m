@@ -1,4 +1,4 @@
-function [segments, labels, sup_vec] = segment_continouos(EEGstruct, segment_duration, overlap_duration, class_thres)
+function [segments, labels, sup_vec, seg_time_sampled] = segment_continouos(EEGstruct, segment_duration, overlap_duration, class_thres)
 % this function creates a continouos segmentation of the raw data
 %
 % Input:
@@ -78,12 +78,17 @@ end
 % sup_vec(1:start_rec_idx - start_buff) = [];  % delete the labels prior to expirement start time
 
 % segment the data and create a new labels vector
+times = (0:(length(times) - 1))./Fs;
+seg_time_sampled = zeros(1,num_segments);
 start_idx = 1;
 for i = 1:num_segments
     % create the ith segment
     seg_idx = (start_idx : start_idx + segment_size - 1); % data indices to segment
     segments(i,:,:) = data(:,seg_idx); % enter the current segment into segments
     start_idx = start_idx + step_size; % add step size to the starting index
+
+    % track time stamps of the end of segments
+    seg_time_sampled(i) = times(seg_idx(end) - end_buff);
 
     % find the ith label
     tags = sup_vec(seg_idx);
@@ -99,5 +104,8 @@ for i = 1:num_segments
     end
 end
 sup_vec(seg_idx(end) - end_buff + 1:end) = []; % trim unused labels
+times(seg_idx(end) - end_buff + 1:end) = []; % trim unused times
+times = [times, ((1:(step_size - 1)).*(1./Fs) + times(end))]; % add time points for future concatenating
 sup_vec = [sup_vec, zeros(1,step_size - 1)]; % add zeros for future concatenating
+sup_vec = [sup_vec; times];
 end

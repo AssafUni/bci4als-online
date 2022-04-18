@@ -1,4 +1,4 @@
-function [segments, labels, sup_vec, EEG_chans] = MI2_SegmentData(recordingFolder, cont_or_disc, seg_dur, overlap, thresh)
+function [segments, labels, sup_vec, seg_time_sampled, EEG_chans] = MI2_SegmentData(recordingFolder, cont_or_disc, seg_dur, overlap, thresh)
 % Segment data using markers
 % This function segments the continuous data into trials or epochs creating
 % a 3D matrix where dimentions are - [trial, channels, time (data samples)]
@@ -79,6 +79,6 @@ if strcmp(cont_or_disc, 'discrete')
     labels(isnan(labels)) = [];
     segments(isnan(segments(:,1,1)),:,:) = [];
 elseif strcmp(cont_or_disc, 'continuous')
-    [segments, labels, sup_vec] = segment_continouos(EEG, seg_dur, overlap, thresh);
+    [segments, labels, sup_vec, seg_time_sampled] = segment_continouos(EEG, seg_dur, overlap, thresh);
 end
 end
