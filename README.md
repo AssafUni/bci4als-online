@@ -1,10 +1,6 @@
 # BCI4ALS- Team 1- Headset 72
 ## README
 
-to do list:
-
- 
-
 This is the code repository for the BCI4ALS, team omri, with reimagined headset 72 from Or Rabani.
 You are free to use, change, adapt and so on - but please cite properly if published.
 We assume you have already set up a Matlab environment with libLSL, OpenBCI, EEGLab with ERPLAB & loadXDF plugins installed.
@@ -12,13 +8,13 @@ We assume you have already set up a Matlab environment with libLSL, OpenBCI, EEG
 ## Project Structure
 
 The repository is structured into 7 directories:
-1.scripts - each script has its own perpuse explained in the top of the script
-2.functions - all the functions that we use in the scripts
-3.recordings - recordings files, each 'subject' has its own folder
-4.DL pipelines - Deep learning NN architectures 
-5.feature extraction methods - feature extraction functions
-6.figures and models - all our saved models and their figures are placed here
-7.Documents - docs related to the project
+1.scripts - each script has its own perpuse explained in the top of the script.
+2.functions - all the functions that we use in the scripts.
+3.recordings - recordings files, each 'subject' has its own folder.
+4.DL pipelines - Deep learning NN architectures.
+5.feature extraction methods - feature extraction functions.
+6.figures and models - all our saved models and their figures are placed here.
+7.Documents - docs related to the project.
 
 For more info, see the documentation located in each code file.
 
