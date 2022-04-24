@@ -13,7 +13,7 @@ if isempty(data)
     return 
 end
 
-% shift the data dimentions to match the input layer of sequential input 
+% shift the data dimentions to match the input layer of sequential/image input 
 % layer - hXwXcXn (height,width,channels,number of images)
 data = cellfun(@(x) permute(x, [2,3,4,1]), data, 'UniformOutput', false);
 
