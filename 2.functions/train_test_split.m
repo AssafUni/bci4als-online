@@ -20,6 +20,11 @@ function [train, train_labels, test_set, test_labels, val, val_labels, ...
 %   train\test\val_time_samp: array containing the time stamps of each 
 %                             segment end time for train\test\val set
 
+%% things to add:
+% - an output containing the indices of each recording in each set
+% - an output containing the paths of each set
+% - 
+
 %% extract the parameters from options structure for later use
 test_split_ratio = options.test_split_ratio; % percent of the data which will go to the test set
 cross_rec        = options.cross_rec;        % true - test and train share recordings, false - tests are a different recordings then train

@@ -1,5 +1,6 @@
-classdef constants
+classdef constants < handle
    properties (Constant)
+    % ### add electrodes names and locations ###
     % paths
     channel_loc_path = 'C:\Users\tomer\Desktop\ALS\interfaces\channel_loc.ced';
 

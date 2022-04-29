@@ -5,8 +5,7 @@ times = EEGstruct.times;
 events = squeeze(struct2cell(EEGstruct.event)).';
 data = EEGstruct.data;
 marker_times = cell2mat(events(:,2));
-marker_sign = cell2mat(events(:,1));
-marker_sign = mat2cell(marker_sign, ones(size(marker_sign,1),1));
+marker_sign = events(:,1);
 
 % define segmentation parameters
 buff_start = constants.BUFFER_START; % buffer befor the segment
@@ -51,7 +50,7 @@ for i = 1:length(start_times_indices)
         seg_time_sampled(end) = [];
         continue
     end
-        segments(end + 1,:,:) = data(:,start_times_indices(i) - buff_start : start_times_indices(i) + segment_size + buff_end);
+        segments(end + 1,:,:) = data(:,start_times_indices(i) - buff_start : start_times_indices(i) + segment_size + buff_end - 2);
 end
 end
 

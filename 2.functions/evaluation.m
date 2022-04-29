@@ -21,10 +21,11 @@ function [class_pred, thresh, CM] = evaluation(model, data_store, options)
 arguments
     model
     data_store
-    options.thres_C1
+    options.thres_C1 = []
     options.CM_title = ''
     options.criterion = []
     options.criterion_thresh = []
+    options.print = false;
 end
 
 if isempty(data_store)
@@ -67,16 +68,19 @@ elseif ~isempty(options.thres_C1) % predict with threshold for class 1
     class_pred(scores(:,1) >= options.thres_C1) = 1;
 
     title = [' confusion matrix - class 1 threshold = '  num2str(options.thres_C1)];
-
+    thresh = [];
 else % deafult prediction
     scores = predict(model, data_store);
     [~, class_pred] = max(scores, [],2);
     title = ' confusion matrix';
+    thresh = [];
 end
 
-% plot the confusion matrix
 CM = confusionmat(class_true,class_pred);
-figure('Name', [options.CM_title title]);
-confusionchart(CM,["Idle";"Left"; "Right"]);
+% plot the confusion matrix
+if options.print
+    figure('Name', [options.CM_title title]);
+    confusionchart(CM,["Idle";"Left"; "Right"]);
+end
 
 end

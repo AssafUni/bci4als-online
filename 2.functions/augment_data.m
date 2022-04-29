@@ -27,6 +27,8 @@ indices_noise = randperm(N, round(N*0.5));
 data(indices_noise) = cellfun(@(X) awgn_func(X, 20), data(indices_noise), "UniformOutput", false);
 
 aug_data = [data labels];
+
+
 end
 
 function x = awgn_func(x, snr)

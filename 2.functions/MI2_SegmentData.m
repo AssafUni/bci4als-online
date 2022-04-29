@@ -27,7 +27,8 @@ recordingFile = strcat(recordingFolder, '\', 'EEG.XDF');
 [~, EEG] = evalc("pop_loadxdf(recordingFile, 'streamtype', 'EEG')"); % using evalc function to suppress any printing from eeglab functions
 load(strcat(recordingFolder, '\labels.mat')); % load the labels vector 
 
-% define the channels names - change path to where the channel_loc.ced file is at
+% define the channels names - change path to where the channel_loc.ced file
+% is at - need to make a new file with electrodes locations
 [~, EEG] = evalc("pop_chanedit(EEG, 'load',{constants.channel_loc_path,'filetype','autodetect'},'rplurchanloc',1)"); % using evalc function to suppress any printing from eeglab functions
 EEG_chans = transpose(string({EEG.chanlocs(:).labels}));
 

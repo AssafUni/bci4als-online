@@ -23,15 +23,15 @@ warning('on');
 
 %% select folders to aggregate data from
 recorders = {'tomer', 'omri', 'nitay'}; % people we got their recordings
-folders_num = {[], [1:5], []}; % recordings numbers - make sure that they exist
+folders_num = {[1, 3:12], [], []}; % recordings numbers - make sure that they exist
 data_paths = create_paths(recorders, folders_num);
 % apperantly we have bad recordings from tomer
 % currently bad recordings from tomer: [2] 
 
 
 %% define the wanted pipeline and data split options
-options.test_split_ratio = 0;            % percent of the data which will go to the test set
-options.val_split_ratio  = 0.2;          % percent of the data which will go to the test set - if set to 0 val set isn't created
+options.test_split_ratio = 0.1;            % percent of the data which will go to the test set
+options.val_split_ratio  = 0.1;          % percent of the data which will go to the test set - if set to 0 val set isn't created
 options.cross_rec        = false;        % true - test and train share recordings, false - tests are a different recordings then train
 options.feat_or_data     = 'data';       % return "train" as data or features
 options.model_algo       = 'EEGNet';     % ML model to train, choose from {'EEGNet', 'EEGNet_lstm','SVM', 'ADABOOST', 'LDA'}
@@ -41,9 +41,9 @@ options.seg_dur          = 5;            % segments duration in seconds
 options.overlap          = 4;            % following segments overlapping duration in seconds
 options.threshold        = 0.7;          % threshold for labeling in continuous segmentation - percentage of the window containing the class (0-1)
 options.sequence_len     = 1;            % length of a sequence to enter in sequence DL models
-options.save_model       = true;         % specify if you are interested in saving the trained model
-options.resample         = [0,0,0];      % resample size for each class
-options.constants         = constants();  % a class member with constants that are used in the pipeline 
+options.resample         = [1,1,1];      % resample size for each class [class1, class2, class3]
+options.constants        = constants(); % a class member with constants that are used in the pipeline 
+
 %% preprocess the data into train, test and validation sets
 [train, train_labels, test, test_labels, val, val_labels, ...
     train_sup_vec, test_sup_vec, val_sup_vec, train_time_samp, ...
@@ -56,14 +56,19 @@ disp('validation data distribution'); tabulate(val_labels)
 disp('testing data distribution'); tabulate(test_labels)
 
 % fix imbalanced data in the train set for better fitting - we just resample classes 2 & 3
-[train_rsmpl, train_labels_rsmpl] = resample_data(train, train_labels, "class_1", options.resample(1), ...
-    "class_2", options.resample(2), 'class_3', options.resample(3), "display", true);
+[train_rsmpl, train_labels_rsmpl] = resample_data(train, train_labels, options.resample, true);
 
 %% create a datastore for the data - this is usefull if we want to augment our data while training the NN
 train_ds = set2ds(train, train_labels, options.constants);
 train_ds_rsmpl = set2ds(train_rsmpl, train_labels_rsmpl, options.constants);
 test_ds = set2ds(test, test_labels, options.constants);
 val_ds = set2ds(val, val_labels, options.constants);
+
+% normalize all data sets
+train_ds = transform(train_ds, @norm_eeg);
+train_ds_rsmpl = transform(train_ds_rsmpl, @norm_eeg);
+test_ds = transform(test_ds, @norm_eeg);
+val_ds = transform(val_ds, @norm_eeg);
 
 % add augmentation functions to the train datastore (X flip & random
 % gaussian noise) - helps preventing overfitting
@@ -85,12 +90,7 @@ visualize_results(val_sup_vec, val_class_pred, val_time_samp, 'val')
 %% save the model and its settings
 mdl_struct.options = options;
 mdl_struct.model = model;
-if options.save_model
-    [file,path] = uiputfile; % a nice gui to select folder and file name
-    if ~isempty(file)
-        file = split(file,'.'); % we split to get only the file name without the file type
-        save([path file{1}], 'mdl_struct') % saving the model and its options as a mat file
-    end
-end
+uisave('mdl_struct', 'mdl_struct');
+
 %% visualize the network weights - try to explaine the network computations
 % temporal_conv_weights = model.Layers(3).Weights;
