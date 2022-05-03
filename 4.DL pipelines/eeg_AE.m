@@ -70,7 +70,7 @@ netD = dlnetwork(layers_decoder);
 
 %% training procces
 % start by defining some parameters
-num_epochs = 300;
+num_epochs = 400;
 val_epoch_freq = 10;
 mini_batch_size = constants.MiniBatchSize;
 learn_rate = 1e-3;

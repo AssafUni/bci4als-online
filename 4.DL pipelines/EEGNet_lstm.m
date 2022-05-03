@@ -9,9 +9,10 @@ function eegnet_lstm = EEGNet_lstm(train_ds, val_ds, constants)
 % Input: 
 %   train_ds: a datastore containing the training data and labels. 
 %   val_ds: a datastore containing the validation data and labels.
+%   constants: a structure contains the constants of the pipeline.
 %
 % Output:
-%   eegnet: the trained EEGNet model
+%   eegnet_lstm: the trained EEGNet model
 %
 
 % extract the input dimentions for the input layer
@@ -19,15 +20,9 @@ input_samples = read(train_ds);
 input_size = size(input_samples{1,1});
 
 % define the network layers
-layers = layerGraph();
-
-tempLayers = [
+layers = [
     sequenceInputLayer(input_size(1:3))
-    sequenceFoldingLayer()];
-
-layers = addLayers(layers,tempLayers);
-
-tempLayers = [
+    sequenceFoldingLayer()
     convolution2dLayer([1 64], 8, "Padding","same")
     batchNormalizationLayer()
     groupedConvolution2dLayer([input_size(1) 1], 2, 8)
@@ -40,26 +35,21 @@ tempLayers = [
     batchNormalizationLayer()
     eluLayer(1)
     averagePooling2dLayer([1 8], "Stride", [1 8])
-    dropoutLayer(0.5)];
-
-layers = addLayers(layers,tempLayers);
-
-tempLayers = [
+    dropoutLayer(0.5)
     sequenceUnfoldingLayer()
     flattenLayer()
     lstmLayer(128, "OutputMode","last")
-    dropoutLayer(0.5)
+    dropoutLayer(0.25)
     fullyConnectedLayer(3)
     softmaxLayer()
     classificationLayer()];
 
-layers = addLayers(layers,tempLayers);
-layers = connectLayers(layers,"seqfold/out","conv_1");
+% create a layer graph and connect layers - this is a DAG network
+layers = layerGraph(layers);
 layers = connectLayers(layers,"seqfold/miniBatchSize","sequnfold/miniBatchSize");
-layers = connectLayers(layers,"dropout_2","sequnfold/in");
 
 % display the network
-% % analyzeNetwork(layers);
+% analyzeNetwork(layers);
 
 % set some training and optimization parameters - cant use parallel pool
 % since we have an LSTMLayer in the network
@@ -80,44 +70,5 @@ options = trainingOptions('adam', ...
 
 % train the network
 eegnet_lstm = trainNetwork(train_ds, layers, options);
-
-% % compute and display the accuracy of the model on the test and train sets
-% % compute predictions
-% train_pred = predict(eegnet_lstm, train_ds);
-% val_pred = predict(eegnet_lstm, val_ds);
-% test_pred = predict(eegnet_lstm, test_ds);
-% 
-% % determine the labels - we can change the classification rules if needed
-% [~,train_pred] = max(train_pred,[],2);
-% [~,val_pred] = max(val_pred,[],2);
-% [~,test_pred] = max(test_pred,[],2);
-% 
-% % get the real labels
-% train_lab = readall(train_ds);
-% val_lab = readall(val_ds);
-% test_lab = readall(test_ds);
-% 
-% train_lab = cellfun(@(X) double(X), train_lab(:,2), 'UniformOutput', true);
-% val_lab = cellfun(@(X) double(X),val_lab(:,2), 'UniformOutput', true);
-% test_lab = cellfun(@(X) double(X),test_lab(:,2), 'UniformOutput', true);
-% 
-% % compute the accuracy - or any other criterion
-% train_accuracy = sum((train_pred - train_lab) == 0)/length(train_lab);
-% val_accuracy = sum((val_pred - val_lab) == 0)/length(val_lab);
-% test_accuracy = sum((test_pred - test_lab) == 0)/length(test_lab);
-% 
-% display(['EEGNet has finish training!' newline ...
-%     sprintf('train accuray is: %.3f',train_accuracy) newline ...
-%     sprintf('validation accuray is: %.3f',val_accuracy) newline ...
-%     sprintf('test accuray is: %.3f',test_accuracy)]);
-% 
-% % plot confusion matrices for deafault classification threshold & function
-% C_train = confusionmat(train_lab,train_pred);
-% C_test = confusionmat(test_lab,test_pred);
-% figure('Name', 'train confusion matrix');
-% confusionchart(C_train, ["Idle";"Left"; "Right"]);
-% figure('Name', 'test confusion matrix');
-% confusionchart(C_test, ["Idle";"Left"; "Right"]);
-
 
 end

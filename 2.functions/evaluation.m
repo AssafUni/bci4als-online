@@ -77,10 +77,12 @@ else % deafult prediction
 end
 
 CM = confusionmat(class_true,class_pred);
+accuracy = sum(class_true == class_pred)/length(class_true);
 % plot the confusion matrix
 if options.print
     figure('Name', [options.CM_title title]);
     confusionchart(CM,["Idle";"Left"; "Right"]);
+    disp([options.CM_title ' accuracy is: ' num2str(accuracy)]);
 end
 
 end

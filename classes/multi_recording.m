@@ -3,6 +3,7 @@ classdef multi_recording < handle & matlab.mixin.Copyable & recording
         rec_idx
         recordings
         num_rec
+        group
     end
 
     methods
@@ -10,16 +11,16 @@ classdef multi_recording < handle & matlab.mixin.Copyable & recording
         function obj = multi_recording(recordings)
             if nargin > 0  % support an empty class members
                 % concatenate all the relevant data
-                obj.num_rec = length(recordings);
                 obj.segments = []; obj.labels = []; obj.supp_vec = []; obj.sample_time = []; obj.rec_idx = [];
+                obj.path = {}; obj.Name = {}; obj.markers = {};
                 counter = 1;
-                for i = 1:obj.num_rec
+                for i = 1:length(recordings)
                     if ~isa(recordings{i}, 'recording')
                         error('"multi_recording" class inputs must be "recording" class objects!')
                     end
-                    obj.path{i} = recordings{i}.path;
-                    obj.Name{i} = recordings{i}.Name;
-                    obj.markers{i} = recordings{i}.markers;
+                    obj.path        = cat(1, obj.path, recordings{i}.path);
+                    obj.Name        = cat(1, obj.Name, recordings{i}.Name);
+                    obj.markers     = cat(1, obj.markers, recordings{i}.markers);
                     obj.segments    = cat(1, obj.segments, recordings{i}.segments);
                     obj.labels      = cat(1, obj.labels, recordings{i}.labels);
                     obj.supp_vec    = cat(2, obj.supp_vec, recordings{i}.supp_vec);
@@ -32,7 +33,8 @@ classdef multi_recording < handle & matlab.mixin.Copyable & recording
                 [obj.supp_vec, obj.sample_time]   = fix_times(obj.supp_vec, obj.sample_time); % fix time points
                 obj.options = recordings{1}.options;
                 obj.constants = recordings{1}.constants;
-                for i = 1:obj.num_rec
+                obj.num_rec = length(obj.path);
+                for i = 1:length(recordings)
                     obj.recordings{i} = copy(recordings{i}); % save copies and not pointers!
                 end
             end
@@ -41,7 +43,7 @@ classdef multi_recording < handle & matlab.mixin.Copyable & recording
         % create a data set from the obj segments and labels
         function create_ds(obj) 
             create_ds@recording(obj)
-            for i = 1:obj.num_rec
+            for i = 1:length(obj.recordings)
                 obj.recordings{i}.create_ds
             end
         end
@@ -49,7 +51,7 @@ classdef multi_recording < handle & matlab.mixin.Copyable & recording
         % normalization of data store
         function normalize_ds(obj)
             normalize_ds@recording(obj)
-            for i = 1:obj.num_rec
+            for i = 1:length(obj.recordings)
                 obj.recordings{i}.normalize_ds
             end
         end
@@ -70,8 +72,8 @@ classdef multi_recording < handle & matlab.mixin.Copyable & recording
                     criterion = options.criterion, criterion_thresh = options.criterion_thresh, ...
                     thres_C1 = options.thres_C1, print = options.print);
             % evaluate for recordings without printing
+            options.print = false;
             for i = 1:obj.num_rec
-                options.print = false;
                 obj.recordings{i}.evaluate(model, CM_title = options.CM_title, ...
                     criterion = options.criterion, criterion_thresh = options.criterion_thresh, ...
                     thres_C1 = options.thres_C1, print = options.print);
@@ -80,10 +82,15 @@ classdef multi_recording < handle & matlab.mixin.Copyable & recording
 
         % train test validation split ### need to add an option for cross
         % recordings split ###
-        function [train, test, val] = train_test_split(obj, test_ratio, val_ratio)
+        function [train, test, val] = train_test_split(obj, args)
+            arguments
+                obj
+                args.test_ratio = obj.options.test_split_ratio;
+                args.val_ratio = obj.options.val_split_ratio
+            end
             % calculate the number of recordings for each set
-            num_test = round(obj.num_rec*test_ratio);
-            num_val  = round(obj.num_rec*val_ratio);
+            num_test = round(obj.num_rec*args.test_ratio);
+            num_val  = round(obj.num_rec*args.val_ratio);
             % create a random indices array
             split_rec_idx = randperm(obj.num_rec, obj.num_rec);
             % allocate indices for each set
@@ -98,31 +105,10 @@ classdef multi_recording < handle & matlab.mixin.Copyable & recording
             train = multi_recording(obj.recordings(train_idx));
             test  = multi_recording(obj.recordings(test_idx));
             val   = multi_recording(obj.recordings(val_idx));
-        end
 
-        % visualize fc activations of a model
-        function visualize_act(obj, dim_red_algo, num_dim)
-            if isempty(obj.fc_act)
-                disp(['You need to calculate the "fc" layer activations in order to visualize them' newline ...
-                    'Use the "fc_activation" method to do so!']);
-                return
-            end
-            if strcmp(dim_red_algo, 'tsne')
-                points = tsne(obj.fc_act, 'Algorithm', 'exact', 'Distance', 'cityblock', 'NumDimensions', num_dim);
-            elseif strcmp(dim_red_algo, 'pca')
-                points = pca(obj.fc_act);
-                points = points.';
-                points = points(:,1:num_dim);
-            else 
-                disp('pls choose an algorithm from {"pca","tsne"}')
-                return
-            end
-
-            if num_dim == 2
-                scatter_2D(points, obj);
-            elseif num_dim == 3
-                scatter_3D(points, obj);
-            end
+            train.group = 'train';
+            test.group = 'test';
+            val.group = 'validation';
         end
     end
 end

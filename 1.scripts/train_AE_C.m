@@ -50,61 +50,52 @@ options.resample         = [1,1,1];      % resample size for each class [class1,
 options.constants        = constants();  % a class member with constants that are used in the pipeline
 
 %% preprocess the data into train, test and validation sets
-[train, train_labels, test, test_labels, val, val_labels] = train_test_split(data_paths, options);
+recordings = cell(1,length(data_paths));
+for i = 1:length(data_paths)
+    recordings{i} = recording(data_paths{i}, options); % crete a class member for each path
+end
+all_rec = multi_recording(recordings); % create a class member from all paths
+[train, test, val] = all_rec.train_test_split();
 
 %% check data distribution in each data set
-disp('training data distribution'); train_distr = tabulate(train_labels); tabulate(train_labels)
-disp('testing data distribution'); tabulate(test_labels)
-
-[train_rsmpl, train_labels_rsmpl] = resample_data(train, train_labels, options.resample, true);
+disp('training data distribution'); train_distr = tabulate(train.labels); tabulate(train.labels)
+disp('validation data distribution'); tabulate(val.labels)
+disp('testing data distribution'); tabulate(test.labels)
+% resample train set
+train_rsmpl = train.rsmpl_data();
 
 %% create a datastore for the data - this is usefull if we want to augment our data while training the NN
-train_ds = set2ds(train, train_labels, options.constants);
-train_ds_rsmpl = set2ds(train_rsmpl, train_labels_rsmpl, options.constants);
-test_ds = set2ds(test, test_labels, options.constants);
-val_ds = set2ds(val, val_labels, options.constants);
+train.create_ds();
+train_rsmpl.create_ds();
+val.create_ds();
+test.create_ds();
 
 % normalize all data sets
-train_ds = transform(train_ds, @norm_eeg);
-train_ds_rsmpl = transform(train_ds_rsmpl, @norm_eeg);
-test_ds = transform(test_ds, @norm_eeg);
-val_ds = transform(val_ds, @norm_eeg);
+train.normalize_ds();
+train_rsmpl.normalize_ds();
+val.normalize_ds();
+test.normalize_ds();
 
 % add augmentation functions to the train datastore (X flip & random
 % gaussian noise) - helps preventing overfitting
-train_ds_aug = transform(train_ds_rsmpl, @augment_data);
+train_rsmpl_aug = train_rsmpl.augment();
 
 %% train a model - the 'algo' name will determine which model to train
-[AE] = train_my_model(options.model_algo, options.constants, "train_ds", train_ds_aug, 'val_ds', val_ds);
+[AE] = train_my_model(options.model_algo, options.constants, ...
+    "train_ds", train_rsmpl_aug.data_store, 'val_ds', val.data_store);
 netE = AE(1);
 netD = AE(2);
 
 %% visualize the results - lets see the clusters!
-% create dlarrays from the data so we can predict on it with the dlseries model
-dltrain = dlarray(permute(cell2mat(train),[2,3,4,1]), 'SSCB'); 
-dltest = dlarray(permute(cell2mat(test),[2,3,4,1]), 'SSCB'); 
-dlval = dlarray(permute(cell2mat(val),[2,3,4,1]), 'SSCB'); 
+all_data = multi_recording({train, val, test});
+all_data.create_ds();
+all_data.normalize_ds()
 
-% predict the 'features' of each data store
-features_test = predict(netE, dltest);
-features_train = predict(netE, dltrain);
-features_val = predict(netE, dlval);
-
-% predict the reconstruction of the data stores
-% reconstruct_train = modelPredictions(netE,netD,train_ds);
-% reconstruct_test = modelPredictions(netE,netD,test_ds);
-% reconstruct_val = modelPredictions(netE,netD,val_ds);
+% predict the 'features' of each sample
+all_data.model_output(netE);
 
 % make clusters
-all_features = gather(extractdata(cat(2, features_train, features_val, features_test)));
-all_labels = cat(1, train_labels, val_labels, test_labels);
-low_dim_data = tsne(all_features.', 'Algorithm', 'exact', 'Distance', 'euclidean');
-
-figure(1)
-scatter(low_dim_data(all_labels == 1,1), low_dim_data(all_labels == 1,2), 'r'); hold on
-scatter(low_dim_data(all_labels == 2,1), low_dim_data(all_labels == 2,2), 'b'); hold on
-scatter(low_dim_data(all_labels == 3,1), low_dim_data(all_labels == 3,2), 'g');
-legend({'class 1 - idle', 'class 2 - left', 'class 3 - right'});
+all_data.visualize_output('tsne', 3);
 
 
 %% save the model and its settings 

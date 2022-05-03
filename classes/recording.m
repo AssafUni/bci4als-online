@@ -14,6 +14,7 @@ classdef recording < handle & matlab.mixin.Copyable
         constants
         predictions
         fc_act
+        mdl_output
     end
 
     methods
@@ -49,10 +50,14 @@ classdef recording < handle & matlab.mixin.Copyable
         end
             
         % create a new obj with resampled segments (data)
-        function new_obj = rsmpl_data(obj, resample)
+        function new_obj = rsmpl_data(obj, args)
+            arguments
+                obj
+                args.resample = obj.options.resample
+            end
             new_obj = copy(obj);
             if ~isempty(obj.segments) && ~isempty(obj.labels)
-                [new_obj.segments, new_obj.labels] = resample_data(obj.segments, obj.labels, resample, true);
+                [new_obj.segments, new_obj.labels] = resample_data(obj.segments, obj.labels, args.resample, true);
             end
         end
             
@@ -78,7 +83,7 @@ classdef recording < handle & matlab.mixin.Copyable
             end
         end
 
-        % predictions and evaluation
+        % classification and evaluation
         function [pred, thresh, CM] = evaluate(obj, model, options)
             arguments
                 obj
@@ -94,6 +99,8 @@ classdef recording < handle & matlab.mixin.Copyable
                     criterion = options.criterion, criterion_thresh = options.criterion_thresh, ...
                     thres_C1 = options.thres_C1, print = options.print);
                 obj.predictions = pred;
+            else
+                pred = []; thresh = []; CM = [];
             end
         end
         
@@ -115,16 +122,84 @@ classdef recording < handle & matlab.mixin.Copyable
             for i = 1:length(model.Layers)
                 if strcmp('fc', model.Layers(i).Name)
                     num_layer = i - 1;
+                    break
                 end
             end
             if num_layer
                 % extract activations from the fc layer
-                obj.fc_act = activations(model, obj.data_store, num_layer);
+                obj.fc_act = activations(model, obj.data_store, 'fc');
                 obj.fc_act = squeeze(permute(obj.fc_act, [4,1,2,3]));
                 obj.fc_act = reshape(obj.fc_act, [size(obj.fc_act,1), size(obj.fc_act,2)*size(obj.fc_act,3)]);
             else
                 disp(['No fully connected layer found, pls check the model architecture and the layers names.' newline...
                     'If there is a fully conected layer then change the layer name to "fc"'])
+            end
+        end
+
+        % model output
+        function model_output(obj, model)
+            if isa(model, 'dlnetwork') % need to work with dlarrays in that case
+                data_set = readall(obj.data_store);
+                data_set(:,1) = cellfun(@(x) permute(x, [3,1,2]), data_set(:,1), 'UniformOutput',false);
+                dlarray_seg = dlarray(permute(cell2mat(data_set(:,1)),[2,3,4,1]), 'SSCB'); 
+                obj.mdl_output = predict(model, dlarray_seg);
+                obj.mdl_output = gather(extractdata(obj.mdl_output)); % convert dlarray back to double
+            else
+                obj.mdl_output = predict(model, obj.data_store);
+            end
+        end
+
+        % visualize fc activations of a model
+        function visualize_act(obj, dim_red_algo, num_dim)
+            if isempty(obj.fc_act)
+                disp(['You need to calculate the "fc" layer activations in order to visualize them' newline ...
+                    'Use the "fc_activation" method to do so!']);
+                return
+            end
+            % keep asking for inputs untill a correct one is given
+            while ~ismember(dim_red_algo, ["pca","tsne"])
+                dim_red_algo = input(['Dimentional reduction algorithm name is wrong,' newline...
+                    'pls select from {"pca","tsne"} and type it here: ']);
+            end
+            if strcmp(dim_red_algo, 'tsne')
+                points = tsne(obj.fc_act, 'Algorithm', 'exact', 'Distance', 'euclidean', 'NumDimensions', num_dim);
+            elseif strcmp(dim_red_algo, 'pca')
+                points = pca(obj.fc_act);
+                points = points.';
+                points = points(:,1:num_dim);
+            end 
+
+            if num_dim == 2
+                scatter_2D(points, obj);
+            elseif num_dim == 3
+                scatter_3D(points, obj);
+            end
+        end
+
+        % visualize output of a model
+        function visualize_output(obj, dim_red_algo, num_dim)
+            if isempty(obj.mdl_output)
+                disp(['You need to calculate the outputs of the model in order to visualize them' newline ...
+                    'Use the "model_output" method to do so!']);
+                return
+            end
+            % keep asking for inputs untill a correct one is given
+            while ~ismember(dim_red_algo, ["pca","tsne"])
+                dim_red_algo = input(['Dimentional reduction algorithm name is wrong,' newline...
+                    'pls select from {"pca","tsne"} and type it here: ']);
+            end
+            if strcmp(dim_red_algo, 'tsne')
+                points = tsne(obj.mdl_output.', 'Algorithm', 'exact', 'Distance', 'euclidean', 'NumDimensions', num_dim);
+            elseif strcmp(dim_red_algo, 'pca')
+                points = pca(obj.mdl_output.');
+                points = points.';
+                points = points(:,1:num_dim);
+            end
+
+            if num_dim == 2
+                scatter_2D(points, obj);
+            elseif num_dim == 3
+                scatter_3D(points, obj);
             end
         end
     end

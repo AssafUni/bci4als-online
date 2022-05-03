@@ -28,71 +28,79 @@ data_paths = create_paths(recorders, folders_num);
 % apperantly we have bad recordings from tomer
 % currently bad recordings from tomer: [1,2] 
 
-
 %% define the wanted pipeline and data split options
-options.test_split_ratio = 0.1;            % percent of the data which will go to the test set
+options.test_split_ratio = 0.1;          % percent of the data which will go to the test set
 options.val_split_ratio  = 0.1;          % percent of the data which will go to the test set - if set to 0 val set isn't created
 options.cross_rec        = false;        % true - test and train share recordings, false - tests are a different recordings then train
 options.feat_or_data     = 'data';       % return "train" as data or features
-options.model_algo       = 'EEGNet_lstm';     % ML model to train, choose from {'EEGNet', 'EEGNet_lstm','SVM', 'ADABOOST', 'LDA'}
+options.model_algo       = 'EEGNet_lstm';% ML model to train, choose from {'EEGNet', 'EEGNet_lstm','SVM', 'ADABOOST', 'LDA'}
 options.feat_alg         = 'wavelet';    % feature extraction algorithm, choose from {'basic', 'wavelet'}
-options.cont_or_disc     = 'continuous';   % segmentation type choose from {'discrete', 'continuous'}
+options.cont_or_disc     = 'continuous'; % segmentation type choose from {'discrete', 'continuous'}
 options.seg_dur          = 5;            % segments duration in seconds
-options.overlap          = 4.5;            % following segments overlapping duration in seconds
+options.overlap          = 4.5;          % following segments overlapping duration in seconds
 options.threshold        = 0.7;          % threshold for labeling in continuous segmentation - percentage of the window containing the class (0-1)
 options.sequence_len     = 7;            % length of a sequence to enter in sequence DL models
 options.resample         = [0,3,3];      % resample size for each class [class1, class2, class3]
-options.constants        = constants(); % a class member with constants that are used in the pipeline 
+options.constants        = constants();  % a class member with constants that are used in the pipeline 
 
 %% preprocess the data into train, test and validation sets
-[train, train_labels, test, test_labels, val, val_labels, ...
-    train_sup_vec, test_sup_vec, val_sup_vec, train_time_samp, ...
-    val_time_samp, test_time_samp, test_rec_idx, val_rec_idx] = ...
-    train_test_split(data_paths, options);
-disp(['test idx: ' num2str(test_rec_idx)]);
-disp(['val idx: ' num2str(val_rec_idx)]);
-
+recordings = cell(1,length(data_paths));
+for i = 1:length(data_paths)
+    recordings{i} = recording(data_paths{i}, options); % crete a class member for each path
+end
+all_rec = multi_recording(recordings); % create a class member from all paths
+[train, test, val] = all_rec.train_test_split(); % create class member for each set
+% display the names of test and val set
+disp('test recordings are:')
+disp(test.Name);
+disp('val recordings are:')
+disp(val.Name);
 
 %% check data distribution in each data set
-disp('training data distribution'); train_distr = tabulate(train_labels); tabulate(train_labels)
-disp('validation data distribution'); tabulate(val_labels)
-disp('testing data distribution'); tabulate(test_labels)
+disp('training data distribution'); train_distr = tabulate(train.labels); tabulate(train.labels)
+disp('validation data distribution'); tabulate(val.labels)
+disp('testing data distribution'); tabulate(test.labels)
 
-% fix imbalanced data in the train set for better fitting - we just resample classes 2 & 3
-[train_rsmpl, train_labels_rsmpl] = resample_data(train, train_labels, options.resample, true);
+% resample train set - this is how we reballance our training distribution
+train_rsmpl = train.rsmpl_data();
+
 
 %% create a datastore for the data - this is usefull if we want to augment our data while training the NN
-train_ds = set2ds(train, train_labels, options.constants);
-train_ds_rsmpl = set2ds(train_rsmpl, train_labels_rsmpl, options.constants);
-test_ds = set2ds(test, test_labels, options.constants);
-val_ds = set2ds(val, val_labels, options.constants);
+train.create_ds();
+train_rsmpl.create_ds();
+val.create_ds();
+test.create_ds();
 
 % normalize all data sets
-train_ds = transform(train_ds, @norm_eeg);
-train_ds_rsmpl = transform(train_ds_rsmpl, @norm_eeg);
-test_ds = transform(test_ds, @norm_eeg);
-val_ds = transform(val_ds, @norm_eeg);
+train.normalize_ds();
+train_rsmpl.normalize_ds();
+val.normalize_ds();
+test.normalize_ds();
 
 % add augmentation functions to the train datastore (X flip & random
 % gaussian noise) - helps preventing overfitting
-train_ds_aug = transform(train_ds_rsmpl, @augment_data);
+train_rsmpl_aug = train_rsmpl.augment();
 
 %% train a model - the 'algo' name will determine which model to train
-model = train_my_model(options.model_algo, options.constants, "train_ds", train_ds_aug, "val_ds", val_ds);
+model = train_my_model(options.model_algo, options.constants, ...
+    "train_ds", train_rsmpl_aug.data_store, "val_ds", val.data_store);
 
 %% set working points and evaluate the model on all data stores
-[test_class_pred, thresh] = evaluation(model, test_ds, CM_title = 'test', criterion = 'sens', criterion_thresh = 0.9, print = true);
-train_class_pred = evaluation(model, train_ds, CM_title = 'train', thres_C1 = thresh, print = true);
-val_class_pred = evaluation(model, val_ds, CM_title = 'val', thres_C1 = thresh, print = true);
+[~, thresh] = test.evaluate(model, CM_title = 'test', criterion = 'sens', criterion_thresh = 0.9, print = true);
+val.evaluate(model, CM_title = 'val', thres_C1 = thresh, print = true);
+train.evaluate(model, CM_title = 'train', thres_C1 = thresh, print = true);
 
-%% visualize the results
-visualize_results(train_sup_vec, train_class_pred, train_time_samp, 'train')
-visualize_results(test_sup_vec, test_class_pred, test_time_samp, 'test')
-visualize_results(val_sup_vec, val_class_pred, val_time_samp, 'val')
+%% visualize the predictions
+train.visualize("title", 'train'); 
+val.visualize("title", 'val'); 
+test.visualize("title", 'test');
 
-%% save the model and its settings
+%% save the model its settings and the recordings that were used to create it
 mdl_struct.options = options;
 mdl_struct.model = model;
+mdl_struct.test_names = test.Name;
+mdl_struct.val_name = val.Name;
+mdl_struct.train_name = train.Name;
 uisave('mdl_struct', 'mdl_struct');
 
 %% visualize the network weights - try to explaine the network computations

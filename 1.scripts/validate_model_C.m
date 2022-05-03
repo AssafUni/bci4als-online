@@ -5,7 +5,7 @@
 % train the model and check the results on the validation and test sets.
 % if the model is okay and the recordings are not good then you should
 % recieve low accuracy when predicting on the recording, thus you can check
-% every recording seperatly to find wich ones are not good enought.
+% every recording seperatly to find wHich ones are not good enought.
 % bad recordings might be caused due to noise, placing electrodes in the
 % wrong position or hardware problems (which we can't fix ourselves)
 
@@ -22,7 +22,7 @@ warning('on');
 
 %% select folders to aggregate data from
 recorders = {'tomer', 'omri', 'nitay'}; % people we got their recordings
-folders_num = {[1:17], [1:5], []}; % recordings numbers - make sure that they exist
+folders_num = {[1, 3:13], [], []}; % recordings numbers - make sure that they exist
 data_paths = create_paths(recorders, folders_num);
 % apperantly we have bad recordings...
 % currently bad recordings from tomer: [2] 

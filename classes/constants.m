@@ -4,14 +4,12 @@ classdef constants < handle
     % paths
     channel_loc_path = 'C:\Users\tomer\Desktop\ALS\interfaces\channel_loc.ced';
 
-    % general settings - DO NOT CHANGE THEM
+    % general settings - DO NOT CHANGE THEM UNLESS YOU WORK ON A DIFFERENT  PROBLEM!
     N_CLASSES                  = 3;
     IDLE_LABEL                 = 1; % DO NOT CHANGE THIS
     LEFT_LABEL                 = 2; % DO NOT CHANGE THIS
     RIGHT_LABEL                = 3; % DO NOT CHANGE THIS
     SAMPLE_RATE                = 125;     
-    RNG_CONST                  = 1; % For reproducibility - need to fix cause its not reproducable as for now
-    ROOT_PATH                  = '';
     
     % buffers size for segmentations
     BUFFER_START               = 1500; 
@@ -40,13 +38,6 @@ classdef constants < handle
     MaxEpochs =  500;
     MiniBatchSize = 150;
     ValidationFrequency =  50;
-    
-    % features settings and options
-    FE_MULTIPLE_RECORDINGS     = 0;
-    FE_MODE                    = 0;       % FeatureSelectMode
-    FE_N                       = 6;       % Features2Select 
-    FE_FILE                    = '';      % Feature2SelectFile
-    FE_POWER_ONLY              = 0;       % onlyPowerBands 
 
    end
 end
