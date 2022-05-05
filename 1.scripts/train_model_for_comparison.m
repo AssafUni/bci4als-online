@@ -20,17 +20,24 @@ script_setup()
 
 %% select folders to aggregate data from
 recorders = {'tomer', 'omri', 'nitay'}; % people we got their recordings
-folders_num = {[1:17], [1:5], []}; % recordings numbers - make sure that they exist
-data_paths = create_paths(recorders, folders_num);
+
+train_folders_num = {[1:4, 6:14, 16:17], [1,3,5], []}; % recordings numbers for train data - make sure that they exist
+val_folders_num =  {[5], [2], []}; % recordings numbers for validation data- make sure that they exist
+test_folders_num = {[15], [4], []}; % recordings numbers for test data - make sure that they exist
+
+train_data_paths = create_paths(recorders, train_folders_num);
+val_data_paths = create_paths(recorders, val_folders_num);
+test_data_paths = create_paths(recorders, test_folders_num);
 % apperantly we have bad recordings from tomer
 % currently bad recordings from tomer: [1,2] 
+
 
 %% define the wanted pipeline and data split options
 options.test_split_ratio = 0.1;          % percent of the data which will go to the test set
 options.val_split_ratio  = 0.1;          % percent of the data which will go to the test set - if set to 0 val set isn't created
 options.cross_rec        = false;        % true - test and train share recordings, false - tests are a different recordings then train
 options.feat_or_data     = 'data';       % return "train" as data or features
-options.model_algo       = 'EEGNet';     % ML model to train, choose from {'EEGNet', 'EEGNet_lstm','SVM', 'ADABOOST', 'LDA'}
+options.model_algo       = 'EEGNet';     % ML model to train, choose from {'EEGNet', 'EEGNet_lstm', 'EEGNet_bilstm', 'SVM', 'ADABOOST', 'LDA'}
 options.feat_alg         = 'wavelet';    % feature extraction algorithm, choose from {'basic', 'wavelet'}
 options.cont_or_disc     = 'discrete';   % segmentation type choose from {'discrete', 'continuous'}
 options.seg_dur          = 5;            % segments duration in seconds
@@ -41,13 +48,9 @@ options.resample         = [0,0,0];      % resample size for each class [class1,
 options.constants        = constants();  % a class member with constants that are used in the pipeline 
 
 %% preprocess the data into train, test and validation sets
-all_rec = paths2Mrec(data_paths, options); % create a class member from all paths
-[train, test, val] = all_rec.train_test_split(); % create class member for each set
-% display the names of test and val set
-disp('test recordings are:')
-disp(test.Name);
-disp('val recordings are:')
-disp(val.Name);
+train = paths2Mrec(train_data_paths, options);
+val = paths2Mrec(val_data_paths, options);
+test = paths2Mrec(test_data_paths, options);
 
 %% check data distribution in each data set
 disp('training data distribution'); train_distr = tabulate(train.labels); tabulate(train.labels)

@@ -1,11 +1,8 @@
 clc; clear all; close all;
 %%%%%% need to fix the time delays between each classification iteration %%%%%%
 
-% add relevant paths to the script
-warning('off'); % suppress a warning about function names conflicts (there is nothing to do with it)
-addpath(genpath('C:\Users\tomer\Desktop\ALS\project\')); 
-addpath(genpath('C:\Users\tomer\Desktop\ALS\interfaces\'))  % #### change according to your local liblsl path ####
-warning('on');
+% a quick paths check and setup (if required) for the script
+script_setup()
 
 %% load the model and its options
 uiopen("load")

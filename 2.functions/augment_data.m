@@ -18,8 +18,8 @@ labels = datastore(:,2);
 
 N = size(data,1); % extract number of samples
 
-% aplly x flip with 0.5 probability 
-indices_flip = randperm(N, round(N*0.5));
+% aplly x flip with 0.25 probability 
+indices_flip = randperm(N, round(N*0.25));
 data(indices_flip) = cellfun(@(X) flip(X,2), data(indices_flip), "UniformOutput", false);
 
 % aplly white gaussian noise with 0.5 probability

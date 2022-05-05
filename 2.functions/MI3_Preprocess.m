@@ -13,13 +13,11 @@ function filt_data = MI3_Preprocess(segments, cont_or_disc, constants)
 %   preproccesed, the dimentions are the same as in 'segments'
 
 % Notes - add in the future:
-% 1. Remove redundant channels
-% 2. redifine bad channels as an interpulation of it's neighbor channels 
-% 3. see comments in the end the script
+% - see comments in the end the script
 
 % define some usefull variables
-num_trials   = size(segments,1);
-num_channels = size(segments,2);
+num_trials   = size(segments,4);
+num_channels = size(segments,1);
 
 % import some constants for the filters design and filtering 
 buff_start   = constants.BUFFER_START;
@@ -61,30 +59,30 @@ set(notch_filter,'PersistentMemory',true);    % save the filter in memory for ne
 set(BP_filter,'PersistentMemory',true);       % save filter in memory for next function call
 end
 
-trial_length = size(segments,3);
-filt_data = zeros(num_trials,num_channels,trial_length - buff_start - buff_end);
+trial_length = size(segments,2);
+filt_data = zeros(num_channels,trial_length - buff_start - buff_end, 1, num_trials);
 
 if strcmp(cont_or_disc, 'discrete')
     for i = 1:num_trials
         % BP filtering
-        temp = filter(BP_filter, squeeze(segments(i,:,:)).');
+        temp = filter(BP_filter, squeeze(segments(:,:,:,i)).');
         temp = temp.';
         % notch filtering
         temp = filter(notch_filter, temp, 2);
         % allocate the filtered data into a new matrix
-        filt_data(i,:,:) = temp(:,buff_start + 1:end - buff_end);
+        filt_data(:,:,:,i) = temp(:,buff_start + 1:end - buff_end);
     end
 elseif strcmp(cont_or_disc, 'continuous')
     % NOTICE that there is not difference between cont and disc for now we
     % might change it later if needed!
     for i = 1:num_trials
         % BP filtering
-        temp = filter(BP_filter, squeeze(segments(i,:,:)).');
+        temp = filter(BP_filter, squeeze(segments(:,:,:,i)).');
         temp = temp.';
         % notch filtering
         temp = filter(notch_filter, temp, 2);
         % allocate the filtered data into a new matrix
-        filt_data(i,:,:) = temp(:,buff_start + 1:end - buff_end);
+        filt_data(:,:,:,i) = temp(:,buff_start + 1:end - buff_end);
     end
 else
     error('pls select a valid segmetation type for the variabe "cont_or_disc"!')

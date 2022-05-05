@@ -23,12 +23,12 @@ function [segments, labels, sup_vec, seg_time_sampled, EEG_chans] = MI2_SegmentD
 
 
 % load subject data and labels
-recordingFile = strcat(recordingFolder, '\', 'EEG.XDF');
-[~, EEG] = evalc("pop_loadxdf(recordingFile, 'streamtype', 'EEG')"); % using evalc function to suppress any printing from eeglab functions
-load(strcat(recordingFolder, '\labels.mat')); % load the labels vector 
+recordingFile = strcat(recordingFolder, '\', 'EEG.XDF'); %#ok<*NASGU> 
+[~, EEG] = evalc("pop_loadxdf(recordingFile, 'streamtype', 'EEG')"); %#ok<*ASGLU> % using evalc function to suppress any printing from eeglab functions
+labels = load(strcat(recordingFolder, '\labels.mat'), 'labels'); % load the labels vector 
+labels = labels.labels;
 
-% define the channels names - change path to where the channel_loc.ced file
-% is at - need to make a new file with electrodes locations
+% define the channels names     
 [~, EEG] = evalc("pop_chanedit(EEG, 'load',{constants.channel_loc_path,'filetype','autodetect'},'rplurchanloc',1)"); % using evalc function to suppress any printing from eeglab functions
 EEG_chans = transpose(string({EEG.chanlocs(:).labels}));
 
@@ -68,4 +68,5 @@ if strcmp(cont_or_disc, 'discrete')
 elseif strcmp(cont_or_disc, 'continuous')
     [segments, labels, sup_vec, seg_time_sampled] = segment_continouos(EEG, seg_dur, overlap, thresh, constants);
 end
+segments = permute(segments, [1,2,4,3]);
 end

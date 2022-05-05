@@ -32,11 +32,15 @@ classdef recording < handle & matlab.mixin.Copyable
                 feat_or_data = options.feat_or_data;
                 feat_alg = options.feat_alg;
                 sequence_len = options.sequence_len;
+                if strcmp(cont_or_disc, 'discrete') % sequence must be 1 for discrete segmentation
+                    sequence_len = 1;
+                    obj.options.sequence_len = 1;
+                end
                 % set a name for the obj according to its file path
                 strs = split(file_path, '\');
                 obj.Name = [strs{end - 1}(5:end) ' - ' strs{end}];            
                 % load the raw data and events from the xdf file - using evalc function to suppress any printing from eeglab functions
-                [~, EEG] = evalc("pop_loadxdf([file_path '\EEG.xdf'], 'streamtype', 'EEG')"); 
+                [~, EEG] = evalc("pop_loadxdf([file_path '\EEG.xdf'], 'streamtype', 'EEG')");
                 obj.raw_data = EEG.data;
                 obj.markers = EEG.event;
                 [segments, labels, obj.supp_vec, sample_time] = ...
@@ -118,17 +122,19 @@ classdef recording < handle & matlab.mixin.Copyable
         % model activations operations
         function fc_activation(obj, model)
             % find the FC layer index
-            num_layer = 0;
+            fc = 0;
             for i = 1:length(model.Layers)
                 if strcmp('fc', model.Layers(i).Name)
-                    num_layer = i - 1;
-                    break
+                    layer_name = model.Layers(i - 1).Name;
+                    fc = 1;
                 end
             end
-            if num_layer
+            if fc
                 % extract activations from the fc layer
-                obj.fc_act = activations(model, obj.data_store, 'fc');
-                obj.fc_act = squeeze(permute(obj.fc_act, [4,1,2,3]));
+                obj.fc_act = activations(model, obj.data_store, layer_name);
+                dims = 1:length(size(obj.fc_act)); % create a dimention order vector
+                dims = [length(size(obj.fc_act)), dims(1:end - 1)]; % shift last dim (batch size) to be the first
+                obj.fc_act = squeeze(permute(obj.fc_act, dims));
                 obj.fc_act = reshape(obj.fc_act, [size(obj.fc_act,1), size(obj.fc_act,2)*size(obj.fc_act,3)]);
             else
                 disp(['No fully connected layer found, pls check the model architecture and the layers names.' newline...
@@ -173,6 +179,8 @@ classdef recording < handle & matlab.mixin.Copyable
                 scatter_2D(points, obj);
             elseif num_dim == 3
                 scatter_3D(points, obj);
+            else
+                disp('Unable to plot more than a 3D representation of the data!');
             end
         end
 

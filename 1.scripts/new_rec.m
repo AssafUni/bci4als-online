@@ -8,8 +8,8 @@
 % 5. run the script and follow the instructions in the command window
 % 6. when the simulation is finished stop the labrecorder!.
 
-% add relevant paths to the script
-addpath(genpath('C:\Users\tomer\Desktop\ALS\project\'));
+% a quick paths check and setup (if required) for the script
+script_setup()
 
 % call the simulation function
 MI1_Training();

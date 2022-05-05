@@ -13,10 +13,6 @@ if isempty(data)
     return 
 end
 
-% shift the data dimentions to match the input layer of sequential/image input 
-% layer - hXwXcXn (height,width,channels,number of images)
-data = cellfun(@(x) permute(x, [2,3,4,1]), data, 'UniformOutput', false);
-
 % create cells of the labels - notice we need to feed the datastore with
 % categorical instead of numeric labels
 if size(labels,1) == 1

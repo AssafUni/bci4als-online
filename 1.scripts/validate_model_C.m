@@ -9,20 +9,14 @@
 % bad recordings might be caused due to noise, placing electrodes in the
 % wrong position or hardware problems (which we can't fix ourselves)
 
-%% add and improve:
-% - a mechanism to identify if a new recording is good or not
-% - option to select a model only if you specify so
 
 clc; clear all; close all; %#ok<CLALL> 
-% add relevant paths to the script
-warning('off'); % suppress a warning about function names conflicts (there is nothing to do with it)
-addpath(genpath('C:\Users\tomer\Desktop\ALS\project\')); 
-addpath(genpath('C:\Users\tomer\Desktop\ALS\interfaces\'));  % #### change according to your local eeglab path ####
-warning('on');
+% a quick paths check and setup (if required) for the script
+script_setup()
 
 %% select folders to aggregate data from
 recorders = {'tomer', 'omri', 'nitay'}; % people we got their recordings
-folders_num = {[1, 3:13], [], []}; % recordings numbers - make sure that they exist
+folders_num = {[1:17], [1:5], []}; % recordings numbers - make sure that they exist
 data_paths = create_paths(recorders, folders_num);
 % apperantly we have bad recordings...
 % currently bad recordings from tomer: [2] 
@@ -34,11 +28,7 @@ model = mdl_struct.model;
 constants = options.constants;
 
 %% create a multi_recording class object from the paths and options
-recordings = cell(1,length(data_paths));
-for i = 1:length(data_paths)
-    recordings{i} = recording(data_paths{i}, options); % crete a class member for each path
-end
-all_rec = multi_recording(recordings); % create a class member from all paths
+all_rec = paths2Mrec(data_paths); % create a class member from all paths
 
 %% predict data classes and visualize the results
 all_rec.create_ds; % create a data store

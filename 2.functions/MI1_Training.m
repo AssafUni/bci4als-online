@@ -14,13 +14,11 @@ function [recordingFolder, testNum] = MI1_Training()
 
 %% Make sure you have Psychtoolbox & Lab Streaming Layer installed.
 % Set parameters (these will need to change according to your system):
-addpath(genpath('C:\Users\tomer\Desktop\ALS\interfaces\'))  
 constant = constants();
 
 % prompt to enter subject ID or name
 testNum = input('Please enter test number: ');
-%%%%% Change root folder according to your system %%%%%
-rootFolder = 'C:\Users\tomer\Desktop\ALS\project\3.recordings\new recordings'; 
+rootFolder = [constant.root_path '\3.recordings\new recordings'];
 % Define recording folder location and create the folder
 recordingFolder = strcat(rootFolder, '\Test', num2str(testNum), '\');
 if ~exist(recordingFolder, 'dir') % create the folder if its not exist

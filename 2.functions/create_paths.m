@@ -11,13 +11,23 @@ function data_paths = create_paths(recorders, folders_num)
 %               and labels
 %
 
+% get the local path of the project folder
+root_path = which("create_paths");
+root_path = split(root_path, {'\','/'});
+root_path = root_path(1:end - 2);
+if isunix
+    root_path = strjoin(root_path, '/'); 
+else
+    root_path = strjoin(root_path, '\'); 
+end
+
+% build the paths of the recordings files
 counter = 0;
 for i = 1:length(recorders)
     for j = 1:length(folders_num{i})
         counter = counter + 1;
-        curr_path = ['C:\Users\tomer\Desktop\ALS\project\3.recordings\rec_',...
-            recorders{i}, '\', 'Test', num2str(folders_num{i}(j))];
-        data_paths{counter} = curr_path;
+        path = fullfile(root_path, '3.recordings', strcat('rec_', recorders{i}), strcat('Test', num2str(folders_num{i}(j))));
+        data_paths{counter} = path; %#ok<AGROW> 
     end
 end
 end

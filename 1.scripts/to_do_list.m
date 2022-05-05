@@ -6,7 +6,6 @@
 % - run the bilstm model and compare to the lstm 
 % - add a wait bar when creating alot of 'recording' class members to keep
 % track on the progress
-% - fix the bugs in validate_model_c script when trying to visualize the fc
-% outputs
 % - in validate_model_c script, load the data into train,val,test,new_data
 % objects, so when visualizing them we can know who belogns to each set.
+% - validate the WGN we add as an augmentation

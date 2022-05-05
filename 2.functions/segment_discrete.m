@@ -31,6 +31,8 @@ for j = 1:length(times)
         sup_vec(j) = 1;
     end
 end
+times = [times, ((1:124).*(1./Fs) + times(end))]; % add time points for future concatenating
+sup_vec = [sup_vec, zeros(1,124)]; % add zeros for future concatenating
 sup_vec = [sup_vec; times];
 
 % get the labels
@@ -50,7 +52,8 @@ for i = 1:length(start_times_indices)
         seg_time_sampled(end) = [];
         continue
     end
-        segments(end + 1,:,:) = data(:,start_times_indices(i) - buff_start : start_times_indices(i) + segment_size + buff_end - 2);
+        segments(:,:,end + 1) = data(:,start_times_indices(i) - buff_start : start_times_indices(i) + segment_size + buff_end - 2);
 end
+segments(:,:,1) = []; % clear zeros
 end
 

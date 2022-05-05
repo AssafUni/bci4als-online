@@ -50,7 +50,7 @@ step_size = segment_size - overlap_size; % step size between 2 segments
 % initialize empty segments matrix and labels vector
 num_segments = floor((size(data,2) - segment_size)/step_size) + 1;
 num_channels = EEGstruct.nbchan;
-segments = zeros(num_segments, num_channels, segment_size);
+segments = zeros(num_channels, segment_size, num_segments);
 labels = zeros(num_segments, 1);
 
 % create a support vector containing the movement class in each timestamp
@@ -75,7 +75,7 @@ start_idx = 1;
 for i = 1:num_segments
     % create the ith segment
     seg_idx = (start_idx : start_idx + segment_size - 1); % data indices to segment
-    segments(i,:,:) = data(:,seg_idx); % enter the current segment into segments
+    segments(:,:,i) = data(:,seg_idx); % enter the current segment into segments
     start_idx = start_idx + step_size; % add step size to the starting index
 
     % track time stamps of the end of segments

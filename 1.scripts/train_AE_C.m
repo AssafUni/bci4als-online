@@ -14,18 +14,9 @@
 %   change it as you wish to match the path it is stored in your PC. 
 %
 
-%% things to add
-% 1. prediction section
-% 2. evaluation section
-% 3. clustering evaluation
-
-%%
 clc; clear all; close all;
-% add relevant paths to the script
-warning('off'); % suppress a warning about function names conflicts (there is nothing to do with it)
-addpath(genpath('..\')); 
-addpath(genpath('..\..\interfaces\eeglab2021.1\'))  % #### change according to your local eeglab path ####
-warning('on');
+% a quick paths check and setup (if required) for the script
+script_setup()
 
 %% select folders to aggregate data from
 recorders = {'tomer', 'omri', 'nitay'}; % people we got their recordings

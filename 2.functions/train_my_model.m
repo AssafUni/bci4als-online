@@ -35,6 +35,8 @@ elseif strcmp(algo, 'EEG_AE')
     model = eeg_AE(options.train_ds, options.val_ds, constants);
 elseif strcmp(algo, 'EEGNet_lstm')
     model = EEGNet_lstm(options.train_ds, options.val_ds, constants);
+elseif strcmp(algo, 'EEGNet_bilstm')
+    model = EEGNet_bilstm(options.train_ds, options.val_ds, constants);
 else
     [selected_feat_idx]  = MI5_feature_selection(options.features, options.labels);
     options.features = options.features(:,selected_feat_idx);
